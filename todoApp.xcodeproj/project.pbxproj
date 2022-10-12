@@ -24,6 +24,9 @@
 		C9083E9628E077EF006DEF47 /* UIColorEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9083E9528E077EF006DEF47 /* UIColorEx.swift */; };
 		C9083E9828E07AC6006DEF47 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9083E9728E07AC6006DEF47 /* MainViewController.swift */; };
 		C9083E9B28E08304006DEF47 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9083E9A28E08304006DEF47 /* Constant.swift */; };
+		C9E4A8AD28EAF24D0002FA8F /* ViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E4A8AC28EAF24D0002FA8F /* ViewModelProtocol.swift */; };
+		C9E4A8AF28EAF2AA0002FA8F /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E4A8AE28EAF2AA0002FA8F /* MainViewModel.swift */; };
+		C9E4A8B128EAFBAB0002FA8F /* TestController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E4A8B028EAFBAB0002FA8F /* TestController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +61,9 @@
 		C9083E9528E077EF006DEF47 /* UIColorEx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorEx.swift; sourceTree = "<group>"; };
 		C9083E9728E07AC6006DEF47 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		C9083E9A28E08304006DEF47 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
+		C9E4A8AC28EAF24D0002FA8F /* ViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelProtocol.swift; sourceTree = "<group>"; };
+		C9E4A8AE28EAF2AA0002FA8F /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
+		C9E4A8B028EAFBAB0002FA8F /* TestController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +130,9 @@
 				04457ED928A6033E00AF2EBB /* Assets.xcassets */,
 				04457EDE28A6033E00AF2EBB /* Info.plist */,
 				C9083E9728E07AC6006DEF47 /* MainViewController.swift */,
+				C9E4A8AC28EAF24D0002FA8F /* ViewModelProtocol.swift */,
+				C9E4A8AE28EAF2AA0002FA8F /* MainViewModel.swift */,
+				C9E4A8B028EAFBAB0002FA8F /* TestController.swift */,
 			);
 			path = todoApp;
 			sourceTree = "<group>";
@@ -338,8 +347,11 @@
 				04457ED528A6033B00AF2EBB /* LaunchViewController.swift in Sources */,
 				04457ED128A6033B00AF2EBB /* AppDelegate.swift in Sources */,
 				04457ED328A6033B00AF2EBB /* SceneDelegate.swift in Sources */,
+				C9E4A8AD28EAF24D0002FA8F /* ViewModelProtocol.swift in Sources */,
 				C9083E9828E07AC6006DEF47 /* MainViewController.swift in Sources */,
+				C9E4A8B128EAFBAB0002FA8F /* TestController.swift in Sources */,
 				C9083E9B28E08304006DEF47 /* Constant.swift in Sources */,
+				C9E4A8AF28EAF2AA0002FA8F /* MainViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

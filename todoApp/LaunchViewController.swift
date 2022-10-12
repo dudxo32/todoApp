@@ -32,8 +32,15 @@ class LaunchViewController: UIViewController {
             self.dismiss(animated: false)
             let moveVC = MainViewController()
             let scenceDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
+            let naviController = UINavigationController(rootViewController: moveVC)
+            naviController.navigationBar.topItem?.title = "$$"
+//            naviController.title = "#"
+                    naviController.navigationItem.title = "$"
+            
+            scenceDelegate.window?.rootViewController = naviController
+//            self.navigationController?.navigationBar.topItem?.title = "##"
 
-            scenceDelegate.window?.rootViewController =  UINavigationController(rootViewController: moveVC)
+//            scenceDelegate.window?.rootViewController?.tabBarItem.title = "EEE"
         }
 
         
