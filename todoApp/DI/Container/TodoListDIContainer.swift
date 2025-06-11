@@ -59,6 +59,38 @@ class TodoListDIContainer {
             arguments: initFilter, useCase
         )
     }
+    
+    func makeTodoListVCSwiftUI(
+        initFilter: TodoFilterType, env: DataEnvironment = .local
+    ) -> TodoListVCSwiftUI {
+        let repo = container.resolveOrFail(TodoRepository.self, argument: env)
+
+        let cache = container.resolveOrFail(TodoListCache.self)
+        let fetchUseCase = container.resolveOrFail(
+            (any FetchTodoUseCase).self, argument: repo
+        )
+        let deleteUseCase = container.resolveOrFail(
+            (any DeleteTodoUseCase).self,
+            arguments: repo, cache
+        )
+        let toggleDone = container.resolveOrFail(
+            (any ToggleTodoDoneUseCase).self,
+            arguments: repo, cache
+        )
+        
+        
+        let useCase = TodoListVMSwiftUI.UseCase(
+            fetch: fetchUseCase,
+            delete: deleteUseCase,
+            toggleDone: toggleDone,
+            cache: cache
+        )
+        
+        return self.container.resolveOrFail(
+            TodoListVCSwiftUI.self,
+            arguments: initFilter, useCase
+        )
+    }
 }
 
 final class TodoListAssembly: Assembly {
@@ -88,6 +120,32 @@ final class TodoListAssembly: Assembly {
             )
 
             return TodoListVC(initFilter: initFilter, vm: viewModel)
+        }
+        
+        // swiftUI vm 등록
+        container.register(TodoListVMSwiftUI.self) {
+            (
+                resolver,
+                initFilter: TodoFilterType,
+                useCase: TodoListVMSwiftUI.UseCase
+            ) in
+
+            return TodoListVMSwiftUI(useCase, initFilter: initFilter)
+        }
+        // swiftUI vc 등록
+        container.register(TodoListVCSwiftUI.self) {
+            (
+                resolver,
+                initFilter: TodoFilterType,
+                useCase: TodoListVMSwiftUI.UseCase
+            ) in
+            
+            let viewModel = resolver.resolveOrFail(
+                TodoListVMSwiftUI.self,
+                arguments: initFilter, useCase
+            )
+
+            return TodoListVCSwiftUI(viewModel: viewModel)
         }
     }
 }

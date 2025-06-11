@@ -9,11 +9,13 @@ import Foundation
 import RxRelay
 import RxSwift
 import UIKit
+import SwiftUI
 
 final class TodoListCoordinator: CoordinatorProcotcol {
     let navigationController: UINavigationController
     let todoListVC: TodoListVC
-
+    let todoListVCSwiftUI: TodoListVCSwiftUI
+    
     let disposeBag = DisposeBag()
 
     init(
@@ -22,11 +24,13 @@ final class TodoListCoordinator: CoordinatorProcotcol {
     ) {
         self.navigationController = navigationController
         self.todoListVC = diContainer.makeTodoListVC(initFilter: .today)
+        self.todoListVCSwiftUI = diContainer.makeTodoListVCSwiftUI(initFilter: .today)
     }
 
     func start() {
-        navigationController.viewControllers = [todoListVC]
-
+//        navigationController.viewControllers = [todoListVC]
+        navigationController.viewControllers = [UIHostingController(rootView: todoListVCSwiftUI)]
+        
         bindPresentCreateVC()
         bindPresentEditVC()
     }

@@ -15,20 +15,6 @@ import RxSwift
 // MARK: 데이터 캐싱 및 분리 타입
 
 // MARK: - ViewModel에서 사용하는 데이터 모델
-struct TodoSection {
-    var header: String
-    var items: [Item]
-}
-
-extension TodoSection: SectionModelType {
-    typealias Item = TodoModelProtocol
-
-    init(original: TodoSection, items: [Item]) {
-        self = original
-        self.items = items
-    }
-}
-
 extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
     struct UseCase {
         let fetch: any FetchTodoUseCase
