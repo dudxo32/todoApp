@@ -8,6 +8,7 @@
 import Foundation
 import RxSwift
 import UIKit
+import SwiftUI
 
 extension EditableTodoCoordinator: HasRxIO {
     typealias Input = Empty
@@ -26,7 +27,8 @@ class EditableTodoCoordinator: CoordinatorProcotcol {
 
     let navigationController: UINavigationController
     let editableVC: EditableTodoVC
-
+    let editableVCSwiftUI: EditableTodoVCSwiftUI
+    
     let output = Output()
     let disposeBag = DisposeBag()
 
@@ -43,6 +45,8 @@ class EditableTodoCoordinator: CoordinatorProcotcol {
         case .edit(let todo):
             self.editableVC = diContainer.makeEditTodoVC(todoModel: todo)
         }
+        
+        self.editableVCSwiftUI = diContainer.makeCreateTodoVCSwiftUI()
     }
 
     func start() {
@@ -52,6 +56,7 @@ class EditableTodoCoordinator: CoordinatorProcotcol {
     private func presentEditableVC() {
         let modalNavi = UINavigationController()
         modalNavi.viewControllers = [editableVC]
+//        modalNavi.viewControllers = [UIHostingController(rootView: editableVCSwiftUI)]
         
         self.navigationController.present(modalNavi, animated: true) {
             switch self.editableVC {

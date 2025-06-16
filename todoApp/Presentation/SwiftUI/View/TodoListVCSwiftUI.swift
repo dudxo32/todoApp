@@ -65,6 +65,8 @@ private struct ListView: View {
 struct TodoListVCSwiftUI: View {
     @ObservedObject var viewModel:TodoListVMSwiftUI
     @State private var isShowingError = false
+    @State private var isShowCreate = false
+    @State private var writtenTodo:TodoModel?
 
     init(viewModel: TodoListVMSwiftUI) {
         self.viewModel = viewModel
@@ -81,13 +83,13 @@ struct TodoListVCSwiftUI: View {
                     
                 TabView(viewModel: viewModel)
             }
+            
+        
         }
         .navigationTitle(I18N.todo)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { print("버튼 눌림") }) {
-                    Image(systemName:"plus.circle.fill")
-                }
+                plusButton
             }
         }
         .alert(
@@ -102,7 +104,24 @@ struct TodoListVCSwiftUI: View {
         } message: {
             Text(viewModel.error?.localizedDescription ?? "")
         }
+     
     }
+    
+    @ViewBuilder
+    var plusButton:some View {
+        Button(action: { isShowCreate.toggle() }) {
+            Image(systemName:"plus.circle.fill")
+        }
+        .sheet(isPresented: $isShowCreate) {
+            EditableTodoVCSwiftUI($writtenTodo)
+        }
+        .onChange(of: writtenTodo) { newValue in
+            guard let newValue = newValue else { return }
+            viewModel.action(.addedItem(newValue))
+        }
+    }
+    
+    
 }
 
     

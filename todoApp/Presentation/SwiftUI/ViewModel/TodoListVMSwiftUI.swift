@@ -19,7 +19,7 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
     
     enum Action {
         case fetchItems
-        case addedItem(_ value: TodoModelProtocol)
+        case addedItem(_ value: TodoModel)
         case edittedItem(_ value: TodoModelProtocol)
         case tapDelete(_ value: TodoModel)
         case tapFilter(_ value: TodoFilterType)
@@ -30,9 +30,9 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
     private let useCase: UseCase
     var cancellables = Set<AnyCancellable>()
     
-    @Published var item = [TodoSection]()
-    @Published var selectedFilter:TodoFilterType
-    @Published var error: Error?
+    @Published private(set) var item = [TodoSection]()
+    @Published private(set) var selectedFilter:TodoFilterType
+    @Published private(set) var error: Error?
     
     @Published fileprivate var allItmes = [TodoModel]()
     @Published private var cachedGroup:TodoGroup = [:]
@@ -77,6 +77,7 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
             bindFetchItemsToAll()
             break
         case .addedItem(let value):
+            bindAddedTodo(value)
             break
         case .edittedItem(let value):
             break
@@ -120,6 +121,17 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
             .sink { (self, value) in self.allItmes = value }
             
             .store(in: &cancellables)
+    }
+    
+    private func bindAddedTodo(_ todo:TodoModel) {
+        
+        let list = self.allItmes.map { TodoMapper.toEntity($0) }
+        let targetEntity = TodoMapper.toEntity(todo)
+        let response = self.useCase.cache.addItemInList(targetEntity, list: list).map(
+            TodoMapper.toModel
+        )
+        
+        self.allItmes = response
     }
     
     private func bindDelete(_ todo:TodoModel) {
@@ -198,7 +210,6 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
         }
         .eraseToAnyPublisher()
     }
-    
     
     // MARK: -
     private func makeTapGroup(_ items: [TodoModel]) -> TodoGroup {
