@@ -113,7 +113,7 @@ struct TodoListVCSwiftUI: View {
             Image(systemName:"plus.circle.fill")
         }
         .sheet(isPresented: $isShowCreate) {
-            EditableTodoVCSwiftUI($writtenTodo)
+            CreatableTodoVCSwiftUI($writtenTodo)
         }
         .onChange(of: writtenTodo) { newValue in
             guard let newValue = newValue else { return }

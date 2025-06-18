@@ -30,31 +30,76 @@ struct WriteableState {
     }
 }
 
-enum WriteableAction {
+enum WritableAction {
     case titleInput(_ value:String)
     case dateInput(_ value: Date)
     case content(_ value: String)
     case doWrite
 }
 
-protocol WritableTodoVMSwiftUI: ObservableObject, ViewModelableSwiftUI where Action == WriteableAction {
+protocol WritableTodoVMSwiftUI {
     var state: WriteableState { get }
     var error: Error? { get }
-    var writenTodo: TodoModel? { get }
+    var writtenTodo: TodoModel? { get }
 }
 
-class CreateTodoVMSwiftUI: WritableTodoVMSwiftUI {
+class AnyWritableTodoVMSwiftUI: WritableTodoVMSwiftUI {
+    var state: WriteableState {
+        get { base.state }
+        set { base.input(newValue) }
+    }
+    var bindingState:Binding<WriteableState>
+
+    var writtenTodo:TodoModel? {
+        get { base.writtenTodo }
+    }
+    private let base: any WritableConcrete
+
+    private(set) var error: (any Error)?
+    
+    private let _action: (WritableAction) -> Void
+    private var cancellables = Set<AnyCancellable>()
+
+    init<VM: WritableConcrete>(_ base: VM) {    
+        self.base = base
+        self.error = base.error
+        self._action = base.action
+
+        self.bindingState = Binding(
+            get: { base.state },
+            set: { base.input($0) }
+        )
+    }
+}
+
+protocol WritableConcrete: WritableTodoVMSwiftUI, ViewModelableSwiftUI where Action == WritableAction  {
+    func input(_ s:WriteableState) -> Void
+    func inputWritten(_ w:TodoModel?) -> Void
+}
+
+class CreateTodoVMSwiftUI: WritableConcrete {
     struct UseCase {
         let addTodo: any AddTodoUseCase
     }
-    
+
     @Published var state:WriteableState
     @Published private(set) var error: Error?
-    @Published private(set) var writenTodo: TodoModel?
+    @Published private(set) var writtenTodo: TodoModel?
 
     private let useCase: UseCase
     var cancellables = Set<AnyCancellable>()
 
+    var statePublisher: Published<WriteableState>.Publisher { $state }
+    var writtenTodoPublisher: Published<TodoModel?>.Publisher { $writtenTodo }
+    
+    func input(_ s: WriteableState) {
+        state = s
+    }
+    
+    func inputWritten(_ w: TodoModel?) {
+        writtenTodo = w
+    }
+    
     init(_ useCase: UseCase) {
         self.state = WriteableState(title: "", date: nil, content: "")
         
@@ -90,7 +135,7 @@ class CreateTodoVMSwiftUI: WritableTodoVMSwiftUI {
                 return Combine.Empty<TodoModel, Never>()
             }
             .withUnretained(self)
-            .sink { (self, value) in self.writenTodo = value }
+            .sink { (self, value) in self.writtenTodo = value }
             .store(in: &cancellables)
     }
     

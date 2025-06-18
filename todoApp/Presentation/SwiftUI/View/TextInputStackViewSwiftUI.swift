@@ -29,6 +29,9 @@ struct TextInputStackViewSwiftUI: View {
                         .opacity(contents.isEmpty ? 1 : 0)
                 })
         }
+        .onChange(of: contents, perform: { newValue in
+            print(newValue)
+        })
         .padding(8)
         .overlay(
             RoundedRectangle(cornerRadius: 10)

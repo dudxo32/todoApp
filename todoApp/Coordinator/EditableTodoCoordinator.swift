@@ -27,7 +27,7 @@ class EditableTodoCoordinator: CoordinatorProcotcol {
 
     let navigationController: UINavigationController
     let editableVC: EditableTodoVC
-    let editableVCSwiftUI: EditableTodoVCSwiftUI
+    let editableVCSwiftUI: CreatableTodoVCSwiftUI
     
     let output = Output()
     let disposeBag = DisposeBag()

@@ -43,7 +43,7 @@ class EditableTodoDIContainer {
         return container.resolveOrFail(CreateTodoVC.self, argument: useCase)
     }
 
-    func makeCreateTodoVCSwiftUI(_ env: DataEnvironment = .local) -> EditableTodoVCSwiftUI {
+    func makeCreateTodoVCSwiftUI(_ env: DataEnvironment = .local) -> CreatableTodoVCSwiftUI {
 //        let repo = makeRepository(env)
 //
 //        let addTodo = container.resolveOrFail(
@@ -53,7 +53,7 @@ class EditableTodoDIContainer {
 //
 //        let useCase = CreateTodoVM.UseCase(addTodo: addTodo, EditTodo: editTodo)
 
-        return container.resolveOrFail(EditableTodoVCSwiftUI.self)
+        return container.resolveOrFail(CreatableTodoVCSwiftUI.self)
     }
     
     func makeEditTodoVC(
@@ -96,14 +96,14 @@ final class TodoEditableAssembly: Assembly {
         }
         
         // 생성 화면 SwiftUI 등록
-        container.register(EditableTodoVCSwiftUI.self) {
+        container.register(CreatableTodoVCSwiftUI.self) {
             /*(*/resolver/*, useCase: CreateTodoVM.UseCase)*/ in
 //            let viewModel = resolver.resolveOrFail(
 //                CreateTodoVM.self,
 //                argument: useCase
 //            )
 
-            return EditableTodoVCSwiftUI(.constant(nil))
+            return CreatableTodoVCSwiftUI(.constant(nil))
         }
         
         // 수정 vm 등록
