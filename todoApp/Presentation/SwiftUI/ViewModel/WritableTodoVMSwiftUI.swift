@@ -37,47 +37,46 @@ enum WritableAction {
     case doWrite
 }
 
-protocol WritableTodoVMSwiftUI {
-    var state: WriteableState { get }
+protocol ActionObservableObject: ViewModelObservableObject where Action == WritableAction {}
+
+protocol WritableTodoOutput: ObservableObject {
+    var state: WriteableState { get set }
     var error: Error? { get }
     var writtenTodo: TodoModel? { get }
 }
-
-class AnyWritableTodoVMSwiftUI: WritableTodoVMSwiftUI {
+/*
+class AnyWritableTodoVMSwiftUI: ActionObservableObject, WritableTodo {
+    private let base: any WritableConcrete
+    private let _action: (WritableAction) -> Void
+    
     var state: WriteableState {
         get { base.state }
-        set { base.input(newValue) }
+        set { base.setState(newValue) }
     }
-    var bindingState:Binding<WriteableState>
 
     var writtenTodo:TodoModel? {
         get { base.writtenTodo }
     }
-    private let base: any WritableConcrete
-
-    private(set) var error: (any Error)?
     
-    private let _action: (WritableAction) -> Void
-    private var cancellables = Set<AnyCancellable>()
+    var error: (any Error)? {
+        get { base.error }
+    }
 
-    init<VM: WritableConcrete>(_ base: VM) {    
+    init(_ base: any WritableConcrete) {    
         self.base = base
-        self.error = base.error
         self._action = base.action
-
-        self.bindingState = Binding(
-            get: { base.state },
-            set: { base.input($0) }
-        )
+    }
+    
+    func action(_ action: WritableAction) {
+        _action(action)
     }
 }
 
-protocol WritableConcrete: WritableTodoVMSwiftUI, ViewModelableSwiftUI where Action == WritableAction  {
-    func input(_ s:WriteableState) -> Void
-    func inputWritten(_ w:TodoModel?) -> Void
+protocol WritableConcrete: WritableTodo, ActionObservableObject {
+    func setState(_ value:WriteableState) -> Void
 }
-
-class CreateTodoVMSwiftUI: WritableConcrete {
+*/
+class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput {
     struct UseCase {
         let addTodo: any AddTodoUseCase
     }
@@ -88,22 +87,14 @@ class CreateTodoVMSwiftUI: WritableConcrete {
 
     private let useCase: UseCase
     var cancellables = Set<AnyCancellable>()
-
-    var statePublisher: Published<WriteableState>.Publisher { $state }
-    var writtenTodoPublisher: Published<TodoModel?>.Publisher { $writtenTodo }
-    
-    func input(_ s: WriteableState) {
-        state = s
-    }
-    
-    func inputWritten(_ w: TodoModel?) {
-        writtenTodo = w
-    }
     
     init(_ useCase: UseCase) {
         self.state = WriteableState(title: "", date: nil, content: "")
-        
         self.useCase = useCase
+    }
+    
+    func setState(_ value: WriteableState) {
+        state = value
     }
     
     func action(_ action: Action) {
@@ -150,6 +141,89 @@ class CreateTodoVMSwiftUI: WritableConcrete {
                             title: self.state.title,
                             contents: self.state.content,
                             date: date
+                        )
+                        
+                        promise(.success(TodoMapper.toModel(res)))
+                    } catch  {
+                        promise(.failure(error))
+                    }
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
+
+class EditTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput {
+    struct UseCase {
+        let editTodo: any EditTodoUseCase
+    }
+
+    @Published var state:WriteableState
+    @Published private(set) var error: Error?
+    @Published private(set) var writtenTodo: TodoModel?
+
+    private let todo:TodoModelProtocol
+    private let useCase: UseCase
+    var cancellables = Set<AnyCancellable>()
+
+    init(_ todo:TodoModelProtocol, useCase: UseCase) {
+        self.todo = todo
+        self.state = WriteableState(title: todo.title, date: todo.date, content: todo.contents)
+        self.useCase = useCase
+    }
+    
+    func setState(_ value: WriteableState) {
+        state = value
+    }
+    
+    func action(_ action: Action) {
+        switch action {
+        case .titleInput(let value):
+            state = state.copyWith(title: value)
+            break
+            
+        case .dateInput(let value):
+            state = state.copyWith(date: value)
+            break
+            
+        case .content(let value):
+            state = state.copyWith(contents: value)
+            break
+            
+        case .doWrite:
+            bindEdit()
+            break
+            
+        }
+    }
+    
+    private func bindEdit() {
+        handleEdit()
+            .receive(on: DispatchQueue.main)
+            .catch { [weak self] error  in
+                self?.error = error
+                return Combine.Empty<TodoModel, Never>()
+            }
+            .withUnretained(self)
+            .sink { (self, value) in self.writtenTodo = value }
+            .store(in: &cancellables)
+    }
+    
+    private func handleEdit() -> AnyPublisher<TodoModel, Error> {
+        return Deferred {
+            return  Future<TodoModel, Error> {[weak self] promise in
+                guard let self = self else { return }
+                
+                Task  {
+                    do {
+                        let entity = TodoMapper.toEntity(self.todo)
+                        let res = try await self.useCase.editTodo.execute(
+                            entity,
+                            newTitle: self.state.title,
+                            newDate: self.state.date,
+                            newContents: self.state.content
                         )
                         
                         promise(.success(TodoMapper.toModel(res)))

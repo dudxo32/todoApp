@@ -7,7 +7,7 @@
 import SwiftUI
 //import Combine
 
-protocol ViewModelableSwiftUI: ObservableObject {
+protocol ViewModelObservableObject: ObservableObject {
   associatedtype Action
   
   func action(_ action: Action)

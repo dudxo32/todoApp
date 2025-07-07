@@ -73,7 +73,7 @@
 		C9DB5FB92D801F7600B72B5D /* TodoRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DB5FB82D801F7600B72B5D /* TodoRealm.swift */; };
 		C9DB5FC52D80258200B72B5D /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = C9DB5FC42D80258200B72B5D /* Realm */; };
 		C9DB5FC72D80258200B72B5D /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C9DB5FC62D80258200B72B5D /* RealmSwift */; };
-		C9DE96462DF943CE00C1D430 /* CreatableTodoVCSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DE96452DF943CE00C1D430 /* CreatableTodoVCSwiftUI.swift */; };
+		C9DE96462DF943CE00C1D430 /* WritableTodoVCSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DE96452DF943CE00C1D430 /* WritableTodoVCSwiftUI.swift */; };
 		C9E4A8AD28EAF24D0002FA8F /* ViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E4A8AC28EAF24D0002FA8F /* ViewModelProtocol.swift */; };
 		C9E5382C2DA5081000D529D8 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = C9E5382B2DA5081000D529D8 /* Swinject */; };
 		C9E5382F2DA50D9F00D529D8 /* EditableTodoDIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E5382E2DA50D9F00D529D8 /* EditableTodoDIContainer.swift */; };
@@ -160,7 +160,7 @@
 		C9CBB8422D9D097A00747A70 /* TextInputStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputStackView.swift; sourceTree = "<group>"; };
 		C9CBB8442D9D24AE00747A70 /* DateInputStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInputStackView.swift; sourceTree = "<group>"; };
 		C9DB5FB82D801F7600B72B5D /* TodoRealm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRealm.swift; sourceTree = "<group>"; };
-		C9DE96452DF943CE00C1D430 /* CreatableTodoVCSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatableTodoVCSwiftUI.swift; sourceTree = "<group>"; };
+		C9DE96452DF943CE00C1D430 /* WritableTodoVCSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritableTodoVCSwiftUI.swift; sourceTree = "<group>"; };
 		C9E4A8AC28EAF24D0002FA8F /* ViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelProtocol.swift; sourceTree = "<group>"; };
 		C9E5382E2DA50D9F00D529D8 /* EditableTodoDIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableTodoDIContainer.swift; sourceTree = "<group>"; };
 		C9E538302DA5178B00D529D8 /* AppDIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDIContainer.swift; sourceTree = "<group>"; };
@@ -563,7 +563,7 @@
 			children = (
 				C9F1EA522DF157FA00654522 /* TodoListVCSwiftUI.swift */,
 				C90D7C492DF2B24C00B81833 /* TodoCellSwiftUI.swift */,
-				C9DE96452DF943CE00C1D430 /* CreatableTodoVCSwiftUI.swift */,
+				C9DE96452DF943CE00C1D430 /* WritableTodoVCSwiftUI.swift */,
 				C942199A2DFBF4FD008997CC /* DateInputStackViewSwiftUI.swift */,
 				C9F7D9742DFAB60500D9B959 /* TextInputStackViewSwiftUI.swift */,
 			);
@@ -776,7 +776,7 @@
 				C9AE730E2DC371E300F1C5EE /* EditableTodoCoordinator.swift in Sources */,
 				C9AE730C2DC354CD00F1C5EE /* CoordinatorProcotocol.swift in Sources */,
 				C9DB5FB92D801F7600B72B5D /* TodoRealm.swift in Sources */,
-				C9DE96462DF943CE00C1D430 /* CreatableTodoVCSwiftUI.swift in Sources */,
+				C9DE96462DF943CE00C1D430 /* WritableTodoVCSwiftUI.swift in Sources */,
 				C9BC81C42DCC8A170094CCDC /* TodoDataSourceProtocol.swift in Sources */,
 				04457ED128A6033B00AF2EBB /* AppDelegate.swift in Sources */,
 				C96C4C7B2DD0917D00AAA8AD /* EditTodoUseCase.swift in Sources */,

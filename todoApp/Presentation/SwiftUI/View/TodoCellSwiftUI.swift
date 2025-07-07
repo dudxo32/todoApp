@@ -40,8 +40,10 @@ private struct CircularCheckButton: View {
 }
 
 struct TodoCellSwiftUI: View {
-    var model: TodoModelProtocol
+    let model: TodoModelProtocol
     let isDoneChanged: (_ changedValue:Bool) -> Void
+    
+    @State private var isPresentingDetail = false
 
     var dateStr: String {
         let formatter = DateFormatter()

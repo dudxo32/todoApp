@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 var isPreview: Bool {
 #if DEBUG
@@ -26,15 +27,19 @@ private struct NoListLabel: View {
 
 private struct ListView: View {
     @ObservedObject var viewModel:TodoListVMSwiftUI
-    
+    @State private var tapCellItem:TodoModel?
+
     var body: some View {
         List {
             ForEach(viewModel.item) { section in
                 Section(header: Text(section.header)) {
                     ForEach(section.items) { item in
-                        TodoCellSwiftUI(model: item) { _ in
-                            viewModel.action(.toggleDone(item))
+                        
+                        TodoCellSwiftUI(model: item) {
+                            _ in viewModel.action(.toggleDone(item))
                         }
+                        .contentShape(Rectangle())
+                        .onTapGesture { tapCellItem = item }
                         .listRowInsets(
                             EdgeInsets(
                                 top: 8,
@@ -51,9 +56,13 @@ private struct ListView: View {
                             }
                             
                         }
-                        
                     }
                 }
+            }
+        }
+        .sheet(item: $tapCellItem) { item in
+            EditableTodoVCSwiftUI(item) { newValue in
+                viewModel.action(.edittedItem(newValue))
             }
         }
         .scrollContentBackground(.hidden)
@@ -61,12 +70,18 @@ private struct ListView: View {
         .ignoresSafeArea()
     }
 }
-
+struct OptionalEquatable<T: Equatable>: Equatable {
+    let value: T?
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.value == rhs.value
+    }
+}
 struct TodoListVCSwiftUI: View {
     @ObservedObject var viewModel:TodoListVMSwiftUI
     @State private var isShowingError = false
     @State private var isShowCreate = false
-    @State private var writtenTodo:TodoModel?
+    @State private var addedTodo:TodoModel?
 
     init(viewModel: TodoListVMSwiftUI) {
         self.viewModel = viewModel
@@ -113,15 +128,10 @@ struct TodoListVCSwiftUI: View {
             Image(systemName:"plus.circle.fill")
         }
         .sheet(isPresented: $isShowCreate) {
-            CreatableTodoVCSwiftUI($writtenTodo)
-        }
-        .onChange(of: writtenTodo) { newValue in
-            guard let newValue = newValue else { return }
-            viewModel.action(.addedItem(newValue))
+            CreatableTodoVCSwiftUI($addedTodo) {newValue in
+                viewModel.action(.addedItem(newValue))}
         }
     }
-    
-    
 }
 
     
@@ -187,7 +197,11 @@ struct TabView: View {
     
 #Preview {
     let today = Date()
-    let modifiedDate = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+    let modifiedDate = Calendar.current.date(
+        byAdding: .day,
+        value: 1,
+        to: today
+    )!
     
     ZStack {
         TodoListVCSwiftUI(

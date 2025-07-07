@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
+class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject {
     
     struct UseCase {
         let fetch: any FetchTodoUseCase
@@ -20,7 +20,7 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
     enum Action {
         case fetchItems
         case addedItem(_ value: TodoModel)
-        case edittedItem(_ value: TodoModelProtocol)
+        case edittedItem(_ value: TodoModel)
         case tapDelete(_ value: TodoModel)
         case tapFilter(_ value: TodoFilterType)
         case toggleDone(_ value: TodoModel)
@@ -80,6 +80,7 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
             bindAddedTodo(value)
             break
         case .edittedItem(let value):
+            bindEdited(value)
             break
         case .tapDelete(let value):
             bindDelete(value)
@@ -110,16 +111,14 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
     
     private func bindToggleDone(_ todo:TodoModel) {
         handleChanged(todo)
-            .retry(3)
             .receive(on: DispatchQueue.main)
+            .retry(3)
             .catch { [weak self] error  in
                 self?.error = error
                 return Combine.Empty<[TodoModel], Never>()
             }
             .withUnretained(self)
-            
             .sink { (self, value) in self.allItmes = value }
-            
             .store(in: &cancellables)
     }
     
@@ -146,6 +145,20 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
             .store(in: &cancellables)
     }
     
+    private func bindEdited(_ todo:TodoModel) {
+        do {
+            let list = self.allItmes.map { TodoMapper.toEntity($0) }
+            let targetEntity = TodoMapper.toEntity(todo)
+            let response = try self.useCase.cache.changeItemInList(targetEntity, list: list).map(
+                TodoMapper.toModel
+            )
+            
+            self.allItmes = response
+        } catch {
+            self.error = error
+        }
+    }
+    
     private func handleFetching() -> AnyPublisher<[TodoModel], Error> {
         return Deferred {
             return  Future<[TodoModel], Error> { promise in
@@ -170,8 +183,6 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelableSwiftUI {
                 guard let self = self else { return }
 
                 Task  {
-                    promise(.failure(TodoError.notFound))
-
                     do {
                         let list = self.allItmes.map { TodoMapper.toEntity($0) }
                         let changedTodo = TodoMapper.toEntity(todo)

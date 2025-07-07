@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-private struct WritableTodoVCSwiftUI: View {
-    var vm: AnyWritableTodoVMSwiftUI
+struct WritableTodoVCSwiftUI<VM:WritableTodoOutput> : View {
+    @ObservedObject var vm: VM
 
-    init(_ vm: AnyWritableTodoVMSwiftUI) {
+    init(_ vm: VM) {
         self.vm = vm
     }
 
@@ -19,11 +19,11 @@ private struct WritableTodoVCSwiftUI: View {
             LazyVStack {
                 VStack(spacing: 8) {
                     TextInputStackViewSwiftUI(
-                        title: vm.bindingState.title,
-                        contents: vm.bindingState.content
+                        title: $vm.state.title,
+                        contents: $vm.state.content
                     )
 
-                    DateInputStackViewSwiftUI(date: vm.bindingState.date)
+                    DateInputStackViewSwiftUI(date: $vm.state.date)
                     Spacer()
                 }
 
@@ -33,31 +33,29 @@ private struct WritableTodoVCSwiftUI: View {
     }
 }
 
-private struct WriteToolbarModifier: ViewModifier {
-    var vm: AnyWritableTodoVMSwiftUI
+private struct WriteToolbarModifier<VM: ActionObservableObject & WritableTodoOutput>: ViewModifier {
+    @ObservedObject var vm: VM
+    @Environment(\.dismiss) private var dismiss
+    
     let buttonTitle: String
-    let buttonAction: () -> Void
     let didCompleteWriting: (TodoModel) -> Void
     let title: String
-    @Environment(\.dismiss) private var dismiss
 
     var buttonColor: Color {
         vm.state.isValid
-            ? Color(uiColor: .systemBlue)
-            : Color(uiColor: .systemGray)
+        ? Color(uiColor: .systemBlue)
+        : Color(uiColor: .systemGray)
     }
 
     init(
-        _ vm: AnyWritableTodoVMSwiftUI,
+        _ vm: VM,
         title: String,
         buttonTitle: String,
-        buttonAction: @escaping () -> Void,
         didCompleteWriting: @escaping (TodoModel) -> Void
     ) {
         self.vm = vm
         self.title = title
         self.buttonTitle = buttonTitle
-        self.buttonAction = buttonAction
         self.didCompleteWriting = didCompleteWriting
     }
 
@@ -67,7 +65,7 @@ private struct WriteToolbarModifier: ViewModifier {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(buttonTitle) { buttonAction() }
+                    Button(buttonTitle) { vm.action(.doWrite) }
                         .disabled(!vm.state.isValid)
                         .foregroundStyle(buttonColor)
                         .onChange(of: vm.writtenTodo) { newValue in
@@ -81,11 +79,10 @@ private struct WriteToolbarModifier: ViewModifier {
 }
 
 private extension View {
-    func createNavigationItem(
-        _ vm: AnyWritableTodoVMSwiftUI,
+    func createNavigationItem<VM: ActionObservableObject & WritableTodoOutput> (
+        _ vm: VM,
         title: String,
         buttonTitle: String,
-        buttonAction: @escaping () -> Void,
         didCompleteWriting: @escaping (TodoModel) -> Void
     ) -> some View {
         modifier(
@@ -93,7 +90,6 @@ private extension View {
                 vm,
                 title: title,
                 buttonTitle: buttonTitle,
-                buttonAction: buttonAction,
                 didCompleteWriting: didCompleteWriting
             )
         )
@@ -101,16 +97,14 @@ private extension View {
 }
 
 protocol WritableView: View {
-    var anyViewModel: AnyWritableTodoVMSwiftUI { get }
+    var didCompleteWriting: (TodoModel) -> Void { get }
 }
 
 struct CreatableTodoVCSwiftUI: WritableView {
     @ObservedObject var viewModel: CreateTodoVMSwiftUI
-    @Binding var writtenTodo: TodoModel?
+    let didCompleteWriting: (TodoModel) -> Void
 
-    var anyViewModel: AnyWritableTodoVMSwiftUI
-    
-    init(_ writtenTodo: Binding<TodoModel?>) {
+    init(_ writtenTodo: Binding<TodoModel?>, didCompleteWriting: @escaping (TodoModel) -> Void) {
         let viewModel = CreateTodoVMSwiftUI(
             CreateTodoVMSwiftUI
                 .UseCase(
@@ -120,32 +114,68 @@ struct CreatableTodoVCSwiftUI: WritableView {
                 )
         )
 
-        self._writtenTodo = writtenTodo
+        self.didCompleteWriting = didCompleteWriting
         self.viewModel = viewModel
-        self.anyViewModel = .init(viewModel)
     }
 
     var body: some View {
         NavigationStack {
-            WritableTodoVCSwiftUI(anyViewModel)
-                .createNavigationItem(
-                    anyViewModel,
-                    title: I18N.createTodo,
-                    buttonTitle: I18N.confirm,
-                    buttonAction: { self.viewModel.action(.doWrite) },
-                    didCompleteWriting: { self.writtenTodo = $0 }
-                )
+            WritableTodoVCSwiftUI(viewModel)
+            .createNavigationItem(
+                viewModel,
+                title: I18N.createTodo,
+                buttonTitle: I18N.done,
+                didCompleteWriting: didCompleteWriting
+            )
         }
 
     }
 }
+
+struct EditableTodoVCSwiftUI: WritableView {
+    @ObservedObject var viewModel: EditTodoVMSwiftUI
+    let didCompleteWriting: (TodoModel) -> Void
+
+    init(
+        _ todo:TodoModelProtocol,
+        didCompleteWriting: @escaping (TodoModel) -> Void
+    ) {
+        let viewModel = EditTodoVMSwiftUI(
+            todo,
+            useCase: EditTodoVMSwiftUI
+                .UseCase(
+                    editTodo: DefaultEditTodoUseCase(
+                        repository: TodoRepositoryImpl(TodoLocalDataSource())
+                    )
+                )
+        )
+
+        self.didCompleteWriting = didCompleteWriting
+        self.viewModel = viewModel
+    }
+
+    var body: some View {
+        NavigationStack {
+            WritableTodoVCSwiftUI(viewModel)
+
+            .createNavigationItem(
+                viewModel,
+                title: I18N.editTodo,
+                buttonTitle: I18N.done,
+                didCompleteWriting: didCompleteWriting
+            )
+        }
+
+    }
+}
+
 
 #Preview {
     @State var a = "title"
     @State var b = "content"
     @State var d: TodoModel?
     NavigationStack {
-        CreatableTodoVCSwiftUI($d)
+        CreatableTodoVCSwiftUI($d, didCompleteWriting: {_ in })
     }
 
 }
