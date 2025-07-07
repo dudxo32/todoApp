@@ -10,13 +10,15 @@ import Differentiator
 
 typealias TodoGroup = [TodoFilterType: [TodoModel]]
 
-enum TodoFilterType: Int {
+enum TodoFilterType: Int, Identifiable {
+    var id:Int { self.rawValue }
+    
     case past = 2
     case today = 0
     case future = 1
 
     static var values: [TodoFilterType] {
-        return [.today, .future, .past]
+        return [ .past, .today, .future]
     }
 }
 
@@ -56,7 +58,7 @@ struct TodoModel: TodoModelProtocol {
     }
 }
 
-extension TodoModel: Equatable {
+extension TodoModel: Equatable, Identifiable {
     static func == (lhs: TodoModel, rhs: TodoModel) -> Bool {
         let isSameDay = Calendar.current.isDate(lhs.date, inSameDayAs: rhs.date)
 
@@ -85,4 +87,26 @@ extension TodoModel: Equatable {
 
 extension TodoModel: IdentifiableType {
     var identity: String { self.id }
+}
+
+struct TodoSection: Identifiable {
+    var id:String
+    
+    var header: String
+    var items: [Item]
+    
+    init(header: String, items: [Item]) {
+        self.id = UUID().uuidString
+        self.header = header
+        self.items = items
+    }
+}
+
+extension TodoSection: SectionModelType {
+    typealias Item = TodoModel
+
+    init(original: TodoSection, items: [Item]) {
+        self = original
+        self.items = items
+    }
 }
