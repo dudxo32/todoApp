@@ -45,6 +45,7 @@ protocol WritableTodoOutput: ObservableObject {
     var error: Error? { get }
     var writtenTodo: TodoModel? { get }
 }
+
 /*
 class AnyWritableTodoVMSwiftUI: ActionObservableObject, WritableTodo {
     private let base: any WritableConcrete
@@ -78,7 +79,7 @@ protocol WritableConcrete: WritableTodo, ActionObservableObject {
 }
 */
 class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
-    LoadingProtocolSwiftUI
+                           LoadingProtocolSwiftUI, RetryProtocolSwiftUI
 {
     struct UseCase {
         let addTodo: any AddTodoUseCase
@@ -86,11 +87,13 @@ class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
 
     @Published var state: WriteableState
     @Published private(set) var error: Error?
+    @Published private(set) var retryError: Error?
     @Published private(set) var writtenTodo: TodoModel?
     @Published private(set) var isShowLoadingIndicator: Bool = false
 
     private let useCase: UseCase
     var cancellables = Set<AnyCancellable>()
+    let retryTrigger = PassthroughSubject<Void, Never>()
 
     init(_ useCase: UseCase) {
         self.state = WriteableState(title: "", date: nil, content: "")
@@ -123,14 +126,27 @@ class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
     }
 
     private func bindCreate() {
-        handleCreate()
+        func createWithErrorHandle() -> AnyPublisher<TodoModel, Never> {
+            return handleCreate()
+                .catchWithUnretained(self) { this, error in
+                    guard let todoError = error as? TodoError else {
+                        this.retryError = error
+
+                        return this.retryTrigger
+                            .retry {  createWithErrorHandle() }
+                    }
+                    
+                    this.error = error
+                    return Combine.Empty<TodoModel, Never>()
+                        .eraseToAnyPublisher()
+                }
+                .eraseToAnyPublisher()
+        }
+        
+        createWithErrorHandle()
             .receive(on: DispatchQueue.main)
             .handleLoadingWithUnretained(self) { this, value in
                 self.isShowLoadingIndicator = value
-            }
-            .catchWithUnretained(self) { this, error in
-                this.error = error
-                return Combine.Empty<TodoModel, Never>()
             }
             .withUnretained(self)
             .sink { (self, value) in self.writtenTodo = value }
@@ -163,18 +179,20 @@ class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
     }
 }
 
-class EditTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput {
+class EditTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput, RetryProtocolSwiftUI {
     struct UseCase {
         let editTodo: any EditTodoUseCase
     }
 
     @Published var state: WriteableState
     @Published private(set) var error: Error?
+    @Published private(set) var retryError: Error?
     @Published private(set) var writtenTodo: TodoModel?
 
     private let todo: TodoModelProtocol
     private let useCase: UseCase
     var cancellables = Set<AnyCancellable>()
+    let retryTrigger = PassthroughSubject<Void, Never>()
 
     init(_ todo: TodoModelProtocol, useCase: UseCase) {
         self.todo = todo
@@ -209,12 +227,25 @@ class EditTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput {
     }
 
     private func bindEdit() {
-        handleEdit()
+        func editWithErrorHandle() -> AnyPublisher<TodoModel, Never> {
+            return handleEdit()
+                .catchWithUnretained(self) { this, error in
+                    guard let todoError = error as? TodoError else {
+                        this.retryError = error
+
+                        return this.retryTrigger
+                            .retry {  editWithErrorHandle() }
+                    }
+                    
+                    this.error = error
+                    return Combine.Empty<TodoModel, Never>()
+                        .eraseToAnyPublisher()
+                }
+                .eraseToAnyPublisher()
+        }
+        
+        editWithErrorHandle()
             .receive(on: DispatchQueue.main)
-            .catchWithUnretained(self) { this, error in
-                this.error = error
-                return Combine.Empty<TodoModel, Never>()
-            }
             .withUnretained(self)
             .sink { (self, value) in self.writtenTodo = value }
             .store(in: &cancellables)

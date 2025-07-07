@@ -50,3 +50,15 @@ extension Publisher {
         }
     }
 }
+
+extension PassthroughSubject {
+    func retry<RetryOutput>(
+        _ retry: @escaping () -> AnyPublisher<RetryOutput, Failure>
+    )
+    -> AnyPublisher<RetryOutput, Failure> {
+        return self
+            .prefix(1)
+            .flatMap { _ in retry() }
+            .eraseToAnyPublisher()
+    }
+}

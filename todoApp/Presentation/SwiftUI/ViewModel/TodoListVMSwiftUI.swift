@@ -23,15 +23,17 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
         case tapDelete(_ value: TodoModel)
         case tapFilter(_ value: TodoFilterType)
         case toggleDone(_ value: TodoModel)
-        case retryTrigger(_ value: RetryAction)
+        case retryTrigger
     }
     
     private let useCase: UseCase
     var cancellables = Set<AnyCancellable>()
-    
+    private let retryTrigger = PassthroughSubject<Void, Never>()
+
     @Published private(set) var item = [TodoSection]()
     @Published private(set) var selectedFilter:TodoFilterType
     @Published private(set) var error: Error?
+    @Published private(set) var serverError: Error?
     @Published private(set) var isShowLoadingIndicator: Bool = false
     
     @Published fileprivate var allItmes = [TodoModel]()
@@ -41,6 +43,10 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
         self.useCase = useCase
         self.selectedFilter = initFilter        
         
+        retryTrigger.print().sink { _ in
+            
+        }.store(in: &cancellables)
+
         $allItmes
             .map(makeTapGroup)
             .assign(to: &($cachedGroup))
@@ -91,21 +97,35 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
         case .toggleDone(let value):
             bindToggleDone(value)
             break
-        case .retryTrigger(let value):
+        case .retryTrigger:
+            retryTrigger.send(())
             break
             
         }
     }
     
     private func bindFetchItemsToAll() {
-        handleFetching()
+        func fetchWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
+            return handleFetching()
+                .catchWithUnretained(self) { this, error in
+                    guard let todoError = error as? TodoError else {
+                        this.serverError = error
+
+                        return this.retryTrigger
+                            .retry {  fetchWithErrorHandle() }
+                    }
+                    
+                    this.error = error
+                    return Combine.Empty<[TodoModel], Never>()
+                        .eraseToAnyPublisher()
+                }
+                .eraseToAnyPublisher()
+        }
+        
+        fetchWithErrorHandle()
             .receive(on: DispatchQueue.main)
             .handleLoadingWithUnretained(self) { this, isLoading in
                 this.isShowLoadingIndicator = isLoading
-            }
-            .catchWithUnretained(self) { this, error in
-                this.error = error
-                return Combine.Empty<[TodoModel], Never>()
             }
             .withUnretained(self)
             .sink { (self, value) in
@@ -116,15 +136,29 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
     }
     
     private func bindToggleDone(_ todo:TodoModel) {
-        handleChanged(todo)
+        func changedWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
+            return handleChanged(todo)
+                .catchWithUnretained(self) { this, error in
+                    guard let todoError = error as? TodoError else {
+                        
+                        this.serverError = error
+
+                        return this.retryTrigger
+                            .retry {  changedWithErrorHandle() }
+                    }
+                    
+                    this.error = todoError
+                    return Combine.Empty<[TodoModel], Never>().eraseToAnyPublisher()
+                }
+                .eraseToAnyPublisher()
+        }
+
+        changedWithErrorHandle()
             .receive(on: DispatchQueue.main)
-            .retry(3)
-            .catchWithUnretained(self) { this, error in
-                this.error = error
-                return Combine.Empty<[TodoModel], Never>()
-            }
             .withUnretained(self)
-            .sink { (self, value) in self.allItmes = value }
+            .sink { (self, value) in
+                self.allItmes = value
+            }
             .store(in: &cancellables)
     }
     
@@ -140,12 +174,25 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
     }
     
     private func bindDelete(_ todo:TodoModel) {
-        handleDelete(todo)
+        func deleteWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
+            return handleDelete(todo)
+                .catchWithUnretained(self) { this, error in
+                    guard let todoError = error as? TodoError else {
+                        this.serverError = error
+
+                        return this.retryTrigger
+                            .retry {  deleteWithErrorHandle() }
+                    }
+                    
+                    this.error = error
+                    return Combine.Empty<[TodoModel], Never>()
+                        .eraseToAnyPublisher()
+                }
+                .eraseToAnyPublisher()
+        }
+        
+        deleteWithErrorHandle()
             .receive(on: DispatchQueue.main)
-            .catchWithUnretained(self) { this, error in
-                this.error = error
-                return Combine.Empty<[TodoModel], Never>()
-            }
             .withUnretained(self)
             .sink { (self, value) in self.allItmes = value }
             .store(in: &cancellables)
@@ -186,8 +233,6 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
     private func handleChanged(_ todo:TodoModelProtocol) -> AnyPublisher<[TodoModel], Error> {
         return Deferred {
             return Future<[TodoModel], Error> { [weak self] promise in
-                promise(.failure(TodoError.notFound))
-return
                 guard let self = self else { return }
 
                 Task  {

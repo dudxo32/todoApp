@@ -35,6 +35,7 @@
 		C9287B682D6EED170025A8C0 /* TodoListVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9287B672D6EED170025A8C0 /* TodoListVM.swift */; };
 		C92F2A5A2E1B6AF600A66811 /* PublisherEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = C92F2A592E1B6AF600A66811 /* PublisherEx.swift */; };
 		C92F2A5C2E1B700D00A66811 /* LoadingIndicatorSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C92F2A5B2E1B700D00A66811 /* LoadingIndicatorSwiftUI.swift */; };
+		C92F2A5E2E1BA87500A66811 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = C92F2A5D2E1BA87500A66811 /* Alert.swift */; };
 		C942199B2DFBF4FD008997CC /* DateInputStackViewSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C942199A2DFBF4FD008997CC /* DateInputStackViewSwiftUI.swift */; };
 		C942199D2DFC1042008997CC /* WritableTodoVMSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C942199C2DFC1042008997CC /* WritableTodoVMSwiftUI.swift */; };
 		C95696872D91310800E4D8B1 /* WritableTodoVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95696862D91310800E4D8B1 /* WritableTodoVM.swift */; };
@@ -128,6 +129,7 @@
 		C9287B672D6EED170025A8C0 /* TodoListVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListVM.swift; sourceTree = "<group>"; };
 		C92F2A592E1B6AF600A66811 /* PublisherEx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublisherEx.swift; sourceTree = "<group>"; };
 		C92F2A5B2E1B700D00A66811 /* LoadingIndicatorSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingIndicatorSwiftUI.swift; sourceTree = "<group>"; };
+		C92F2A5D2E1BA87500A66811 /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		C942199A2DFBF4FD008997CC /* DateInputStackViewSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInputStackViewSwiftUI.swift; sourceTree = "<group>"; };
 		C942199C2DFC1042008997CC /* WritableTodoVMSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritableTodoVMSwiftUI.swift; sourceTree = "<group>"; };
 		C95696862D91310800E4D8B1 /* WritableTodoVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritableTodoVM.swift; sourceTree = "<group>"; };
@@ -572,6 +574,7 @@
 				C942199A2DFBF4FD008997CC /* DateInputStackViewSwiftUI.swift */,
 				C9F7D9742DFAB60500D9B959 /* TextInputStackViewSwiftUI.swift */,
 				C92F2A5B2E1B700D00A66811 /* LoadingIndicatorSwiftUI.swift */,
+				C92F2A5D2E1BA87500A66811 /* Alert.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -812,6 +815,7 @@
 				C96C4C6E2DD0618200AAA8AD /* TodoListCache.swift in Sources */,
 				C9083E9828E07AC6006DEF47 /* TodoListVC.swift in Sources */,
 				C9083E9B28E08304006DEF47 /* Constant.swift in Sources */,
+				C92F2A5E2E1BA87500A66811 /* Alert.swift in Sources */,
 				C9E538312DA5178B00D529D8 /* AppDIContainer.swift in Sources */,
 				C95B652D2D9E828900F05436 /* StringEX.swift in Sources */,
 				C90D7C4A2DF2B24C00B81833 /* TodoCellSwiftUI.swift in Sources */,

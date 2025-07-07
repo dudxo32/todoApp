@@ -103,19 +103,23 @@ struct TodoListVCSwiftUI: View {
                 plusButton
             }
         }
-        .alert(
-            I18N.serverError,
+        .errorAlert(
             isPresented: Binding(
                 get: { viewModel.error != nil },
-                set: { _, _ in })
-        ) {
-            Button(I18N.confirm, role: .cancel) {}
-            Button(I18N.retry) {}
-
-        } message: {
-            Text(viewModel.error?.localizedDescription ?? "")
-        }
-
+                set: { _, _ in }
+            ),
+            message: viewModel.error?.localizedDescription ?? ""
+        )
+        .retryAlert(
+            isPresented: Binding(
+                get: { viewModel.serverError != nil },
+                set: { _, _ in }
+            ),
+            message: viewModel.serverError?.localizedDescription ?? "",
+            retryAction: {
+                viewModel.action(.retryTrigger)
+            }
+        )
     }
 
     @ViewBuilder
