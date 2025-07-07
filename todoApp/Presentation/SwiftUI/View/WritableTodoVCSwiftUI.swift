@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct WritableTodoVCSwiftUI<VM:WritableTodoOutput> : View {
+struct WritableTodoVCSwiftUI<VM: WritableTodoOutput>: View {
     @ObservedObject var vm: VM
 
     init(_ vm: VM) {
@@ -33,18 +33,20 @@ struct WritableTodoVCSwiftUI<VM:WritableTodoOutput> : View {
     }
 }
 
-private struct WriteToolbarModifier<VM: ActionObservableObject & WritableTodoOutput>: ViewModifier {
+private struct WriteToolbarModifier<
+    VM: ActionObservableObject & WritableTodoOutput
+>: ViewModifier {
     @ObservedObject var vm: VM
     @Environment(\.dismiss) private var dismiss
-    
+
     let buttonTitle: String
     let didCompleteWriting: (TodoModel) -> Void
     let title: String
 
     var buttonColor: Color {
         vm.state.isValid
-        ? Color(uiColor: .systemBlue)
-        : Color(uiColor: .systemGray)
+            ? Color(uiColor: .systemBlue)
+            : Color(uiColor: .systemGray)
     }
 
     init(
@@ -78,8 +80,10 @@ private struct WriteToolbarModifier<VM: ActionObservableObject & WritableTodoOut
     }
 }
 
-private extension View {
-    func createNavigationItem<VM: ActionObservableObject & WritableTodoOutput> (
+extension View {
+    fileprivate func createNavigationItem<
+        VM: ActionObservableObject & WritableTodoOutput
+    >(
         _ vm: VM,
         title: String,
         buttonTitle: String,
@@ -104,7 +108,10 @@ struct CreatableTodoVCSwiftUI: WritableView {
     @ObservedObject var viewModel: CreateTodoVMSwiftUI
     let didCompleteWriting: (TodoModel) -> Void
 
-    init(_ writtenTodo: Binding<TodoModel?>, didCompleteWriting: @escaping (TodoModel) -> Void) {
+    init(
+        _ writtenTodo: Binding<TodoModel?>,
+        didCompleteWriting: @escaping (TodoModel) -> Void
+    ) {
         let viewModel = CreateTodoVMSwiftUI(
             CreateTodoVMSwiftUI
                 .UseCase(
@@ -121,12 +128,17 @@ struct CreatableTodoVCSwiftUI: WritableView {
     var body: some View {
         NavigationStack {
             WritableTodoVCSwiftUI(viewModel)
-            .createNavigationItem(
-                viewModel,
-                title: I18N.createTodo,
-                buttonTitle: I18N.done,
-                didCompleteWriting: didCompleteWriting
-            )
+                .createNavigationItem(
+                    viewModel,
+                    title: I18N.createTodo,
+                    buttonTitle: I18N.done,
+                    didCompleteWriting: didCompleteWriting
+                )
+        }
+        .overlay {
+            if viewModel.isShowLoadingIndicator {
+                LoadingIndicatorSwiftUI()
+            }
         }
 
     }
@@ -137,12 +149,13 @@ struct EditableTodoVCSwiftUI: WritableView {
     let didCompleteWriting: (TodoModel) -> Void
 
     init(
-        _ todo:TodoModelProtocol,
+        _ todo: TodoModelProtocol,
         didCompleteWriting: @escaping (TodoModel) -> Void
     ) {
         let viewModel = EditTodoVMSwiftUI(
             todo,
-            useCase: EditTodoVMSwiftUI
+            useCase:
+                EditTodoVMSwiftUI
                 .UseCase(
                     editTodo: DefaultEditTodoUseCase(
                         repository: TodoRepositoryImpl(TodoLocalDataSource())
@@ -158,24 +171,23 @@ struct EditableTodoVCSwiftUI: WritableView {
         NavigationStack {
             WritableTodoVCSwiftUI(viewModel)
 
-            .createNavigationItem(
-                viewModel,
-                title: I18N.editTodo,
-                buttonTitle: I18N.done,
-                didCompleteWriting: didCompleteWriting
-            )
+                .createNavigationItem(
+                    viewModel,
+                    title: I18N.editTodo,
+                    buttonTitle: I18N.done,
+                    didCompleteWriting: didCompleteWriting
+                )
         }
 
     }
 }
-
 
 #Preview {
     @State var a = "title"
     @State var b = "content"
     @State var d: TodoModel?
     NavigationStack {
-        CreatableTodoVCSwiftUI($d, didCompleteWriting: {_ in })
+        CreatableTodoVCSwiftUI($d, didCompleteWriting: { _ in })
     }
 
 }

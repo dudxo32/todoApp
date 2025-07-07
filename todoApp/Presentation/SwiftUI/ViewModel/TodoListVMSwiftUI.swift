@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject {
+class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingProtocolSwiftUI {
     
     struct UseCase {
         let fetch: any FetchTodoUseCase
@@ -33,6 +33,7 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject {
     @Published private(set) var item = [TodoSection]()
     @Published private(set) var selectedFilter:TodoFilterType
     @Published private(set) var error: Error?
+    @Published private(set) var isShowLoadingIndicator: Bool = false
     
     @Published fileprivate var allItmes = [TodoModel]()
     @Published private var cachedGroup:TodoGroup = [:]
@@ -100,12 +101,19 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject {
     private func bindFetchItemsToAll() {
         handleFetching()
             .receive(on: DispatchQueue.main)
+            .handleLoading{ [weak self] isLoading in
+                self?.isShowLoadingIndicator = isLoading
+            }
             .catch { [weak self] error  in
                 self?.error = error
+                self?.isShowLoadingIndicator = false
                 return Combine.Empty<[TodoModel], Never>()
             }
             .withUnretained(self)
-            .sink { (self, value) in self.allItmes = value }
+            .sink { (self, value) in
+                self.allItmes = value
+                self.isShowLoadingIndicator = false
+            }
             .store(in: &cancellables)
     }
     
@@ -241,19 +249,6 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject {
             }
         }
     }
-
-}
-extension Publisher {
-    func withUnretained<Object: AnyObject>(_ object: Object)
-    -> AnyPublisher<(Object, Output), Failure> {
-        self
-            .compactMap { [weak object] value in
-                guard let object = object else { return nil }
-                return (object, value)
-            }
-            .eraseToAnyPublisher()
-    }
-
 }
 
 class MTodoListVMSwiftUI: TodoListVMSwiftUI {

@@ -5,36 +5,36 @@
 //  Created by 조영태 on 6/5/25.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 var isPreview: Bool {
-#if DEBUG
-    return ProcessInfo.processInfo
-        .environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
-#else
-    return false
-#endif
+    #if DEBUG
+        return ProcessInfo.processInfo
+            .environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    #else
+        return false
+    #endif
 }
 
 private struct NoListLabel: View {
     var body: some View {
         Text(I18N.noList)
             .font(Font.system(size: 20, weight: .bold))
-            
+
     }
 }
 
 private struct ListView: View {
-    @ObservedObject var viewModel:TodoListVMSwiftUI
-    @State private var tapCellItem:TodoModel?
+    @ObservedObject var viewModel: TodoListVMSwiftUI
+    @State private var tapCellItem: TodoModel?
 
     var body: some View {
         List {
             ForEach(viewModel.item) { section in
                 Section(header: Text(section.header)) {
                     ForEach(section.items) { item in
-                        
+
                         TodoCellSwiftUI(model: item) {
                             _ in viewModel.action(.toggleDone(item))
                         }
@@ -49,12 +49,12 @@ private struct ListView: View {
                             )
                         )
                         .swipeActions {
-                            Button(role:.destructive) {
+                            Button(role: .destructive) {
                                 viewModel.action(.tapDelete(item))
                             } label: {
                                 Image(systemName: "trash")
                             }
-                            
+
                         }
                     }
                 }
@@ -72,34 +72,36 @@ private struct ListView: View {
 }
 struct OptionalEquatable<T: Equatable>: Equatable {
     let value: T?
-    
+
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.value == rhs.value
     }
 }
 struct TodoListVCSwiftUI: View {
-    @ObservedObject var viewModel:TodoListVMSwiftUI
+    @ObservedObject var viewModel: TodoListVMSwiftUI
     @State private var isShowingError = false
     @State private var isShowCreate = false
-    @State private var addedTodo:TodoModel?
+    @State private var addedTodo: TodoModel?
 
     init(viewModel: TodoListVMSwiftUI) {
         self.viewModel = viewModel
     }
-        
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 ListView(viewModel: viewModel)
                     .task {
-                        if !isPreview {viewModel.action(.fetchItems)}
+                        if !isPreview { viewModel.action(.fetchItems) }
                     }
-                    
-                    
+
                 TabView(viewModel: viewModel)
             }
-            
-        
+        }
+        .overlay {
+            if viewModel.isShowLoadingIndicator {
+                LoadingIndicatorSwiftUI()
+            }
         }
         .navigationTitle(I18N.todo)
         .toolbar {
@@ -111,7 +113,7 @@ struct TodoListVCSwiftUI: View {
             I18N.serverError,
             isPresented: Binding(
                 get: { viewModel.error != nil },
-                set: {_,_ in })
+                set: { _, _ in })
         ) {
             Button(I18N.confirm, role: .cancel) {}
             Button(I18N.retry) {}
@@ -119,50 +121,50 @@ struct TodoListVCSwiftUI: View {
         } message: {
             Text(viewModel.error?.localizedDescription ?? "")
         }
-     
+
     }
-    
+
     @ViewBuilder
-    var plusButton:some View {
+    var plusButton: some View {
         Button(action: { isShowCreate.toggle() }) {
-            Image(systemName:"plus.circle.fill")
+            Image(systemName: "plus.circle.fill")
         }
         .sheet(isPresented: $isShowCreate) {
-            CreatableTodoVCSwiftUI($addedTodo) {newValue in
-                viewModel.action(.addedItem(newValue))}
+            CreatableTodoVCSwiftUI($addedTodo) { newValue in
+                viewModel.action(.addedItem(newValue))
+            }
         }
     }
 }
 
-    
 struct TabView: View {
-    @ObservedObject var viewModel:TodoListVMSwiftUI
-        
+    @ObservedObject var viewModel: TodoListVMSwiftUI
+
     var body: some View {
         HStack {
             ForEach(TodoFilterType.values) { type in
                 let imageName = getImgageName(type)
                 let text = getText(type)
                 let color = getColor(type)
-                    
+
                 Spacer()
-                    
+
                 Button(
                     action: { viewModel.action(.tapFilter(type)) }
                 ) {
-                    VStack(spacing: 4 ) {
+                    VStack(spacing: 4) {
                         Image(systemName: imageName)
                             .font(.system(size: 22))
                             .foregroundColor(color)
-                            
+
                         Text(text)
                             .font(.caption)
                             .foregroundColor(color)
                     }
                 }
-                    
+
                 Spacer()
-                    
+
             }
         }
         .padding(.top, 6)
@@ -170,22 +172,21 @@ struct TabView: View {
         .overlay(Divider(), alignment: .top)
         .frame(height: 64)
     }
-        
-    private func getColor(_ type:TodoFilterType) -> Color {
-        return viewModel.selectedFilter == type ?
-        Color(uiColor: .systemBlue) :
-        Color(uiColor: .systemGray)
+
+    private func getColor(_ type: TodoFilterType) -> Color {
+        return viewModel.selectedFilter == type
+            ? Color(uiColor: .systemBlue) : Color(uiColor: .systemGray)
     }
-        
-    private func getImgageName(_ type:TodoFilterType) -> String {
+
+    private func getImgageName(_ type: TodoFilterType) -> String {
         switch type {
         case .past: return "arrow.left.circle"
         case .today: return "calendar.circle"
         case .future: return "arrow.right.circle"
         }
     }
-        
-    private func getText(_ type:TodoFilterType) -> String {
+
+    private func getText(_ type: TodoFilterType) -> String {
         switch type {
         case .past: return I18N.past
         case .today: return I18N.today
@@ -194,7 +195,6 @@ struct TabView: View {
     }
 }
 
-    
 #Preview {
     let today = Date()
     let modifiedDate = Calendar.current.date(
@@ -202,7 +202,7 @@ struct TabView: View {
         value: 1,
         to: today
     )!
-    
+
     ZStack {
         TodoListVCSwiftUI(
             viewModel: MTodoListVMSwiftUI(
@@ -234,11 +234,10 @@ struct TabView: View {
                         date: modifiedDate,
                         contents: "c",
                         isDone: false
-                    )
+                    ),
                 ]
             )
         )
     }
-        
-}
 
+}
