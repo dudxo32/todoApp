@@ -8,8 +8,7 @@
 import SwiftUI
 import Combine
 
-class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingProtocolSwiftUI {
-    
+class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
     struct UseCase {
         let fetch: any FetchTodoUseCase
         let delete: any DeleteTodoUseCase
@@ -46,7 +45,6 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingPro
             .map(makeTapGroup)
             .assign(to: &($cachedGroup))
         
-        
         $cachedGroup.combineLatest($selectedFilter) { group, filter in
             func makeSectionByDate(_ todos: [TodoModel]) -> [TodoSection] {
                 let formatter = DateFormatter()
@@ -69,7 +67,8 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingPro
             
             let arr = group[filter] ?? []
             return makeSectionByDate(arr)
-        }.assign(to: &($item))
+        }
+        .assign(to: &($item))
     }
     
     func action(_ action: Action) {
@@ -87,7 +86,7 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingPro
             bindDelete(value)
             break
         case .tapFilter(let value):
-            selectedFilter = value
+            self.selectedFilter = value
             break
         case .toggleDone(let value):
             bindToggleDone(value)
@@ -101,12 +100,11 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingPro
     private func bindFetchItemsToAll() {
         handleFetching()
             .receive(on: DispatchQueue.main)
-            .handleLoading{ [weak self] isLoading in
-                self?.isShowLoadingIndicator = isLoading
+            .handleLoadingWithUnretained(self) { this, isLoading in
+                this.isShowLoadingIndicator = isLoading
             }
-            .catch { [weak self] error  in
-                self?.error = error
-                self?.isShowLoadingIndicator = false
+            .catchWithUnretained(self) { this, error in
+                this.error = error
                 return Combine.Empty<[TodoModel], Never>()
             }
             .withUnretained(self)
@@ -121,8 +119,8 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingPro
         handleChanged(todo)
             .receive(on: DispatchQueue.main)
             .retry(3)
-            .catch { [weak self] error  in
-                self?.error = error
+            .catchWithUnretained(self) { this, error in
+                this.error = error
                 return Combine.Empty<[TodoModel], Never>()
             }
             .withUnretained(self)
@@ -144,8 +142,8 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingPro
     private func bindDelete(_ todo:TodoModel) {
         handleDelete(todo)
             .receive(on: DispatchQueue.main)
-            .catch { [weak self] error  in
-                self?.error = error
+            .catchWithUnretained(self) { this, error in
+                this.error = error
                 return Combine.Empty<[TodoModel], Never>()
             }
             .withUnretained(self)
@@ -188,6 +186,8 @@ class TodoListVMSwiftUI: ObservableObject, ViewModelObservableObject, LoadingPro
     private func handleChanged(_ todo:TodoModelProtocol) -> AnyPublisher<[TodoModel], Error> {
         return Deferred {
             return Future<[TodoModel], Error> { [weak self] promise in
+                promise(.failure(TodoError.notFound))
+return
                 guard let self = self else { return }
 
                 Task  {

@@ -125,9 +125,11 @@ class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
     private func bindCreate() {
         handleCreate()
             .receive(on: DispatchQueue.main)
-            .handleLoading { [weak self] in self?.isShowLoadingIndicator = $0 }
-            .catch { [weak self] error in
-                self?.error = error
+            .handleLoadingWithUnretained(self) { this, value in
+                self.isShowLoadingIndicator = value
+            }
+            .catchWithUnretained(self) { this, error in
+                this.error = error
                 return Combine.Empty<TodoModel, Never>()
             }
             .withUnretained(self)
@@ -209,8 +211,8 @@ class EditTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput {
     private func bindEdit() {
         handleEdit()
             .receive(on: DispatchQueue.main)
-            .catch { [weak self] error in
-                self?.error = error
+            .catchWithUnretained(self) { this, error in
+                this.error = error
                 return Combine.Empty<TodoModel, Never>()
             }
             .withUnretained(self)

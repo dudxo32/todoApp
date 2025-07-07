@@ -13,6 +13,6 @@ protocol ViewModelObservableObject: ObservableObject {
   func action(_ action: Action)
 }
 
-protocol LoadingProtocolSwiftUI {
+protocol LoadingProtocolSwiftUI: ViewModelObservableObject {
     var isShowLoadingIndicator: Bool { get }
 }

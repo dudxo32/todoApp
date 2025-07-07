@@ -70,13 +70,7 @@ private struct ListView: View {
         .ignoresSafeArea()
     }
 }
-struct OptionalEquatable<T: Equatable>: Equatable {
-    let value: T?
 
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.value == rhs.value
-    }
-}
 struct TodoListVCSwiftUI: View {
     @ObservedObject var viewModel: TodoListVMSwiftUI
     @State private var isShowingError = false
