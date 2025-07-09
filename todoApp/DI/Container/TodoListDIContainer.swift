@@ -45,24 +45,24 @@ class TodoListDIContainer {
             (any ToggleTodoDoneUseCase).self,
             arguments: repo, cache
         )
-        
-        
+
         let useCase = TodoListVM.UseCase(
             fetch: fetchUseCase,
             delete: deleteUseCase,
             toggleDone: toggleDone,
             cache: cache
         )
-        
+
         return self.container.resolveOrFail(
             TodoListVC.self,
             arguments: initFilter, useCase
         )
     }
-    
-    func makeTodoListVCSwiftUI(
-        initFilter: TodoFilterType, env: DataEnvironment = .local
-    ) -> TodoListVCSwiftUI {
+
+    func makeTodoListVMSwiftUI(
+        initFilter: TodoFilterType,
+        env: DataEnvironment = .local
+    ) -> TodoListVMSwiftUI {
         let repo = container.resolveOrFail(TodoRepository.self, argument: env)
 
         let cache = container.resolveOrFail(TodoListCache.self)
@@ -77,8 +77,7 @@ class TodoListDIContainer {
             (any ToggleTodoDoneUseCase).self,
             arguments: repo, cache
         )
-        
-        
+
         let useCase = TodoListVMSwiftUI.UseCase(
             fetch: fetchUseCase,
             delete: deleteUseCase,
@@ -86,9 +85,18 @@ class TodoListDIContainer {
             cache: cache
         )
         
+        return self.container
+            .resolveOrFail(
+                TodoListVMSwiftUI.self,
+                arguments:initFilter,
+                useCase
+            )
+    }
+    
+    func makeTodoListVCSwiftUI(_ vm:TodoListVMSwiftUI) -> TodoListVCSwiftUI {
         return self.container.resolveOrFail(
             TodoListVCSwiftUI.self,
-            arguments: initFilter, useCase
+            argument: vm
         )
     }
 }
@@ -113,7 +121,7 @@ final class TodoListAssembly: Assembly {
                 initFilter: TodoFilterType,
                 useCase: TodoListVM.UseCase
             ) in
-            
+
             let viewModel = resolver.resolveOrFail(
                 TodoListVM.self,
                 arguments: initFilter, useCase
@@ -121,7 +129,7 @@ final class TodoListAssembly: Assembly {
 
             return TodoListVC(initFilter: initFilter, vm: viewModel)
         }
-        
+
         // swiftUI vm 등록
         container.register(TodoListVMSwiftUI.self) {
             (
@@ -136,15 +144,9 @@ final class TodoListAssembly: Assembly {
         container.register(TodoListVCSwiftUI.self) {
             (
                 resolver,
-                initFilter: TodoFilterType,
-                useCase: TodoListVMSwiftUI.UseCase
+                viewModel: TodoListVMSwiftUI
             ) in
             
-            let viewModel = resolver.resolveOrFail(
-                TodoListVMSwiftUI.self,
-                arguments: initFilter, useCase
-            )
-
             return TodoListVCSwiftUI(viewModel: viewModel)
         }
     }

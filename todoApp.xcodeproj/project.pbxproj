@@ -44,6 +44,7 @@
 		C95B65292D9E7DC100F05436 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C95B65272D9E7DC100F05436 /* Localizable.strings */; };
 		C95B652B2D9E7F3600F05436 /* I18N.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95B652A2D9E7F3600F05436 /* I18N.swift */; };
 		C95B652D2D9E828900F05436 /* StringEX.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95B652C2D9E828900F05436 /* StringEX.swift */; };
+		C95E5AA82E1E2D9A00FD91DD /* SwiftUICoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95E5AA72E1E2D9A00FD91DD /* SwiftUICoordinator.swift */; };
 		C96C4C642DD0297A00AAA8AD /* TodoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C96C4C632DD0297A00AAA8AD /* TodoModel.swift */; };
 		C96C4C682DD03A2300AAA8AD /* FetchTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = C96C4C672DD03A2300AAA8AD /* FetchTodoUseCase.swift */; };
 		C96C4C6A2DD03A3000AAA8AD /* DeleteTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = C96C4C692DD03A3000AAA8AD /* DeleteTodoUseCase.swift */; };
@@ -138,6 +139,7 @@
 		C95B65282D9E7DC100F05436 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C95B652A2D9E7F3600F05436 /* I18N.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = I18N.swift; sourceTree = "<group>"; };
 		C95B652C2D9E828900F05436 /* StringEX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringEX.swift; sourceTree = "<group>"; };
+		C95E5AA72E1E2D9A00FD91DD /* SwiftUICoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUICoordinator.swift; sourceTree = "<group>"; };
 		C96C4C632DD0297A00AAA8AD /* TodoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoModel.swift; sourceTree = "<group>"; };
 		C96C4C672DD03A2300AAA8AD /* FetchTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchTodoUseCase.swift; sourceTree = "<group>"; };
 		C96C4C692DD03A3000AAA8AD /* DeleteTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteTodoUseCase.swift; sourceTree = "<group>"; };
@@ -479,6 +481,7 @@
 				C9AE73092DC354B400F1C5EE /* TodoListCoordinator.swift */,
 				C9AE730D2DC371E300F1C5EE /* EditableTodoCoordinator.swift */,
 				C9AE730B2DC354CD00F1C5EE /* CoordinatorProcotocol.swift */,
+				C95E5AA72E1E2D9A00FD91DD /* SwiftUICoordinator.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -818,6 +821,7 @@
 				C92F2A5E2E1BA87500A66811 /* Alert.swift in Sources */,
 				C9E538312DA5178B00D529D8 /* AppDIContainer.swift in Sources */,
 				C95B652D2D9E828900F05436 /* StringEX.swift in Sources */,
+				C95E5AA82E1E2D9A00FD91DD /* SwiftUICoordinator.swift in Sources */,
 				C90D7C4A2DF2B24C00B81833 /* TodoCellSwiftUI.swift in Sources */,
 				C99048382998A5A6004AD091 /* UIButtonEX.swift in Sources */,
 				C96C4C712DD06C0E00AAA8AD /* TodoMapper.swift in Sources */,

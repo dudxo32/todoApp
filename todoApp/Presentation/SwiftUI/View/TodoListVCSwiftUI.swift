@@ -9,12 +9,12 @@ import Combine
 import SwiftUI
 
 var isPreview: Bool {
-    #if DEBUG
-        return ProcessInfo.processInfo
-            .environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
-    #else
-        return false
-    #endif
+#if DEBUG
+    return ProcessInfo.processInfo
+        .environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+#else
+    return false
+#endif
 }
 
 private struct NoListLabel: View {
@@ -39,7 +39,13 @@ private struct ListView: View {
                             _ in viewModel.action(.toggleDone(item))
                         }
                         .contentShape(Rectangle())
-                        .onTapGesture { tapCellItem = item }
+                        .onTapGesture {
+                            viewModel.action(
+                                .presentModal(
+                                    .edit(todo: item)
+                                )
+                            )
+                        }
                         .listRowInsets(
                             EdgeInsets(
                                 top: 8,
@@ -60,44 +66,35 @@ private struct ListView: View {
                 }
             }
         }
-        .sheet(item: $tapCellItem) { item in
-            EditableTodoVCSwiftUI(item) { newValue in
-                viewModel.action(.edittedItem(newValue))
-            }
-        }
         .scrollContentBackground(.hidden)
         .background(.white)
-        .ignoresSafeArea()
     }
 }
 
 struct TodoListVCSwiftUI: View {
-    @ObservedObject var viewModel: TodoListVMSwiftUI
+    @StateObject var viewModel: TodoListVMSwiftUI
     @State private var isShowingError = false
-    @State private var isShowCreate = false
     @State private var addedTodo: TodoModel?
 
     init(viewModel: TodoListVMSwiftUI) {
-        self.viewModel = viewModel
+        self._viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                ListView(viewModel: viewModel)
-                    .task {
-                        if !isPreview { viewModel.action(.fetchItems) }
-                    }
+        VStack(spacing: 0) {
+            ListView(viewModel: viewModel)
+                .task {
+                    if !isPreview { viewModel.action(.fetchItems) }
+                }
 
-                TabView(viewModel: viewModel)
-            }
+            TabView(viewModel: viewModel)
         }
+        .navigationTitleInline(I18N.todo)
         .overlay {
             if viewModel.isShowLoadingIndicator {
                 LoadingIndicatorSwiftUI()
             }
         }
-        .navigationTitle(I18N.todo)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 plusButton
@@ -124,13 +121,8 @@ struct TodoListVCSwiftUI: View {
 
     @ViewBuilder
     var plusButton: some View {
-        Button(action: { isShowCreate.toggle() }) {
+        Button(action: { viewModel.action(.presentModal(.create)) }) {
             Image(systemName: "plus.circle.fill")
-        }
-        .sheet(isPresented: $isShowCreate) {
-            CreatableTodoVCSwiftUI($addedTodo) { newValue in
-                viewModel.action(.addedItem(newValue))
-            }
         }
     }
 }
@@ -173,7 +165,7 @@ struct TabView: View {
 
     private func getColor(_ type: TodoFilterType) -> Color {
         return viewModel.selectedFilter == type
-            ? Color(uiColor: .systemBlue) : Color(uiColor: .systemGray)
+        ? Color(uiColor: .systemBlue) : Color(uiColor: .systemGray)
     }
 
     private func getImgageName(_ type: TodoFilterType) -> String {

@@ -24,6 +24,7 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
         case tapFilter(_ value: TodoFilterType)
         case toggleDone(_ value: TodoModel)
         case retryTrigger
+        case presentModal(_ value: ModalScene)
     }
     
     private let useCase: UseCase
@@ -35,15 +36,17 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
     @Published private(set) var error: Error?
     @Published private(set) var serverError: Error?
     @Published private(set) var isShowLoadingIndicator: Bool = false
+    let presentModel = PassthroughSubject<ModalScene?, Never>()
     
     @Published fileprivate var allItmes = [TodoModel]()
     @Published private var cachedGroup:TodoGroup = [:]
     
+
     init(_ useCase:UseCase, initFilter:TodoFilterType) {
         self.useCase = useCase
         self.selectedFilter = initFilter        
         
-        retryTrigger.print().sink { _ in
+        $item.print().sink { _ in
             
         }.store(in: &cancellables)
 
@@ -100,7 +103,8 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
         case .retryTrigger:
             retryTrigger.send(())
             break
-            
+        case .presentModal(let value):
+            presentModel.send(value)
         }
     }
     
@@ -108,7 +112,7 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
         func fetchWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
             return handleFetching()
                 .catchWithUnretained(self) { this, error in
-                    guard let todoError = error as? TodoError else {
+                    guard error is TodoError else {
                         this.serverError = error
 
                         return this.retryTrigger
@@ -177,7 +181,7 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
         func deleteWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
             return handleDelete(todo)
                 .catchWithUnretained(self) { this, error in
-                    guard let todoError = error as? TodoError else {
+                    guard error is TodoError else {
                         this.serverError = error
 
                         return this.retryTrigger

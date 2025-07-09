@@ -108,10 +108,7 @@ struct CreatableTodoVCSwiftUI: WritableView {
     @ObservedObject var viewModel: CreateTodoVMSwiftUI
     let didCompleteWriting: (TodoModel) -> Void
 
-    init(
-        _ writtenTodo: Binding<TodoModel?>,
-        didCompleteWriting: @escaping (TodoModel) -> Void
-    ) {
+    init(didCompleteWriting: @escaping (TodoModel) -> Void) {
         let viewModel = CreateTodoVMSwiftUI(
             CreateTodoVMSwiftUI
                 .UseCase(
@@ -185,9 +182,8 @@ struct EditableTodoVCSwiftUI: WritableView {
 #Preview {
     @State var a = "title"
     @State var b = "content"
-    @State var d: TodoModel?
     NavigationStack {
-        CreatableTodoVCSwiftUI($d, didCompleteWriting: { _ in })
+        CreatableTodoVCSwiftUI(didCompleteWriting: { _ in })
     }
 
 }

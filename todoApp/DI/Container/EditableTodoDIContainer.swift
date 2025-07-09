@@ -103,7 +103,7 @@ final class TodoEditableAssembly: Assembly {
 //                argument: useCase
 //            )
 
-            return CreatableTodoVCSwiftUI(.constant(nil), didCompleteWriting: {_ in})
+            return CreatableTodoVCSwiftUI(didCompleteWriting: {_ in})
         }
         
         // 수정 vm 등록
