@@ -37,50 +37,59 @@ enum WritableAction {
     case doWrite
 }
 
-protocol ActionObservableObject: ViewModelObservableObject
-where Action == WritableAction {}
+enum WritableType {
+    case create, edit
+}
 
 protocol WritableTodoOutput: ObservableObject {
     var state: WriteableState { get set }
     var error: Error? { get }
     var writtenTodo: TodoModel? { get }
+    var writtenTodoPublisher: Published<TodoModel?>.Publisher { get }
 }
 
+protocol WritableTodoPublisher {
+    var writtenTodoPublisher: Published<TodoModel?>.Publisher { get }
+}
+
+protocol WritableViewModelProtocol: ViewModelObservableObject,
+    WritableTodoOutput, WritableTodoPublisher, RetryProtocolSwiftUI, LoadingProtocolSwiftUI
+where Action == WritableAction {
+    var type: WritableType { get }
+}
 /*
-class AnyWritableTodoVMSwiftUI: ActionObservableObject, WritableTodo {
-    private let base: any WritableConcrete
-    private let _action: (WritableAction) -> Void
+ class AnyWritableTodoVMSwiftUI: ActionObservableObject, WritableTodo {
+ private let base: any WritableConcrete
+ private let _action: (WritableAction) -> Void
 
-    var state: WriteableState {
-        get { base.state }
-        set { base.setState(newValue) }
-    }
+ var state: WriteableState {
+ get { base.state }
+ set { base.setState(newValue) }
+ }
 
-    var writtenTodo:TodoModel? {
-        get { base.writtenTodo }
-    }
+ var writtenTodo:TodoModel? {
+ get { base.writtenTodo }
+ }
 
-    var error: (any Error)? {
-        get { base.error }
-    }
+ var error: (any Error)? {
+ get { base.error }
+ }
 
-    init(_ base: any WritableConcrete) {
-        self.base = base
-        self._action = base.action
-    }
+ init(_ base: any WritableConcrete) {
+ self.base = base
+ self._action = base.action
+ }
 
-    func action(_ action: WritableAction) {
-        _action(action)
-    }
-}
+ func action(_ action: WritableAction) {
+ _action(action)
+ }
+ }
 
-protocol WritableConcrete: WritableTodo, ActionObservableObject {
-    func setState(_ value:WriteableState) -> Void
-}
-*/
-class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
-                           LoadingProtocolSwiftUI, RetryProtocolSwiftUI
-{
+ protocol WritableConcrete: WritableTodo, ActionObservableObject {
+ func setState(_ value:WriteableState) -> Void
+ }
+ */
+class CreateTodoVMSwiftUI: WritableViewModelProtocol, LoadingProtocolSwiftUI {
     struct UseCase {
         let addTodo: any AddTodoUseCase
     }
@@ -90,11 +99,13 @@ class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
     @Published private(set) var retryError: Error?
     @Published private(set) var writtenTodo: TodoModel?
     @Published private(set) var isShowLoadingIndicator: Bool = false
+    var writtenTodoPublisher: Published<TodoModel?>.Publisher { $writtenTodo }
 
     private let useCase: UseCase
     var cancellables = Set<AnyCancellable>()
     let retryTrigger = PassthroughSubject<Void, Never>()
-
+    let type = WritableType.create
+    
     init(_ useCase: UseCase) {
         self.state = WriteableState(title: "", date: nil, content: "")
         self.useCase = useCase
@@ -133,16 +144,16 @@ class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
                         this.retryError = error
 
                         return this.retryTrigger
-                            .retry {  createWithErrorHandle() }
+                            .retry { createWithErrorHandle() }
                     }
-                    
+
                     this.error = error
                     return Combine.Empty<TodoModel, Never>()
                         .eraseToAnyPublisher()
                 }
                 .eraseToAnyPublisher()
         }
-        
+
         createWithErrorHandle()
             .receive(on: DispatchQueue.main)
             .handleLoadingWithUnretained(self) { this, value in
@@ -179,7 +190,7 @@ class CreateTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput,
     }
 }
 
-class EditTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput, RetryProtocolSwiftUI {
+class EditTodoVMSwiftUI: WritableViewModelProtocol {
     struct UseCase {
         let editTodo: any EditTodoUseCase
     }
@@ -188,12 +199,15 @@ class EditTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput, RetryProtoc
     @Published private(set) var error: Error?
     @Published private(set) var retryError: Error?
     @Published private(set) var writtenTodo: TodoModel?
+    var writtenTodoPublisher: Published<TodoModel?>.Publisher { $writtenTodo }
 
     private let todo: TodoModelProtocol
     private let useCase: UseCase
     var cancellables = Set<AnyCancellable>()
     let retryTrigger = PassthroughSubject<Void, Never>()
-
+    let type = WritableType.edit
+    var isShowLoadingIndicator: Bool = false
+    
     init(_ todo: TodoModelProtocol, useCase: UseCase) {
         self.todo = todo
         self.state = WriteableState(
@@ -234,16 +248,16 @@ class EditTodoVMSwiftUI: ActionObservableObject, WritableTodoOutput, RetryProtoc
                         this.retryError = error
 
                         return this.retryTrigger
-                            .retry {  editWithErrorHandle() }
+                            .retry { editWithErrorHandle() }
                     }
-                    
+
                     this.error = error
                     return Combine.Empty<TodoModel, Never>()
                         .eraseToAnyPublisher()
                 }
                 .eraseToAnyPublisher()
         }
-        
+
         editWithErrorHandle()
             .receive(on: DispatchQueue.main)
             .withUnretained(self)

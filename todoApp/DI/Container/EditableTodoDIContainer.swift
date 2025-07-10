@@ -102,8 +102,16 @@ final class TodoEditableAssembly: Assembly {
 //                CreateTodoVM.self,
 //                argument: useCase
 //            )
-
-            return CreatableTodoVCSwiftUI(didCompleteWriting: {_ in})
+            let vm = CreateTodoVMSwiftUI(
+                CreateTodoVMSwiftUI
+                    .UseCase(
+                        addTodo: DefaultAddTodoUseCase(
+                            repository: TodoRepositoryImpl(TodoLocalDataSource())
+                        )
+                    )
+            )
+            
+            return CreatableTodoVCSwiftUI(vm)
         }
         
         // 수정 vm 등록

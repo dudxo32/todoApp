@@ -40,6 +40,10 @@ class SwiftUICoordinator: ObservableObject {
         self.path = NavigationPath()
         self.initalScence = initalScene
         self.diContainer = diContainer
+        
+        $modalScence.print("modal").sink { _ in
+            
+        }.store(in: &cancellables)
     }
 
     @ViewBuilder
@@ -56,23 +60,68 @@ class SwiftUICoordinator: ObservableObject {
                 .assign(to: \.modalScence, on: self)
                 .store(in: &cancellables)
 
+            createResult.sink { value in
+                vm.action(.addedItem(value))
+            }
+            .store(in: &cancellables)
+            
             return diContainer.makeTodoListVCSwiftUI(vm)
         }
     }
-
+    
     @ViewBuilder
-    func buildModelScence(_ scence: ModalScene) -> some View {
+    func buildModalScene(_ scence: ModalScene) -> some View {
         switch scence {
         case .create:
-            CreatableTodoVCSwiftUI { newValue in
-//                createResult.send(newValue)
-            }
+            buildCreateView()
 
         case .edit(let value):
-            EditableTodoVCSwiftUI(value) { newValue in
-//                viewModel.action(.edittedItem(newValue))
-            }
+            buildEditView(value)
+
         }
+    }
+    
+    private func bindWrittenTodo(_ vm:any WritableTodoPublisher) {
+        vm.writtenTodoPublisher
+            .compactMap { $0 }
+            .withUnretained(self)
+            .sink { (self, value) in
+                self.modalScence = nil
+                self.createResult.send(value)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func buildCreateView() -> some View {
+        let vm = CreateTodoVMSwiftUI(
+            CreateTodoVMSwiftUI
+                .UseCase(
+                    addTodo: DefaultAddTodoUseCase(
+                        repository: TodoRepositoryImpl(TodoLocalDataSource())
+                    )
+                )
+        )
+
+        bindWrittenTodo(vm)
+        
+        return WritableTodoVCSwiftUI<CreateTodoVMSwiftUI>(vm)
+    }
+    
+    private func buildEditView(_ todo: TodoModel) -> some View {
+        let viewModel = EditTodoVMSwiftUI(
+            todo,
+            useCase:
+                EditTodoVMSwiftUI
+                .UseCase(
+                    editTodo: DefaultEditTodoUseCase(
+                        repository: TodoRepositoryImpl(TodoLocalDataSource())
+                    )
+                )
+        )
+        
+        bindWrittenTodo(viewModel)
+
+        return WritableTodoVCSwiftUI<EditTodoVMSwiftUI>(viewModel)
     }
 }
 
@@ -89,7 +138,7 @@ struct SwiftUIScene: View {
 
         }
         .sheet(item: $coordinator.modalScence) { modalScence in
-            coordinator.buildModelScence(modalScence)
+            coordinator.buildModalScene(modalScence)
         }
     }
 }
