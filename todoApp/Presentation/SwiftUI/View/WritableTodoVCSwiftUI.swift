@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct WritableTodoVCSwiftUI<VM: WritableViewModelProtocol>: View {
-    //    private let childView:AnyView
-    
     @ObservedObject var vm:VM
     
     var title: String {
@@ -90,11 +88,6 @@ private struct WriteToolbarModifier<VM: WritableViewModelProtocol>: ViewModifier
                     Button(I18N.done) { vm.action(.doWrite) }
                         .disabled(!vm.state.isValid)
                         .foregroundStyle(buttonColor)
-                    //                        .onChange(of: vm.writtenTodo) { newValue in
-                    //                            guard let newValue = newValue else { return }
-                    //                            didCompleteWriting(newValue)
-                    //                            dismiss()
-                    //                        }
                 }
             }
     }

@@ -11,7 +11,8 @@ import SwiftUI
 enum AppScene {
     case list
 }
-enum ModalScene: Identifiable {
+
+enum WritableScene: Identifiable {
     case create
     case edit(todo: TodoModel)
 
@@ -26,15 +27,17 @@ enum ModalScene: Identifiable {
 }
 
 class SwiftUICoordinator: ObservableObject {
+
+    
     @Published var path: NavigationPath
-    @Published fileprivate var modalScence: ModalScene? = nil
+    @Published fileprivate var modalScene: WritableScene? = nil
 
     private let initalScence: AppScene
     private let diContainer: TodoListDIContainer
 
-    let writtenTodo = PassthroughSubject<(TodoModel, WritableType), Never>()
+    private let writtenTodo = PassthroughSubject<(TodoModel, WritableScene), Never>()
 
-    var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()
 
     init(initalScene: AppScene, diContainer: TodoListDIContainer) {
         self.path = NavigationPath()
@@ -59,7 +62,7 @@ class SwiftUICoordinator: ObservableObject {
     
     func bindTodoListScene(_ vm:TodoListVMSwiftUI) {
         vm.presentModel
-            .assign(to: \.modalScence, on: self)
+            .assign(to: \.modalScene, on: self)
             .store(in: &cancellables)
 
         writtenTodo.sink { data in
@@ -74,59 +77,22 @@ class SwiftUICoordinator: ObservableObject {
         .store(in: &cancellables)
     }
     
-    @ViewBuilder
-    func buildModalScene(_ scence: ModalScene) -> some View {
-        switch scence {
-        case .create:
-            buildCreateView()
-
-        case .edit(let value):
-            buildEditView(value)
-
-        }
-    }
-    
-    private func bindWrittenTodo(_ vm:any WritableTodoPublisher) {
-        vm.writtenTodoPublisher
-            .compactMap { $0 }
+    func buildModalScene(_ scene: WritableScene) -> some View {
+        let coordinator = SwiftUIWritableTodoCoordinator(
+            type: scene,
+            EditableTodoDIContainer()
+        )
+        
+        coordinator.writeOnCompleted
             .withUnretained(self)
-            .sink { (self, value) in
-                self.modalScence = nil
-                self.writtenTodo.send((value, vm.type))
+            .sink { (self, data) in
+                let (todo, type) = data
+                self.modalScene = nil
+                self.writtenTodo.send((todo, type))
             }
             .store(in: &cancellables)
-    }
-    
-    private func buildCreateView() -> some View {
-        let vm = CreateTodoVMSwiftUI(
-            CreateTodoVMSwiftUI
-                .UseCase(
-                    addTodo: DefaultAddTodoUseCase(
-                        repository: TodoRepositoryImpl(TodoLocalDataSource())
-                    )
-                )
-        )
 
-        bindWrittenTodo(vm)
-        
-        return WritableTodoVCSwiftUI<CreateTodoVMSwiftUI>(vm)
-    }
-    
-    private func buildEditView(_ todo: TodoModel) -> some View {
-        let viewModel = EditTodoVMSwiftUI(
-            todo,
-            useCase:
-                EditTodoVMSwiftUI
-                .UseCase(
-                    editTodo: DefaultEditTodoUseCase(
-                        repository: TodoRepositoryImpl(TodoLocalDataSource())
-                    )
-                )
-        )
-        
-        bindWrittenTodo(viewModel)
-
-        return WritableTodoVCSwiftUI<EditTodoVMSwiftUI>(viewModel)
+        return coordinator.buildMain()
     }
 }
 
@@ -142,7 +108,7 @@ struct SwiftUIScene: View {
                 }
 
         }
-        .sheet(item: $coordinator.modalScence) { modalScence in
+        .sheet(item: $coordinator.modalScene) { modalScence in
             coordinator.buildModalScene(modalScence)
         }
     }
