@@ -41,11 +41,11 @@ class LaunchViewController: UIViewController {
             setupBarAppearance()
 
             if isSwift {
-                let coordinator = SwiftUICoordinator(
+                let coordinator = SUI.TodoListCoordinator(
                     initalScene: .list,
                     diContainer: TodoListDIContainer()
                 )
-                let root = SwiftUIScene(coordinator: coordinator)
+                let root = SUI.CoordinatorScene(coordinator: coordinator)
                 scenceDelegate.window?.rootViewController = UIHostingController(
                     rootView: root
                 )

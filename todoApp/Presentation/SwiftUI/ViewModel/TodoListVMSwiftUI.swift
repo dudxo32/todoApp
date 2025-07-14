@@ -24,7 +24,7 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
         case tapFilter(_ value: TodoFilterType)
         case toggleDone(_ value: TodoModel)
         case retryTrigger
-        case presentModal(_ value: WritableScene)
+        case presentModal(_ value: SUI.WritableScene)
     }
     
     private let useCase: UseCase
@@ -36,7 +36,7 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
     @Published private(set) var error: Error?
     @Published private(set) var serverError: Error?
     @Published private(set) var isShowLoadingIndicator: Bool = false
-    let presentModel = PassthroughSubject<WritableScene?, Never>()
+    let presentModel = PassthroughSubject<SUI.WritableScene?, Never>()
     
     @Published fileprivate var allItmes = [TodoModel]()
     @Published private var cachedGroup:TodoGroup = [:]
