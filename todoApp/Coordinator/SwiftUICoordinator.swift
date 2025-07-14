@@ -32,7 +32,7 @@ class SwiftUICoordinator: ObservableObject {
     private let initalScence: AppScene
     private let diContainer: TodoListDIContainer
 
-    let createResult = PassthroughSubject<TodoModel, Never>()
+    let writtenTodo = PassthroughSubject<(TodoModel, WritableType), Never>()
 
     var cancellables = Set<AnyCancellable>()
 
@@ -40,10 +40,6 @@ class SwiftUICoordinator: ObservableObject {
         self.path = NavigationPath()
         self.initalScence = initalScene
         self.diContainer = diContainer
-        
-        $modalScence.print("modal").sink { _ in
-            
-        }.store(in: &cancellables)
     }
 
     @ViewBuilder
@@ -55,18 +51,27 @@ class SwiftUICoordinator: ObservableObject {
         switch scene {
         case .list:
             let vm = diContainer.makeTodoListVMSwiftUI(initFilter: .today)
-            
-            vm.presentModel
-                .assign(to: \.modalScence, on: self)
-                .store(in: &cancellables)
-
-            createResult.sink { value in
-                vm.action(.addedItem(value))
-            }
-            .store(in: &cancellables)
+            bindTodoListScene(vm)
             
             return diContainer.makeTodoListVCSwiftUI(vm)
         }
+    }
+    
+    func bindTodoListScene(_ vm:TodoListVMSwiftUI) {
+        vm.presentModel
+            .assign(to: \.modalScence, on: self)
+            .store(in: &cancellables)
+
+        writtenTodo.sink { data in
+            let (value, type) = data
+            switch type {
+            case .create:
+                vm.action(.addedItem(value))
+            case .edit:
+                vm.action(.edittedItem(value))
+            }
+        }
+        .store(in: &cancellables)
     }
     
     @ViewBuilder
@@ -87,7 +92,7 @@ class SwiftUICoordinator: ObservableObject {
             .withUnretained(self)
             .sink { (self, value) in
                 self.modalScence = nil
-                self.createResult.send(value)
+                self.writtenTodo.send((value, vm.type))
             }
             .store(in: &cancellables)
     }

@@ -50,13 +50,12 @@ protocol WritableTodoOutput: ObservableObject {
 
 protocol WritableTodoPublisher {
     var writtenTodoPublisher: Published<TodoModel?>.Publisher { get }
+    var type: WritableType { get }
 }
 
 protocol WritableViewModelProtocol: ViewModelObservableObject,
     WritableTodoOutput, WritableTodoPublisher, RetryProtocolSwiftUI, LoadingProtocolSwiftUI
-where Action == WritableAction {
-    var type: WritableType { get }
-}
+where Action == WritableAction {}
 /*
  class AnyWritableTodoVMSwiftUI: ActionObservableObject, WritableTodo {
  private let base: any WritableConcrete
