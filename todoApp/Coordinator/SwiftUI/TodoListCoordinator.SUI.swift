@@ -8,7 +8,7 @@
 import Combine
 import SwiftUI
 
-enum SUI {}
+public enum SUI {}
 
 extension SUI {
     enum AppScene {
@@ -51,13 +51,13 @@ extension SUI {
             buildScence(initalScence)
         }
 
+        @ViewBuilder
         func buildScence(_ scene: AppScene) -> some View {
             switch scene {
             case .list:
-                let vm = diContainer.makeTodoListVMSwiftUI(initFilter: .today)
-                bindTodoListScene(vm)
-                
-                return diContainer.makeTodoListVCSwiftUI(vm)
+                diContainer.makeTodoListScene(initFilter: .today) { vm in
+                    self.bindTodoListScene(vm)
+                }
             }
         }
         

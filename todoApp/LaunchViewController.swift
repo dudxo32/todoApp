@@ -40,10 +40,11 @@ class LaunchViewController: UIViewController {
 
             setupBarAppearance()
 
+            
             if isSwift {
                 let coordinator = SUI.TodoListCoordinator(
                     initalScene: .list,
-                    diContainer: TodoListDIContainer()
+                    diContainer: SUI.TodoListDIContainer()
                 )
                 let root = SUI.CoordinatorScene(coordinator: coordinator)
                 scenceDelegate.window?.rootViewController = UIHostingController(
@@ -58,7 +59,7 @@ class LaunchViewController: UIViewController {
                 
                 let coordinator = TodoListCoordinator(
                     naviController,
-                    diContainer: TodoListDIContainer()
+                    diContainer: UIK.TodoListDIContainer()
                 )
 
                 coordinator.start()
