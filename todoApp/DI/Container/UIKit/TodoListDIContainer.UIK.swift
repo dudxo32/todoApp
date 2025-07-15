@@ -10,8 +10,6 @@ import Moya
 import Swinject
 import UIKit
 
-enum UIK {}
-
 extension UIK {
     class TodoListDIContainer {
         private let container: Container

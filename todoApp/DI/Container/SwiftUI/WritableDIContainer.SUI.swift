@@ -28,8 +28,8 @@ extension SUI {
 
         func makeCreatableTodoScene(
             env: DataEnvironment = .local,
-            setup: ((_ vm: CreateTodoVMSwiftUI) -> Void)? = nil
-        ) -> WritableTodoVCSwiftUI<CreateTodoVMSwiftUI> {
+            setup: ((_ vm: SUI.CreateTodoVM) -> Void)? = nil
+        ) -> SUI.WritableTodoVC<SUI.CreateTodoVM> {
             let vm = makeCreateVM(env)
             setup?(vm)
             return makeCreateVC(vm)
@@ -38,8 +38,8 @@ extension SUI {
         func makeEditableTodoScene(
             todo: TodoModelProtocol,
             env: DataEnvironment = .local,
-            setup: ((_ vm: EditTodoVMSwiftUI) -> Void)? = nil
-        ) -> WritableTodoVCSwiftUI<EditTodoVMSwiftUI> {
+            setup: ((_ vm: SUI.EditTodoVM) -> Void)? = nil
+        ) -> SUI.WritableTodoVC<SUI.EditTodoVM> {
             let vm = makeEditVM(todo, env: env)
             setup?(vm)
             return makeEditVC(vm)
@@ -50,69 +50,50 @@ extension SUI {
         }
 
         private func makeCreateVM(_ env: DataEnvironment = .local)
-            -> CreateTodoVMSwiftUI
+            -> SUI.CreateTodoVM
         {
             let repo = makeRepository(env)
 
             let addTodo = container.resolveOrFail(
                 (any AddTodoUseCase).self, argument: repo)
 
-            let useCase = CreateTodoVMSwiftUI.UseCase(addTodo: addTodo)
+            let useCase = SUI.CreateTodoVM.UseCase(addTodo: addTodo)
 
             return
                 container
-                .resolveOrFail(CreateTodoVMSwiftUI.self, argument: useCase)
+                .resolveOrFail(SUI.CreateTodoVM.self, argument: useCase)
         }
 
-        private func makeCreateVC(_ vm: CreateTodoVMSwiftUI)
-            -> WritableTodoVCSwiftUI<CreateTodoVMSwiftUI>
+        private func makeCreateVC(_ vm: SUI.CreateTodoVM)
+            -> SUI.WritableTodoVC<SUI.CreateTodoVM>
         {
             return container.resolveOrFail(
-                WritableTodoVCSwiftUI<CreateTodoVMSwiftUI>.self,
+                SUI.WritableTodoVC<SUI.CreateTodoVM>.self,
                 argument: vm
             )
         }
 
         private func makeEditVM(
             _ todo: TodoModelProtocol, env: DataEnvironment = .local
-        ) -> EditTodoVMSwiftUI {
+        ) -> SUI.EditTodoVM {
             let repo = makeRepository(env)
 
             let editTodo = container.resolveOrFail(
                 (any EditTodoUseCase).self, argument: repo)
 
-            let useCase = EditTodoVMSwiftUI.UseCase(editTodo: editTodo)
+            let useCase = SUI.EditTodoVM.UseCase(editTodo: editTodo)
 
             return
                 container
-                .resolveOrFail(EditTodoVMSwiftUI.self, arguments: useCase, todo)
+                .resolveOrFail(SUI.EditTodoVM.self, arguments: useCase, todo)
         }
 
-        private func makeEditVC(_ vm: EditTodoVMSwiftUI)
-            -> WritableTodoVCSwiftUI<EditTodoVMSwiftUI>
+        private func makeEditVC(_ vm: SUI.EditTodoVM)
+            -> SUI.WritableTodoVC<SUI.EditTodoVM>
         {
             return container.resolveOrFail(
-                WritableTodoVCSwiftUI.self,
+                SUI.WritableTodoVC.self,
                 argument: vm
-            )
-        }
-
-        private func makeEditTodoVC(
-            todoModel: TodoModelProtocol, _ env: DataEnvironment = .local
-        ) -> EditTodoVC {
-            let repo = makeRepository(env)
-
-            let addTodo = container.resolveOrFail(
-                (any AddTodoUseCase).self, argument: repo)
-            let editTodo = container.resolveOrFail(
-                (any EditTodoUseCase).self, argument: repo)
-
-            let useCase = EditTodoVM.UseCase(
-                addTodo: addTodo, EditTodo: editTodo)
-
-            return container.resolveOrFail(
-                EditTodoVC.self,
-                arguments: useCase, todoModel
             )
         }
     }
@@ -121,34 +102,34 @@ extension SUI {
         func assemble(container: Container) {
             // 생성 VM 등록
             container
-                .register(CreateTodoVMSwiftUI.self) {
-                    (resovler, useCase: CreateTodoVMSwiftUI.UseCase) in
-                    return CreateTodoVMSwiftUI(useCase)
+                .register(SUI.CreateTodoVM.self) {
+                    (resovler, useCase: SUI.CreateTodoVM.UseCase) in
+                    return SUI.CreateTodoVM(useCase)
                 }
 
             // 생성 화면 등록
-            container.register(WritableTodoVCSwiftUI.self) {
-                (resolver, vm: CreateTodoVMSwiftUI) in
+            container.register(SUI.WritableTodoVC.self) {
+                (resolver, vm: SUI.CreateTodoVM) in
 
-                return WritableTodoVCSwiftUI(vm)
+                return SUI.WritableTodoVC(vm)
             }
 
             // 수정 vm 등록
-            container.register(EditTodoVMSwiftUI.self) {
+            container.register(SUI.EditTodoVM.self) {
                 (
                     _,
-                    useCase: EditTodoVMSwiftUI.UseCase,
+                    useCase: SUI.EditTodoVM.UseCase,
                     model: TodoModelProtocol
                 ) in
 
-                return EditTodoVMSwiftUI(model, useCase: useCase)
+                return SUI.EditTodoVM(model, useCase: useCase)
             }
 
             // 수정 화면 등록
-            container.register(WritableTodoVCSwiftUI.self) {
-                (resolver, vm: EditTodoVMSwiftUI) in
+            container.register(SUI.WritableTodoVC.self) {
+                (resolver, vm: SUI.EditTodoVM) in
 
-                return WritableTodoVCSwiftUI(vm)
+                return SUI.WritableTodoVC(vm)
             }
         }
     }

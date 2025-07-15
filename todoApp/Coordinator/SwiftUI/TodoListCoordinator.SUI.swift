@@ -8,8 +8,6 @@
 import Combine
 import SwiftUI
 
-public enum SUI {}
-
 extension SUI {
     enum AppScene {
         case list
@@ -62,7 +60,7 @@ extension SUI {
             }
         }
         
-        func bindTodoListScene(_ vm:TodoListVMSwiftUI) {
+        func bindTodoListScene(_ vm:SUI.TodoListVM) {
             vm.presentModel
                 .assign(to: \TodoListCoordinator.modalScene, on: self)
                 .store(in: &cancellables)

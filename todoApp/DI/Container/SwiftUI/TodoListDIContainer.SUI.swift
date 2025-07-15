@@ -30,8 +30,8 @@ extension SUI {
         func makeTodoListScene(
             initFilter: TodoFilterType,
             env: DataEnvironment = .local,
-            setup: ((_ vm: TodoListVMSwiftUI) -> Void)? = nil
-        ) -> TodoListVCSwiftUI {
+            setup: ((_ vm: SUI.TodoListVM) -> Void)? = nil
+        ) -> SUI.TodoListVC {
             let vm = makeTodoListVM(initFilter: initFilter, env: env)
             setup?(vm)
             return makeTodoListVC(vm)
@@ -39,7 +39,7 @@ extension SUI {
 
         private func makeTodoListVM(
             initFilter: TodoFilterType, env: DataEnvironment = .local
-        ) -> TodoListVMSwiftUI {
+        ) -> SUI.TodoListVM {
             let repo = container.resolveOrFail(
                 TodoRepository.self,
                 argument: env
@@ -58,7 +58,7 @@ extension SUI {
                 arguments: repo, cache
             )
 
-            let useCase = TodoListVMSwiftUI.UseCase(
+            let useCase = SUI.TodoListVM.UseCase(
                 fetch: fetchUseCase,
                 delete: deleteUseCase,
                 toggleDone: toggleDone,
@@ -67,15 +67,15 @@ extension SUI {
 
             return self.container
                 .resolveOrFail(
-                    TodoListVMSwiftUI.self,
+                    SUI.TodoListVM.self,
                     arguments: initFilter,
                     useCase
                 )
         }
 
-        private func makeTodoListVC(_ vm: TodoListVMSwiftUI) -> TodoListVCSwiftUI {
+        private func makeTodoListVC(_ vm: SUI.TodoListVM) -> SUI.TodoListVC {
             return self.container.resolveOrFail(
-                TodoListVCSwiftUI.self,
+                SUI.TodoListVC.self,
                 argument: vm
             )
         }
@@ -84,23 +84,23 @@ extension SUI {
     final private class TodoListAssembly: Assembly {
         func assemble(container: Container) {
             // swiftUI vm 등록
-            container.register(TodoListVMSwiftUI.self) {
+            container.register(SUI.TodoListVM.self) {
                 (
                     resolver,
                     initFilter: TodoFilterType,
-                    useCase: TodoListVMSwiftUI.UseCase
+                    useCase: SUI.TodoListVM.UseCase
                 ) in
 
-                return TodoListVMSwiftUI(useCase, initFilter: initFilter)
+                return SUI.TodoListVM(useCase, initFilter: initFilter)
             }
             // swiftUI vc 등록
-            container.register(TodoListVCSwiftUI.self) {
+            container.register(SUI.TodoListVC.self) {
                 (
                     resolver,
-                    viewModel: TodoListVMSwiftUI
+                    viewModel: SUI.TodoListVM
                 ) in
                     
-                return TodoListVCSwiftUI(viewModel: viewModel)
+                return SUI.TodoListVC(viewModel: viewModel)
             }
         }
     }
