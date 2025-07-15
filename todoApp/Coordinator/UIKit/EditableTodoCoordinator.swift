@@ -27,14 +27,13 @@ class EditableTodoCoordinator: CoordinatorProcotcol {
 
     let navigationController: UINavigationController
     let editableVC: EditableTodoVC
-    let editableVCSwiftUI: CreatableTodoVCSwiftUI
     
     let output = Output()
     let disposeBag = DisposeBag()
 
     init(
         _ navigationController: UINavigationController,
-        diContainer: EditableTodoDIContainer,
+        diContainer: UIK.WritableTodoDIContainer,
         mode: Mode
     ) {
         self.navigationController = navigationController
@@ -45,9 +44,7 @@ class EditableTodoCoordinator: CoordinatorProcotcol {
         case .edit(let todo):
             self.editableVC = diContainer.makeEditTodoVC(todoModel: todo)
         }
-        
-        self.editableVCSwiftUI = diContainer.makeCreateTodoVCSwiftUI()
-    }
+            }
 
     func start() {
         presentEditableVC()

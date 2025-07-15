@@ -15,10 +15,10 @@ extension SUI {
 
         var cancellables = Set<AnyCancellable>()
         
-        private let diContainer:EditableTodoDIContainer
+        private let diContainer:SUI.WritableTodoDIContainer
         private let type: SUI.WritableScene
         
-        init(type: SUI.WritableScene, _ diContainer:EditableTodoDIContainer) {
+        init(type: SUI.WritableScene, _ diContainer:SUI.WritableTodoDIContainer) {
             self.path = NavigationPath()
             self.diContainer = diContainer
             self.type = type
@@ -38,44 +38,26 @@ extension SUI {
                 buildEditView(todo)
             }
         }
-            
+        
+        @ViewBuilder
         private func buildCreateView() -> some View {
-            let vm = CreateTodoVMSwiftUI(
-                CreateTodoVMSwiftUI
-                    .UseCase(
-                        addTodo: DefaultAddTodoUseCase(
-                            repository: TodoRepositoryImpl(
-                                TodoLocalDataSource()
-                            )
-                        )
-                    )
-            )
-                
-            bindWrittenTodo(vm)
-                
-            return WritableTodoVCSwiftUI<CreateTodoVMSwiftUI>(vm)
+            diContainer.makeCreatableTodoScene() {
+                self.bindWrittenTodo($0)
+            }
         }
             
+        @ViewBuilder
         private func buildEditView(_ todo: TodoModel) -> some View {
-            let viewModel = EditTodoVMSwiftUI(
-                todo,
-                useCase:
-                    EditTodoVMSwiftUI
-                    .UseCase(
-                        editTodo: DefaultEditTodoUseCase(
-                            repository: TodoRepositoryImpl(
-                                TodoLocalDataSource()
-                            )
-                        )
-                    )
-            )
-                
-            bindWrittenTodo(viewModel)
-                
-            return WritableTodoVCSwiftUI<EditTodoVMSwiftUI>(viewModel)
+            diContainer.makeEditableTodoScene(todo: todo) {
+                self.bindWrittenTodo($0)
+            }
         }
         
         private func bindWrittenTodo(_ vm:any WritableTodoPublisher) {
+            vm.writtenTodoPublisher.print().sink { _ in
+                
+            }.store(in: &cancellables)
+            
             vm.writtenTodoPublisher
                 .compactMap { $0 }
                 .withUnretained(self)

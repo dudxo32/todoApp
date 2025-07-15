@@ -32,10 +32,11 @@ extension SUI {
     class TodoListCoordinator: ObservableObject {
         @Published var path: NavigationPath
         @Published fileprivate var modalScene: WritableScene? = nil
-
+        
         private let initalScence: AppScene
         private let diContainer: TodoListDIContainer
-
+        
+        private var writableCoordinator: SUI.WritableTodoCoordinator? = nil
         private let writtenTodo = PassthroughSubject<(TodoModel, WritableScene), Never>()
 
         private var cancellables = Set<AnyCancellable>()
@@ -81,19 +82,22 @@ extension SUI {
         func buildModalScene(_ scene: WritableScene) -> some View {
             let coordinator = SUI.WritableTodoCoordinator(
                 type: scene,
-                EditableTodoDIContainer()
+                WritableTodoDIContainer()
             )
+            
+            self.writableCoordinator = coordinator
             
             coordinator.writeOnCompleted
                 .withUnretained(self)
                 .sink { (self, data) in
                     let (todo, type) = data
                     self.modalScene = nil
+                    self.writableCoordinator = nil
                     self.writtenTodo.send((todo, type))
                 }
                 .store(in: &cancellables)
 
-            return coordinator.buildMain()
+            return writableCoordinator!.buildMain()
         }
     }
 

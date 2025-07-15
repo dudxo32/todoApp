@@ -131,7 +131,10 @@ class CreateTodoVMSwiftUI: WritableViewModelProtocol, LoadingProtocolSwiftUI {
                 self.isShowLoadingIndicator = value
             }
             .withUnretained(self)
-            .sink { (self, value) in self.writtenTodo = value }
+            .sink { (self, value) in
+                print(value)
+                self.writtenTodo = value
+            }
             .store(in: &cancellables)
     }
 

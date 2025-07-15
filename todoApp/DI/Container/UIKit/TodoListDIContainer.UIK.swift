@@ -10,6 +10,8 @@ import Moya
 import Swinject
 import UIKit
 
+enum UIK {}
+
 extension UIK {
     class TodoListDIContainer {
         private let container: Container
@@ -62,4 +64,35 @@ extension UIK {
         }
     }
     
+    final private class TodoListAssembly: Assembly {
+        func assemble(container: Container) {
+            // vm 등록
+            container.register(TodoListVM.self) {
+                (
+                    resolver,
+                    initFilter: TodoFilterType,
+                    useCase: TodoListVM.UseCase
+                ) in
+
+                return TodoListVM(initFilter: initFilter, useCase: useCase)
+            }
+
+            // vc 등록
+            container.register(TodoListVC.self) {
+                (
+                    resolver,
+                    initFilter: TodoFilterType,
+                    useCase: TodoListVM.UseCase
+                ) in
+
+                let viewModel = resolver.resolveOrFail(
+                    TodoListVM.self,
+                    arguments: initFilter, useCase
+                )
+
+                return TodoListVC(initFilter: initFilter, vm: viewModel)
+            }
+        }
+    }
+
 }

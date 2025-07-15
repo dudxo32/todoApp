@@ -45,10 +45,6 @@ class TodoListVMSwiftUI: ViewModelObservableObject, LoadingProtocolSwiftUI {
     init(_ useCase:UseCase, initFilter:TodoFilterType) {
         self.useCase = useCase
         self.selectedFilter = initFilter        
-        
-        $item.print().sink { _ in
-            
-        }.store(in: &cancellables)
 
         $allItmes
             .map(makeTapGroup)
