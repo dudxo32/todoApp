@@ -254,7 +254,6 @@
 				C91016552DD0169800C57CAE /* Domain */,
 				C925135A2D782C8F004E2D5B /* Data */,
 				C9AE73082DC3549E00F1C5EE /* Coordinator */,
-				C9CBB8412D9D096100747A70 /* Widget */,
 				C9E5382D2DA50B6500D529D8 /* DI */,
 				C9083E9928E082F5006DEF47 /* Constant */,
 				C9083E9428E077D1006DEF47 /* Extensions */,
@@ -328,8 +327,7 @@
 			isa = PBXGroup;
 			children = (
 				C9F1EA492DF14F3400654522 /* SwiftUI */,
-				C92513582D782C7A004E2D5B /* View */,
-				C92513572D782C5E004E2D5B /* ViewModel */,
+				C97DA5D32E26566E003BDF5F /* UIKit */,
 				C96C4C622DD0296200AAA8AD /* Model */,
 			);
 			path = Presentation;
@@ -377,6 +375,7 @@
 		C92513582D782C7A004E2D5B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				C9CBB8412D9D096100747A70 /* Widget */,
 				C96C4C7C2DD0A5BC00AAA8AD /* TodoList */,
 				C97BA7382D91486800C43CB9 /* EditableTodoVC.swift */,
 			);
@@ -486,6 +485,15 @@
 			children = (
 				C9AE73042DC333A300F1C5EE /* TodoListDIContainer.UIK.swift */,
 				C9E5382E2DA50D9F00D529D8 /* WritableDIContainer.UIK.swift */,
+			);
+			path = UIKit;
+			sourceTree = "<group>";
+		};
+		C97DA5D32E26566E003BDF5F /* UIKit */ = {
+			isa = PBXGroup;
+			children = (
+				C92513582D782C7A004E2D5B /* View */,
+				C92513572D782C5E004E2D5B /* ViewModel */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
