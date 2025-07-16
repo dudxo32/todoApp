@@ -66,6 +66,11 @@ extension SUI {
                     }
                 }
             }
+            .overlay(content: {
+                if viewModel.item.isEmpty && !viewModel.isShowLoadingIndicator {
+                    NoListLabel()
+                }
+            })
             .scrollContentBackground(.hidden)
             .background(.white)
         }
