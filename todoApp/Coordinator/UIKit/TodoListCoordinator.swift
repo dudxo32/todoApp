@@ -9,27 +9,23 @@ import Foundation
 import RxRelay
 import RxSwift
 import UIKit
-import SwiftUI
 
 final class TodoListCoordinator: CoordinatorProcotcol {
     let navigationController: UINavigationController
     let todoListVC: TodoListVC
-    let todoListVCSwiftUI: TodoListVCSwiftUI
     
     let disposeBag = DisposeBag()
 
     init(
         _ navigationController: UINavigationController,
-        diContainer: TodoListDIContainer
+        diContainer: UIK.TodoListDIContainer
     ) {
         self.navigationController = navigationController
         self.todoListVC = diContainer.makeTodoListVC(initFilter: .today)
-        self.todoListVCSwiftUI = diContainer.makeTodoListVCSwiftUI(initFilter: .today)
     }
 
     func start() {
-//        navigationController.viewControllers = [todoListVC]
-        navigationController.viewControllers = [UIHostingController(rootView: todoListVCSwiftUI)]
+        navigationController.viewControllers = [todoListVC]
         
         bindPresentCreateVC()
         bindPresentEditVC()
@@ -39,7 +35,7 @@ final class TodoListCoordinator: CoordinatorProcotcol {
         func presentCreateVC() {
             let coord = EditableTodoCoordinator(
                 self.navigationController,
-                diContainer: EditableTodoDIContainer(),
+                diContainer: UIK.WritableTodoDIContainer(),
                 mode: .create
             )
             coord.start()
@@ -58,7 +54,7 @@ final class TodoListCoordinator: CoordinatorProcotcol {
         func presentEditVC(_ todo: TodoModelProtocol) {
             let coord = EditableTodoCoordinator(
                 self.navigationController,
-                diContainer: EditableTodoDIContainer(),
+                diContainer: UIK.WritableTodoDIContainer(),
                 mode: .edit(todo: todo)
             )
             coord.start()

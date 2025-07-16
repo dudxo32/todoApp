@@ -1,0 +1,96 @@
+//
+//  EditableTodoVCSwiftUI.swift
+//  todoApp
+//
+//  Created by 조영태 on 6/11/25.
+//
+
+import SwiftUI
+
+extension SUI {
+    struct WritableTodoVC<VM: WritableViewModelProtocol>: View {
+        @ObservedObject var vm:VM
+        
+        var title: String {
+            switch vm.type {
+            case .create:
+                I18N.createTodo
+            case .edit:
+                I18N.editTodo
+            }
+        }
+
+        var buttonColor: Color {
+            vm.state.isValid
+            ? Color(uiColor: .systemBlue)
+            : Color(uiColor: .systemGray)
+        }
+
+        init(_ vm:VM) {
+            self.vm = vm
+        }
+        
+        var body: some View {
+            NavigationStack {
+                ScrollView {
+                    WritableViewWidget(
+                        title: $vm.state.title,
+                        content: $vm.state.content,
+                        date: $vm.state.date
+                    )
+                }
+                .navigationTitle(title)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(I18N.done) { vm.action(.doWrite) }
+                            .disabled(!vm.state.isValid)
+                            .foregroundStyle(buttonColor)
+                    }
+                    
+                }
+                .overlay {
+                    if vm.isShowLoadingIndicator {
+                        SUI.LoadingIndicator()
+                    }
+                }
+            }
+        }
+    }
+
+    private struct WritableViewWidget: View {
+        @Binding var title: String
+        @Binding var content: String
+        @Binding var date: Date?
+
+        var body: some View {
+            LazyVStack(spacing: 8) {
+                SUI.TextInputStackView(
+                    title: $title,
+                    contents: $content
+                )
+
+                SUI.DateInputStackView(date: $date)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+}
+
+
+#Preview {
+    let vm = SUI.CreateTodoVM(
+        SUI.CreateTodoVM
+            .UseCase(
+                addTodo: DefaultAddTodoUseCase(
+                    repository: TodoRepositoryImpl(TodoLocalDataSource())
+                )
+            )
+    )
+
+    NavigationStack {
+        SUI.WritableTodoVC(vm)
+    }
+
+}

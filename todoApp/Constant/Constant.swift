@@ -26,3 +26,8 @@ enum NetworkError : Error {
     case DecodedFailed
     case DictionaryFailed
 }
+
+// SwiftUI, UIkit 구분 네임스페이스
+enum SUI {}
+
+enum UIK {}
