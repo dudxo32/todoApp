@@ -12,7 +12,7 @@ import SnapKit
 import Then
 import RxGesture
 import RxSwift
-
+import Shared
 
 class DateInputStackView: UIStackView {
     let datePicker = UIDatePicker().then {

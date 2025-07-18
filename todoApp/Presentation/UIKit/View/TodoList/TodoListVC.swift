@@ -13,6 +13,7 @@ import RxSwift
 import SnapKit
 import Then
 import UIKit
+import Shared
 
 private let reuseIdentifier = "CustomCell"
 

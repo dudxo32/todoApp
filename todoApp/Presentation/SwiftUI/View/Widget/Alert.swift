@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Shared
 
 extension View {
     func errorAlert(isPresented: Binding<Bool>, message: String) -> some View {

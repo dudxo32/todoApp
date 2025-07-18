@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Shared
 
 extension SUI {
     struct WritableTodoVC<VM: WritableViewModelProtocol>: View {
