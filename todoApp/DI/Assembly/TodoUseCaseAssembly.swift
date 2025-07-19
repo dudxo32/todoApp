@@ -7,6 +7,7 @@
 
 import Foundation
 import Swinject
+import Domain
 
 final class TodoUseCaseAssembly: Assembly {
     func assemble(container: Container) {

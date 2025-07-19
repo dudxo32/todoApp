@@ -6,13 +6,11 @@
 //
 
 import Foundation
-import RealmSwift
 import RxCocoa
 import RxDataSources
 import RxRelay
 import RxSwift
-
-// MARK: 데이터 캐싱 및 분리 타입
+import Domain
 
 // MARK: - ViewModel에서 사용하는 데이터 모델
 extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {

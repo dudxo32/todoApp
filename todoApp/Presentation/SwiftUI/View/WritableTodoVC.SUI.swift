@@ -81,17 +81,8 @@ extension SUI {
 
 
 #Preview {
-    let vm = SUI.CreateTodoVM(
-        SUI.CreateTodoVM
-            .UseCase(
-                addTodo: DefaultAddTodoUseCase(
-                    repository: TodoRepositoryImpl(TodoLocalDataSource())
-                )
-            )
-    )
-
     NavigationStack {
-        SUI.WritableTodoVC(vm)
+        SUI.WritableTodoDIContainer().makeCreatableTodoScene()
     }
 
 }

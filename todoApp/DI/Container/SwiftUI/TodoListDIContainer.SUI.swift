@@ -7,6 +7,8 @@
 
 import Foundation
 import Swinject
+import DataLayer
+import Domain
 
 extension SUI {
     class TodoListDIContainer {

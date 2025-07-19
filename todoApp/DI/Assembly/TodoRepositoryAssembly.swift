@@ -9,23 +9,40 @@ import Foundation
 import Moya
 import Swinject
 
+import Domain
+import DataLayer
+
 final class TodoRepositoryAssembly: Assembly {
     func assemble(container: Container) {
 #if DEBUG
         // stub provider 등록
-        container.register(MoyaProvider<TodoAPI>.self, name: DataEnvironment.stub.rawValue) { _ in
-            return MoyaProvider.makeProvider(for: .stub)
-        }.inObjectScope(.container)
+        container
+            .register(
+                NetworkManager<TodoAPI>.self,
+                name: DataEnvironment.stub.rawValue
+            ) {
+                _ in return NetworkManager(.stub)
+            }
+            .inObjectScope(.container)
 #endif
         // provider 등록
-        container.register(MoyaProvider<TodoAPI>.self, name: DataEnvironment.production.rawValue) { _ in
-            return MoyaProvider.makeProvider(for: .production)
-        }.inObjectScope(.container)
+        container.register(
+            NetworkManager<TodoAPI>.self,
+            name: DataEnvironment.production.rawValue
+        ) { _ in
+            return NetworkManager(.production)
+        }
+        .inObjectScope(.container)
         
         // remote dataSource 등록
-        container.register(TodoDataSourceProtocol.self) { (_, provider:MoyaProvider<TodoAPI>) in
-            return TodoRemoteDataSource(provider)
-        }.inObjectScope(.container)
+        container
+            .register(TodoDataSourceProtocol.self) { (
+                _,
+                networkManger:NetworkManager<TodoAPI>
+            ) in
+                return TodoRemoteDataSource(networkManger)
+            }
+            .inObjectScope(.container)
 
         // local dataSource 등록
         container.register(TodoDataSourceProtocol.self) { _ in
@@ -41,7 +58,7 @@ final class TodoRepositoryAssembly: Assembly {
                 
                 case .stub, .production:
                     let provider = container.resolveOrFail(
-                        MoyaProvider<TodoAPI>.self,
+                        NetworkManager<TodoAPI>.self,
                         name: env.rawValue
                     )
 

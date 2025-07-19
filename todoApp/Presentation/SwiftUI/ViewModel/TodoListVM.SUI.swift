@@ -8,6 +8,11 @@
 import SwiftUI
 import Combine
 
+import Shared
+import Domain
+
+import DataLayer
+
 extension SUI {
     class TodoListVM: ViewModelObservableObject, SUI.LoadingProtocol {
         struct UseCase {
@@ -109,6 +114,7 @@ extension SUI {
             func fetchWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
                 return handleFetching()
                     .catchWithUnretained(self) { this, error in
+                        // FIXME: - todoError 정의
                         guard error is TodoError else {
                             this.serverError = error
 
@@ -140,6 +146,7 @@ extension SUI {
             func changedWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
                 return handleChanged(todo)
                     .catchWithUnretained(self) { this, error in
+                        // FIXME: - todoError 정의
                         guard let todoError = error as? TodoError else {
                             
                             this.serverError = error
@@ -179,6 +186,7 @@ extension SUI {
             func deleteWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
                 return handleDelete(todo)
                     .catchWithUnretained(self) { this, error in
+                        // FIXME: - todoError 정의
                         guard error is TodoError else {
                             this.serverError = error
 

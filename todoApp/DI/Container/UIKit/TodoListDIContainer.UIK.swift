@@ -6,9 +6,10 @@
 //
 
 import Foundation
-import Moya
 import Swinject
 import UIKit
+import Domain
+import DataLayer
 
 extension UIK {
     class TodoListDIContainer {

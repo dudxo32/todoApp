@@ -9,6 +9,7 @@ import Foundation
 import RxCocoa
 import RxRelay
 import RxSwift
+import Domain
 
 extension WritableTodoVM: ViewModelProtocol, LoadingProtocol, RetryProtocol {
     struct UseCase {

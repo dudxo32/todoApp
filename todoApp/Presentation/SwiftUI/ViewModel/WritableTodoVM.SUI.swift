@@ -7,6 +7,10 @@
 
 import Combine
 import SwiftUI
+import Domain
+
+import Shared
+import DataLayer
 
 extension SUI {
     struct WriteableState {
@@ -112,6 +116,7 @@ extension SUI {
             func createWithErrorHandle() -> AnyPublisher<TodoModel, Never> {
                 return handleCreate()
                     .catchWithUnretained(self) { this, error in
+                        // FIXME: - todoError
                         guard error is TodoError else {
                             this.retryError = error
 
@@ -221,6 +226,7 @@ extension SUI {
             func editWithErrorHandle() -> AnyPublisher<TodoModel, Never> {
                 return handleEdit()
                     .catchWithUnretained(self) { this, error in
+                        // FIXME: - todoError viewmodel error 로 변경
                         guard error is TodoError else {
                             this.retryError = error
 

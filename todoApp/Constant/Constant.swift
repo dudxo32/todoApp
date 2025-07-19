@@ -10,22 +10,22 @@ import Foundation
 let C_margin16 = 16
 
 /// Data 환경
-enum DataEnvironment: String {
-    case stub = "stub"
-    case local = "local"
-    case production = "production"
-}
+//enum DataEnvironment: String {
+//    case stub = "stub"
+//    case local = "local"
+//    case production = "production"
+//}
+//
+//public enum APIEnvironment {
+//    case stub
+//    case local
+//    case production
+//}
 
-public enum APIEnvironment {
-    case stub
-    case local
-    case production
-}
-
-enum NetworkError : Error {
-    case DecodedFailed
-    case DictionaryFailed
-}
+//enum NetworkError : Error {
+//    case DecodedFailed
+//    case DictionaryFailed
+//}
 
 // SwiftUI, UIkit 구분 네임스페이스
 enum SUI {}

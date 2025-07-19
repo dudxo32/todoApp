@@ -7,6 +7,7 @@
 
 import Foundation
 import Swinject
+import Domain
 
 final class TodoCacheAssembly: Assembly {
     func assemble(container: Container) {

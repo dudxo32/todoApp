@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Domain
 
 struct TodoMapper {
     static func toEntity(_ model: TodoModelProtocol) -> Todo {
@@ -27,4 +28,12 @@ struct TodoMapper {
             isDone: entity.isDone
         )
     }
+}
+
+private struct TodoImpl: Todo {
+    var id: String
+    var title: String
+    var date: Date
+    var contents: String
+    var isDone: Bool
 }
