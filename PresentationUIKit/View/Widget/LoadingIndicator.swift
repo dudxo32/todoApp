@@ -7,9 +7,7 @@
 
 import Foundation
 import UIKit
-import RxSwift
-
-
+internal import RxSwift
 
 class LoadingIndicator: UIView {
     private let loadingIndicator = UIActivityIndicatorView().then {

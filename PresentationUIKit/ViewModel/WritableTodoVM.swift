@@ -5,17 +5,23 @@
 //  Created by 조영태 on 3/24/25.
 //
 
-import Foundation
-import RxCocoa
-import RxRelay
-import RxSwift
 import Domain
+import Foundation
 import PresentationShared
+internal import RxCocoa
+internal import RxRelay
+internal import RxSwift
 
 extension WritableTodoVM: ViewModelProtocol, LoadingProtocol, RetryProtocol {
-    struct UseCase {
+    public struct UseCase {
         let addTodo: any AddTodoUseCase
         let EditTodo: any EditTodoUseCase
+
+        public init(addTodo: any AddTodoUseCase, EditTodo: any EditTodoUseCase)
+        {
+            self.addTodo = addTodo
+            self.EditTodo = EditTodo
+        }
     }
 
     struct Input: RetryInput {
@@ -46,11 +52,12 @@ extension WritableTodoVM: ViewModelProtocol, LoadingProtocol, RetryProtocol {
             self.editError = editError.asDriver(onErrorJustReturn: nil)
 
             self.isLoading = isLoading.asDriver()
+
         }
     }
 }
 
-class WritableTodoVM {
+public class WritableTodoVM {
     let input: Input
     let state: State
 
@@ -103,8 +110,10 @@ class WritableTodoVM {
     }
 }
 
-class CreateTodoVM: WritableTodoVM {
-    init(_ useCase: UseCase) {
+public class CreateTodoVM: WritableTodoVM {
+    public init(
+        _ useCase: UseCase
+    ) {
         let input = Input(
             titleRelay: .init(value: ""),
             dateRelay: .init(value: nil),
@@ -152,7 +161,7 @@ class CreateTodoVM: WritableTodoVM {
     }
 }
 
-class EditTodoVM: WritableTodoVM {
+public class EditTodoVM: WritableTodoVM {
     // MARK: Property
     private let model: TodoModel
     // MARK: RX
@@ -161,7 +170,10 @@ class EditTodoVM: WritableTodoVM {
     private let isChangedContent = BehaviorRelay(value: false)
 
     // MARK: Init
-    init(model: any TodoModelProtocol, useCase: UseCase) {
+    public init(
+        model: any TodoModelProtocol,
+        useCase: UseCase
+    ) {
         self.model = model.asTodoModel
 
         let input = Input(

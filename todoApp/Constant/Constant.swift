@@ -7,7 +7,6 @@
 
 import Foundation
 
-let C_margin16 = 16
 
 /// Data 환경
 //enum DataEnvironment: String {

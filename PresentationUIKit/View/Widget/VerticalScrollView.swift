@@ -7,8 +7,8 @@
 
 import Foundation
 import UIKit
-import Then
-import SnapKit
+internal import Then
+internal import SnapKit
 
 class VerticalScrollView : UIScrollView {
     // ScrollView 내부 컨텐츠를 담는 뷰

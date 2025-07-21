@@ -5,24 +5,17 @@
 //
 
 import Foundation
-import RxCocoa
-import RxGesture
-import RxSwift
-import SnapKit
-import Then
 import UIKit
+internal import RxCocoa
+internal import RxGesture
+internal import RxSwift
+internal import SnapKit
+internal import Then
+
 import Shared
 import PresentationShared
 
-extension EditableTodoVC: HasRxIO {
-    typealias Input = IOEmpty
-    
-    struct Output {
-        let writtenTodo = PublishSubject<any TodoModelProtocol>()
-    }
-}
-
-class EditableTodoVC: UIViewController {
+public class WritableTodoVC: UIViewController {
     // MARK: UI Components
     fileprivate let textInputStackView: TextInputStackView
     fileprivate let dateInputStackView: DateInputStackView
@@ -38,22 +31,21 @@ class EditableTodoVC: UIViewController {
     private let isDatePickerVisible = BehaviorRelay(value: false)
     let disposeBag = DisposeBag()
     private let loadingIndicator = LoadingIndicator()
-    
-    let output = Output()
 
     // MARK: Snap
     private var contentHeightContraint: Constraint?  // 높이 제약 저장
 
     // MARK: Init
-    fileprivate init(
-        viewModel: WritableTodoVM,
-        model: (any TodoModelProtocol)? = nil
-    ) {
-        self.textInputStackView = TextInputStackView(
-            title: model?.title, content: model?.contents)
-        self.dateInputStackView = DateInputStackView(model?.date)
+    fileprivate init(viewModel: WritableTodoVM) {
         self.viewModel = viewModel
-
+        
+        self.textInputStackView = TextInputStackView(
+            title: viewModel.input.titleRelay.value,
+            content: viewModel.input.contentRelay.value
+        )
+        
+        self.dateInputStackView = DateInputStackView(viewModel.input.dateRelay.value)
+        
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -61,7 +53,7 @@ class EditableTodoVC: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
 
@@ -90,7 +82,7 @@ class EditableTodoVC: UIViewController {
         // 생성, 수정 완료후 작업
         self.viewModel.state.editedModel
             .drive(onNext: { todo in
-                self.didFinishWriting(todo)
+                self.didFinishWriting()
             })
             .disposed(by: disposeBag)
             
@@ -155,14 +147,14 @@ class EditableTodoVC: UIViewController {
             .disposed(by: disposeBag)
     }
     
-    fileprivate func didFinishWriting(_ todo:any TodoModelProtocol) {
+    fileprivate func didFinishWriting() {
         fatalError("Subclasses must implement didFinishWriting()")
     }
 }
 
 // MARK: -
-class CreateTodoVC: EditableTodoVC {
-    init(_ viewModel:WritableTodoVM) {
+public class CreateTodoVC: WritableTodoVC {
+    public init(_ viewModel:WritableTodoVM) {
         super.init(viewModel: viewModel)
     }
 
@@ -170,37 +162,33 @@ class CreateTodoVC: EditableTodoVC {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         self.title = I18N.createTodo
         super.viewDidLoad()
     }
     
-    override func didFinishWriting(_ todo:any TodoModelProtocol) {
-        self.output.writtenTodo.onNext(todo)
-        self.output.writtenTodo.onCompleted()
+    override func didFinishWriting() {
         self.navigationController?.dismiss(animated: true)
     }
 
 }
 
 // MARK: -
-class EditTodoVC: EditableTodoVC {
-    init(model: any TodoModelProtocol, viewModel: WritableTodoVM) {
-        super.init(viewModel: viewModel, model: model)
+public class EditTodoVC: WritableTodoVC {
+    public init(_ viewModel:WritableTodoVM) {
+        super.init(viewModel: viewModel)
     }
 
     @MainActor required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         self.title = I18N.editTodo
         super.viewDidLoad()
     }
     
-    override func didFinishWriting(_ todo:any TodoModelProtocol) {
-        self.output.writtenTodo.onNext(todo)
-        self.output.writtenTodo.onCompleted()
+    override func didFinishWriting() {
         self.navigationController?.dismiss(animated: true)
     }
 }

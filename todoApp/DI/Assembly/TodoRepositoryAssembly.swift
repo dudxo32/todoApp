@@ -6,16 +6,16 @@
 //
 
 import Foundation
-import Moya
 import Swinject
-
 import Domain
 import DataLayer
 
 final class TodoRepositoryAssembly: Assembly {
+    private var resolver: Container!
+
     func assemble(container: Container) {
-#if DEBUG
-        // stub provider 등록
+        self.resolver = container
+        // network 등록
         container
             .register(
                 NetworkManager<TodoAPI>.self,
@@ -24,8 +24,7 @@ final class TodoRepositoryAssembly: Assembly {
                 _ in return NetworkManager(.stub)
             }
             .inObjectScope(.container)
-#endif
-        // provider 등록
+  
         container.register(
             NetworkManager<TodoAPI>.self,
             name: DataEnvironment.production.rawValue
@@ -33,13 +32,14 @@ final class TodoRepositoryAssembly: Assembly {
             return NetworkManager(.production)
         }
         .inObjectScope(.container)
-        
+
         // remote dataSource 등록
         container
-            .register(TodoDataSourceProtocol.self) { (
-                _,
-                networkManger:NetworkManager<TodoAPI>
-            ) in
+            .register(TodoDataSourceProtocol.self) {
+                (
+                    _,
+                    networkManger: NetworkManager<TodoAPI>
+                ) in
                 return TodoRemoteDataSource(networkManger)
             }
             .inObjectScope(.container)
@@ -48,29 +48,42 @@ final class TodoRepositoryAssembly: Assembly {
         container.register(TodoDataSourceProtocol.self) { _ in
             return TodoLocalDataSource()
         }.inObjectScope(.container)
-        
-        // Repository 등록
-        container.register(TodoRepository.self) { (r, env: DataEnvironment) in
-            let dataSource:TodoDataSourceProtocol = {
-                switch env {
-                case .local:
-                    return container.resolveOrFail(TodoDataSourceProtocol.self)
-                
-                case .stub, .production:
-                    let provider = container.resolveOrFail(
-                        NetworkManager<TodoAPI>.self,
-                        name: env.rawValue
-                    )
 
-                    return container
-                        .resolveOrFail(
-                            TodoDataSourceProtocol.self,
-                            argument: provider
-                        )
-                }
-            }()
-            
-            return TodoRepositoryImpl(dataSource)
+        // Repository 등록
+        container.register(TodoRepository.self) { (r, ds: TodoDataSourceProtocol) in
+            return TodoRepositoryImpl(ds)
         }.inObjectScope(.container)
+    }
+    
+    private func makeNetworkManager(_ env:DataEnvironment) -> NetworkManager<TodoAPI>{
+        switch env {
+        case .local:
+            preconditionFailure("local 은 올 수 없습니다.")
+            
+        case .stub, .production:
+            return resolver.resolveOrFail(
+                NetworkManager<TodoAPI>.self,
+                name: env.rawValue
+            )
+        }
+    }
+    
+    func makeDataSource(_ env: DataEnvironment = .local) -> TodoDataSourceProtocol {
+        switch env {
+        case .local:
+            return resolver.resolveOrFail(TodoDataSourceProtocol.self)
+
+        case .stub, .production:
+            let networkManger = makeNetworkManager(env)
+
+            return resolver.resolveOrFail(
+                    TodoDataSourceProtocol.self,
+                    argument: networkManger
+                )
+        }
+    }
+    
+    func makeRepository(_ ds:TodoDataSourceProtocol) -> TodoRepository {
+        return resolver.resolveOrFail(TodoRepository.self, argument: ds)
     }
 }

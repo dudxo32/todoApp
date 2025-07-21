@@ -14,17 +14,20 @@ import PresentationShared
 extension SUI {
     class TodoListDIContainer {
         private let container: Container
+        private let repoAssembly: TodoRepositoryAssembly
+        private let useCaseAssembly: TodoUseCaseAssembly
         private let assembler: Assembler
 
         init(parentContainer: Container? = nil) {
             self.container = Container(parent: parentContainer)
+            self.repoAssembly = TodoRepositoryAssembly()
+            self.useCaseAssembly = TodoUseCaseAssembly()
             
             self.assembler = Assembler(
                 [
                     SUI.TodoListAssembly(),
-                    TodoRepositoryAssembly(),
-                    TodoUseCaseAssembly(),
-                    TodoCacheAssembly(),
+                    repoAssembly,
+                    useCaseAssembly
                 ],
                 container: self.container
             )

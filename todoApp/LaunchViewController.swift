@@ -9,6 +9,7 @@ import SnapKit
 import Then
 import UIKit
 import SwiftUI
+import PresentationUIKit
 
 private let isSwift = false
 
@@ -52,23 +53,19 @@ class LaunchViewController: UIViewController {
                 )
             
             } else {
-                let naviController = UINavigationController()
+                let naviController = UIK.RootNavigationController()
                 naviController.view.backgroundColor = .white
                 
                 scenceDelegate.window?.rootViewController = naviController
                 
-                let coordinator = TodoListCoordinator(
-                    naviController,
-                    diContainer: UIK.TodoListDIContainer()
-                )
-
-                coordinator.start()
+               
             }
         }
         // Do any additional setup after loading the view.
     }
 
 }
+
 private func setupBarAppearance() {
     let appearance = UINavigationBarAppearance()
     // 반투명한 그림자를 백그라운드 앞에다 생성 (반투명한 그림자를 한겹을 쌓는다)

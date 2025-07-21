@@ -1,21 +1,21 @@
+////
+////  IOProtocol.swift
+////  todoApp
+////
+////  Created by 조영태 on 5/1/25.
+////
 //
-//  IOProtocol.swift
-//  todoApp
+//import Foundation
+//import RxSwift
 //
-//  Created by 조영태 on 5/1/25.
+//struct IOEmpty {}
 //
-
-import Foundation
-import RxSwift
-
-struct IOEmpty {}
-
-protocol HasRxIO {
-    associatedtype Input
-    associatedtype Output
-
-//    var input: Input { get }
-//    var output: Output { get }
-    
-    var disposeBag: DisposeBag { get }
-}
+//protocol HasRxIO {
+//    associatedtype Input
+//    associatedtype Output
+//
+////    var input: Input { get }
+////    var output: Output { get }
+//    
+//    var disposeBag: DisposeBag { get }
+//}

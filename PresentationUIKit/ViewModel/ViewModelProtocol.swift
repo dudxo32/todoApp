@@ -6,9 +6,9 @@
 //
 
 import Foundation
-import RxCocoa
-import RxRelay
-import RxSwift
+internal import RxCocoa
+internal import RxRelay
+internal import RxSwift
 
 protocol ViewModelProtocol: AnyObject {
     associatedtype Input

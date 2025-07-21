@@ -6,11 +6,13 @@
 //
 
 import Foundation
-import RxCocoa
-import RxSwift
-import SnapKit
-import Then
 import UIKit
+internal import RxCocoa
+internal import RxSwift
+internal import SnapKit
+internal import Then
+
+import Shared
 import PresentationShared
 
 class TodoCell: UITableViewCell {

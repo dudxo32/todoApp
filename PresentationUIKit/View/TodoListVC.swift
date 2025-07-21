@@ -6,35 +6,26 @@
 //
 
 import Foundation
-import RxCocoa
-import RxDataSources
-import RxGesture
-import RxSwift
-import SnapKit
-import Then
 import UIKit
+internal import RxCocoa
+internal import RxDataSources
+internal import RxGesture
+internal import RxSwift
+internal import SnapKit
+internal import Then
+
 import Shared
 import PresentationShared
 
 private let reuseIdentifier = "CustomCell"
 
-extension TodoListVC: HasRxIO {
-    struct Input {
-        let presentedCreateVC = PublishRelay<CreateTodoVC>()
-        let presentedEditVC = PublishRelay<EditTodoVC>()
-    }
-
-    struct Output {
-        let presentCreateVC: Driver<Void>
-        let presentEditVC: Driver<any TodoModelProtocol>
-    }
-}
-
-class TodoListVC: UIViewController {
+public class TodoListVC: UIViewController {
     private let tableView = UITableView().then {
         $0.register(TodoCell.self, forCellReuseIdentifier: reuseIdentifier)
     }
-
+    deinit {
+        print("vcdeinit")
+    }
     private let loadingIndicator = LoadingIndicator()
 
     private let noListLabel: UILabel = {
@@ -78,21 +69,12 @@ class TodoListVC: UIViewController {
     let initFilter: TodoFilterType
 
     // MARK: - RX
-    let input = Input()
-    let output: Output
-
-    let goCreateVC = PublishRelay<Void>()
-    let goEditVC = PublishRelay<any TodoModelProtocol>()
-
     let disposeBag = DisposeBag()
 
-    init(initFilter: TodoFilterType, vm: TodoListVM) {
+    public init(initFilter: TodoFilterType, vm: TodoListVM) {
         self.viewModel = vm
         self.initFilter = initFilter
-        self.output = Output(
-            presentCreateVC: goCreateVC.asDriver(onErrorJustReturn: ()),
-            presentEditVC: goEditVC.asDriver(onErrorDriveWith: .empty())
-        )
+
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -101,7 +83,7 @@ class TodoListVC: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         self.title = I18N.todo
 
         tableView.delegate = self
@@ -142,7 +124,7 @@ class TodoListVC: UIViewController {
         self.bindNoListLabel()
         self.bindErrorAlert()
         self.bindCreateTodoTap()
-        self.bindFinishPresentCreateVC()
+//        self.bindFinishPresentCreateVC()
         self.bindFinishPresentEditVC()
         
         viewModel.input.fetchItems.accept(())
@@ -194,7 +176,7 @@ class TodoListVC: UIViewController {
                     .when(.recognized)
                     .withUnretained(self)
                     .bind { (self, _) in
-                        self.goEditVC.accept(cell.todoModel)
+                        self.viewModel.input.goEditItem.accept(cell.todoModel)
                     }
                     .disposed(by: cell.disposeBag)
 
@@ -233,37 +215,40 @@ class TodoListVC: UIViewController {
             .disposed(by: disposeBag)
     }
 
-    private func bindFinishPresentCreateVC() {
-        input.presentedCreateVC
-            .flatMap { vc in vc.output.writtenTodo }
-            .withUnretained(self)
-            .bind { (self, todo) in
-                self.viewModel.input.addedItem.accept(todo)
-            }
-            .disposed(by: disposeBag)
-    }
+//    private func bindFinishPresentCreateVC() {
+//        input.presentedCreateVC
+//            .flatMap { vc in vc.output.writtenTodo }
+//            .withUnretained(self)
+//            .bind { (self, todo) in
+//                self.viewModel.input.addedItem.accept(todo)
+//            }
+//            .disposed(by: disposeBag)
+//    }
 
     private func bindCreateTodoTap() {
         navigationItem.rightBarButtonItem?.rx
             .tap.withUnretained(self)
-            .bind(onNext: { (self, _) in self.goCreateVC.accept(()) })
+            .debug("tap")
+            .bind(onNext: { (self, _) in
+                self.viewModel.input.goCreateItem.accept(())
+            })
             .disposed(by: disposeBag)
     }
 
     private func bindFinishPresentEditVC() {
-        input.presentedEditVC
-            .flatMap { vc in vc.output.writtenTodo }
-            .withUnretained(self)
-            .bind { (self, todo) in
-                self.viewModel.input.edittedItem.accept(todo)
-            }
-            .disposed(by: disposeBag)
+//        input.presentedEditVC
+//            .flatMap { vc in vc.output.writtenTodo }
+//            .withUnretained(self)
+//            .bind { (self, todo) in
+//                self.viewModel.input.goEditItem.accept(todo)
+//            }
+//            .disposed(by: disposeBag)
     }
 
 }
 
 extension TodoListVC: UITableViewDelegate {
-    func tableView(
+    public func tableView(
         _ tableView: UITableView,
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     )
@@ -285,7 +270,7 @@ extension TodoListVC: UITableViewDelegate {
 }
 
 extension TodoListVC: UITabBarDelegate {
-    func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+    public func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         guard
             let selectedFilter = TodoFilterType.values.first(where: { type in
                 type.rawValue == item.tag

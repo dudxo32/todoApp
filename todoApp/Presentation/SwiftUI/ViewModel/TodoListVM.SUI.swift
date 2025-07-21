@@ -11,7 +11,6 @@ import Domain
 import Shared
 import PresentationShared
 
-
 extension SUI {
     typealias TodoGroup = [TodoFilterType: [TodoModel]]
 

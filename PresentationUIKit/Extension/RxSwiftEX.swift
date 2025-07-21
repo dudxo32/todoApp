@@ -5,15 +5,16 @@
 //  Created by 조영태 on 4/24/25.
 //
 import Foundation
-import RxSwift
-import RxRelay
+internal import RxSwift
+internal import RxRelay
+
 
 private enum UnretainedError: Error {
     case failedRetaining
 }
 
 extension PrimitiveSequence where Trait == SingleTrait {
-    public static func deferredWithUnretained<Object: AnyObject>(
+    static func deferredWithUnretained<Object: AnyObject>(
         _ obj: Object?,
         _ observableFactory: @escaping (_ obj: Object) throws ->
             PrimitiveSequence
@@ -25,7 +26,7 @@ extension PrimitiveSequence where Trait == SingleTrait {
             return try observableFactory(obj)
         }
     }
-
+    
     static func async(_ factory: @escaping () async throws -> Element)
         -> Single<Element>
     {
@@ -46,7 +47,7 @@ extension PrimitiveSequence where Trait == SingleTrait {
 }
 
 extension Observable {
-    public static func deferredWithUnretained<Object: AnyObject>(
+    static func deferredWithUnretained<Object: AnyObject>(
         _ obj: Object?,
         _ observableFactory: @escaping (_ obj: Object) throws ->
         Observable

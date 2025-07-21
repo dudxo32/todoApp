@@ -6,50 +6,45 @@
 //
 
 import Foundation
-import Swinject
 import UIKit
+import Swinject
 import Domain
 import DataLayer
 import PresentationShared
+import PresentationUIKit
 
 extension UIK {
-    class TodoListDIContainer {
+    class TodoListDIContainer: TodoListDIContainerProtocol {
         private let container: Container
+        private let repoAssembly: TodoRepositoryAssembly
+        private let useCaseAssembly: TodoUseCaseAssembly
+        
         private let assembler: Assembler
 
         init(parentContainer: Container? = nil) {
             self.container = Container(parent: parentContainer)
-
+            self.repoAssembly = TodoRepositoryAssembly()
+            self.useCaseAssembly = TodoUseCaseAssembly()
             
             self.assembler = Assembler(
                 [
-                    UIK.TodoListAssembly(),
-                    TodoRepositoryAssembly(),
-                    TodoUseCaseAssembly(),
-                    TodoCacheAssembly(),
+                    TodoListAssembly(),
+                    repoAssembly,
+                    useCaseAssembly
                 ],
                 container: self.container
             )
         }
+        
+        func makeTodoListVM(initFilter: TodoFilterType, env: DataEnvironment = .local) -> TodoListVM {
+            let ds = repoAssembly.makeDataSource()
+            let repo = repoAssembly.makeRepository(ds)
 
-        func makeTodoListVC(
-            initFilter: TodoFilterType, env: DataEnvironment = .local
-        ) -> TodoListVC {
-            let repo = container.resolveOrFail(TodoRepository.self, argument: env)
-
-            let cache = container.resolveOrFail(TodoListCacheUseCase.self)
-            let fetchUseCase = container.resolveOrFail(
-                (any FetchTodoUseCase).self, argument: repo
-            )
-            let deleteUseCase = container.resolveOrFail(
-                (any DeleteTodoUseCase).self,
-                arguments: repo, cache
-            )
-            let toggleDone = container.resolveOrFail(
-                (any ToggleTodoDoneUseCase).self,
-                arguments: repo, cache
-            )
-
+            let cache = useCaseAssembly.makeListCacheUseCase()
+            let fetchUseCase = useCaseAssembly.makeFetchTodoUseCase(repo)
+            let deleteUseCase = useCaseAssembly.makeDeleteTodoUseCase(repo, cache)
+            let toggleDone = useCaseAssembly.makeToggleTodoDoneUseCase(repo, cache)
+            
             let useCase = TodoListVM.UseCase(
                 fetch: fetchUseCase,
                 delete: deleteUseCase,
@@ -57,9 +52,16 @@ extension UIK {
                 cache: cache
             )
 
+            return container.resolveOrFail(
+                TodoListVM.self,
+                arguments: initFilter, useCase
+            )
+        }
+        
+        func makeTodoListVC(_ vm:TodoListVM, initFilter: TodoFilterType) -> TodoListVC {
             return self.container.resolveOrFail(
                 TodoListVC.self,
-                arguments: initFilter, useCase
+                arguments: initFilter, vm
             )
         }
     }
@@ -82,15 +84,9 @@ extension UIK {
                 (
                     resolver,
                     initFilter: TodoFilterType,
-                    useCase: TodoListVM.UseCase
+                    vm:TodoListVM
                 ) in
-
-                let viewModel = resolver.resolveOrFail(
-                    TodoListVM.self,
-                    arguments: initFilter, useCase
-                )
-
-                return TodoListVC(initFilter: initFilter, vm: viewModel)
+                return TodoListVC(initFilter: initFilter, vm: vm)
             }
         }
     }

@@ -7,19 +7,46 @@
 
 import Foundation
 import Swinject
+import PresentationUIKit
+import UIKit
 
-final class AppDIContainer {
-    static let shared = AppDIContainer()
+extension UIK {
+    final class AppDIContainer: AppDIContainerProtocol {
+        static let shared = AppDIContainer()
 
-    private let container = Container()
+        private let container = Container()
 
-    init() {
-        _ = Assembler(
-            [
-                // 전역 공통 의존성 (예: 네트워크, 유틸 등)
-            ],
-            container: container
-        )
+        init() {
+            _ = Assembler(
+                [
+                    // 전역 공통 의존성 (예: 네트워크, 유틸 등)
+                ],
+                container: container
+            )
+        }
+        
+        func makeTodoListDIContainer() -> any TodoListDIContainerProtocol {
+            return UIK.TodoListDIContainer(parentContainer: container)
+        }
+        
+        func makeWritableDIContainer() -> any WritableTodoDIContainerProtocol {
+            return UIK.WritableTodoDIContainer(parentContainer: container)
+        }
+    }
+    
+    class RootNavigationController: UINavigationController {
+        var coordinator:TodoListCoordinator!
+
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            
+            self.coordinator = TodoListCoordinator(
+                self,
+                appDIContainer: AppDIContainer.shared
+            )
+            
+            coordinator.start()
+        }
     }
 }
 

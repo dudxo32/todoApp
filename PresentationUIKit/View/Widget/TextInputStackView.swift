@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import RxCocoa
-import SnapKit
-import Then
 import UIKit
+internal import RxCocoa
+internal import SnapKit
+internal import Then
 
 class TextInputStackView: UIStackView {
     // MARK: - UI Components

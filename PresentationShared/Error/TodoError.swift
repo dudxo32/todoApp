@@ -9,7 +9,7 @@ import Foundation
 import Shared
 
 extension AppError {
-    enum Todo: Error {
+    public enum Todo: Error {
         case notFound
         
         var localizedDescription: String {

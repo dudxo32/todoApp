@@ -14,16 +14,20 @@ import PresentationShared
 extension SUI {
     class WritableTodoDIContainer {
         private let container: Container
+        private let repoAssembly: TodoRepositoryAssembly
+        private let useCaseAssembly: TodoUseCaseAssembly
         private let assembler: Assembler
 
         init(parentContainer: Container? = nil) {
             self.container = Container(parent: parentContainer)
-
+            self.repoAssembly = TodoRepositoryAssembly()
+            self.useCaseAssembly = TodoUseCaseAssembly()
+            
             self.assembler = Assembler(
                 [
                     SUI.WritableTodoAssembly(),
-                    TodoRepositoryAssembly(),
-                    TodoUseCaseAssembly(),
+                    repoAssembly,
+                    useCaseAssembly
                 ],
                 container: self.container
             )

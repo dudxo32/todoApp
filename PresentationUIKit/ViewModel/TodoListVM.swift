@@ -5,23 +5,35 @@
 //  Created by 조영태 on 2022/10/03.
 //
 
-import Domain
+
 import Foundation
+internal import RxCocoa
+internal import RxDataSources
+internal import RxRelay
+internal import RxSwift
+
 import PresentationShared
-import RxCocoa
-import RxDataSources
-import RxRelay
-import RxSwift
-
-
+import Domain
 
 // MARK: - ViewModel에서 사용하는 데이터 모델
 extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
-    struct UseCase {
+    public struct UseCase {
         let fetch: any FetchTodoUseCase
         let delete: any DeleteTodoUseCase
         let toggleDone: any ToggleTodoDoneUseCase
         let cache: TodoListCacheUseCase
+        
+        public init(
+            fetch: any FetchTodoUseCase,
+            delete: any DeleteTodoUseCase,
+            toggleDone: any ToggleTodoDoneUseCase,
+            cache: TodoListCacheUseCase
+        ) {
+            self.fetch = fetch
+            self.delete = delete
+            self.toggleDone = toggleDone
+            self.cache = cache
+        }
     }
 
     struct Input: RetryInput {
@@ -32,8 +44,19 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
         let tapFilter: PublishRelay<TodoFilterType>
         let toggleDone: PublishRelay<any TodoModelProtocol>
         let retryTrigger: PublishRelay<RetryAction>
+        let goCreateItem: PublishRelay<Void>
+        let goEditItem: PublishRelay<any TodoModelProtocol>
+
     }
 
+    public func passAddedItem(_ item: any TodoModelProtocol) {
+        input.addedItem.accept(item)
+    }
+    
+    public func passEdittedItem(_ item: any TodoModelProtocol) {
+        input.edittedItem.accept(item)
+    }
+    
     struct State: LoadingState {
         let isLoading: Driver<Bool>
         let items: Driver<[TodoSectionDiff]>
@@ -49,7 +72,7 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
             self.error = error.asDriver(onErrorJustReturn: nil)
 
             func makeSectionByDate(_ todos: [TodoModelDiff])
-                -> [TodoSectionDiff]
+            -> [TodoSectionDiff]
             {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy/MM/dd"
@@ -60,7 +83,7 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
                 }
 
                 let sections =
-                    grouped
+                grouped
                     .map { key, value in
                         TodoSectionDiff(header: key, items: value)
                     }
@@ -81,7 +104,7 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
 }
 
 // MARK: - VM
-class TodoListVM {
+public class TodoListVM {
     var state: State {
         if let cached = _state {
             return cached
@@ -111,7 +134,7 @@ class TodoListVM {
     // MARK: - UseCase
     private let useCase: UseCase
 
-    init(initFilter: TodoFilterType, useCase: UseCase) {
+    public init(initFilter: TodoFilterType, useCase: UseCase) {
         self.useCase = useCase
         self.input = Input(
             fetchItems: PublishRelay(),
@@ -120,7 +143,9 @@ class TodoListVM {
             tapDelete: PublishRelay(),
             tapFilter: PublishRelay(),
             toggleDone: PublishRelay(),
-            retryTrigger: PublishRelay()
+            retryTrigger: PublishRelay(),
+            goCreateItem: PublishRelay(),
+            goEditItem: PublishRelay()
         )
 
         self.selectedFilter = .init(value: initFilter)
@@ -134,7 +159,9 @@ class TodoListVM {
         bindAddedItemToAll()
         bindTapDeleteToAll()
     }
-
+    deinit {
+        print("todolistvm")
+    }
     // MARK: - Binding
     private func bindFetchItemsToAll() {
         input.fetchItems
@@ -212,10 +239,12 @@ class TodoListVM {
 
     private func handleFetching() -> Single<[TodoModelDiff]> {
         return .deferredWithUnretained(self) { obj in
-            .async {
-                try await obj.useCase.fetch.execute()
-                    .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
-            }
+                .async {
+                    try await obj.useCase.fetch.execute()
+                        .map {
+                            TodoModelDiff(underlying: TodoMapper.toModel($0))
+                        }
+                }
         }
         .handleLoadingState(to: self.isfetching)
         .retry(when: retryCond)
@@ -224,13 +253,13 @@ class TodoListVM {
 
     private func handleDeleteItem(target: Todo) -> Single<[TodoModelDiff]> {
         return Single.deferredWithUnretained(self) { obj in
-            .async {
-                return try await obj.useCase.delete.execute(
-                    target,
-                    list: obj.allItems.value.map(TodoMapper.toEntity)
-                )
-                .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
-            }
+                .async {
+                    return try await obj.useCase.delete.execute(
+                        target,
+                        list: obj.allItems.value.map(TodoMapper.toEntity)
+                    )
+                    .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
+                }
         }
         .retry(when: retryCond)
         .catch { _ in .never() }
@@ -260,7 +289,7 @@ class TodoListVM {
                     new,
                     list: obj.allItems.value.map(TodoMapper.toEntity)
                 )
-                .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
+                    .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
 
                 return .just(changedList)
             } catch {

@@ -9,19 +9,19 @@ import Foundation
 import Domain
 import Shared
 
-enum AppError: Error {
+public enum AppError: Error {
     case serverError
     case unknown
     case todo(AppError.Todo)
     
-    var underlyingError: Error {
+    public var underlyingError: Error {
         switch self {
         case .serverError, .unknown: self
         case .todo(let error): error
         }
     }
     
-    var localizedDescription: String {
+    public var localizedDescription: String {
         switch self {
         case .serverError:
             return I18N.serverError
@@ -32,7 +32,7 @@ enum AppError: Error {
         }
     }
     
-    static func mapper(_ error: Error) -> AppError {
+    static public func mapper(_ error: Error) -> AppError {
         guard let domainError = error as? DomainError else {
             return .unknown
         }

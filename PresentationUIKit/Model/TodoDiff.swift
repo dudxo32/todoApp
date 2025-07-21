@@ -6,8 +6,9 @@
 //
 
 import Foundation
+internal import Differentiator
+
 import PresentationShared
-import Differentiator
 
 typealias TodoGroup = [TodoFilterType: [TodoModelDiff]]
 
