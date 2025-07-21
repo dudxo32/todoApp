@@ -11,6 +11,7 @@ import RxSwift
 import SnapKit
 import Then
 import UIKit
+import PresentationShared
 
 class TodoCell: UITableViewCell {
     // MARK: - UI Components
@@ -36,9 +37,9 @@ class TodoCell: UITableViewCell {
     fileprivate var doneButton = CircularCheckButton()
     
     // MARK: - Get/Set
-    private var _model: TodoModelProtocol?
+    private var _model: (any TodoModelProtocol)?
     
-    var todoModel: TodoModelProtocol {
+    var todoModel: any TodoModelProtocol {
         get {
             guard let model = self._model else {
                 preconditionFailure("todoModel을 set 해야합니다.")

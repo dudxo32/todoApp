@@ -60,6 +60,9 @@
 		C98D11FD2E2A0E8E003B79ED /* Domain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C98D11E72E2A0E8E003B79ED /* Domain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C98D12142E2A12EA003B79ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = C98D12132E2A12EA003B79ED /* Moya */; };
 		C99048382998A5A6004AD091 /* UIButtonEX.swift in Sources */ = {isa = PBXBuildFile; fileRef = C99048372998A5A6004AD091 /* UIButtonEX.swift */; };
+		C99BDFA72E2E16B8007EDA91 /* PresentationShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99BDF9F2E2E16B8007EDA91 /* PresentationShared.framework */; };
+		C99BDFA82E2E16B8007EDA91 /* PresentationShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C99BDF9F2E2E16B8007EDA91 /* PresentationShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C99BDFB92E2E18E6007EDA91 /* TodoDeiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = C99BDFB82E2E18E6007EDA91 /* TodoDeiff.swift */; };
 		C9AE73052DC333A300F1C5EE /* TodoListDIContainer.UIK.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9AE73042DC333A300F1C5EE /* TodoListDIContainer.UIK.swift */; };
 		C9AE73072DC334EA00F1C5EE /* TodoRepositoryAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9AE73062DC334EA00F1C5EE /* TodoRepositoryAssembly.swift */; };
 		C9AE730A2DC354B400F1C5EE /* TodoListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9AE73092DC354B400F1C5EE /* TodoListCoordinator.swift */; };
@@ -150,6 +153,13 @@
 			remoteGlobalIDString = C98D11E62E2A0E8E003B79ED;
 			remoteInfo = Domain;
 		};
+		C99BDFA52E2E16B8007EDA91 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 04457EC528A6033B00AF2EBB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C99BDF9E2E2E16B8007EDA91;
+			remoteInfo = PresentationShared;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -162,6 +172,7 @@
 				C98D11FD2E2A0E8E003B79ED /* Domain.framework in Embed Frameworks */,
 				C98D11BC2E2A0919003B79ED /* DataLayer.framework in Embed Frameworks */,
 				C98D11952E2A078B003B79ED /* Shared.framework in Embed Frameworks */,
+				C99BDFA82E2E16B8007EDA91 /* PresentationShared.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,6 +222,8 @@
 		C98D11E72E2A0E8E003B79ED /* Domain.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Domain.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C98D11F02E2A0E8E003B79ED /* DomainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DomainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C99048372998A5A6004AD091 /* UIButtonEX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIButtonEX.swift; sourceTree = "<group>"; };
+		C99BDF9F2E2E16B8007EDA91 /* PresentationShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PresentationShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C99BDFB82E2E18E6007EDA91 /* TodoDeiff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDeiff.swift; sourceTree = "<group>"; };
 		C9AE73042DC333A300F1C5EE /* TodoListDIContainer.UIK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListDIContainer.UIK.swift; sourceTree = "<group>"; };
 		C9AE73062DC334EA00F1C5EE /* TodoRepositoryAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRepositoryAssembly.swift; sourceTree = "<group>"; };
 		C9AE73092DC354B400F1C5EE /* TodoListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListCoordinator.swift; sourceTree = "<group>"; };
@@ -255,6 +268,13 @@
 			);
 			target = C98D11E62E2A0E8E003B79ED /* Domain */;
 		};
+		C99BDFA92E2E16B8007EDA91 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			publicHeaders = (
+				PresentationShared.h,
+			);
+			target = C99BDF9E2E2E16B8007EDA91 /* PresentationShared */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -263,6 +283,7 @@
 		C98D11B52E2A0919003B79ED /* DataLayerTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = DataLayerTests; sourceTree = "<group>"; };
 		C98D11E82E2A0E8E003B79ED /* Domain */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C98D11FE2E2A0E8E003B79ED /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Domain; sourceTree = "<group>"; };
 		C98D11F62E2A0E8E003B79ED /* DomainTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = DomainTests; sourceTree = "<group>"; };
+		C99BDFA02E2E16B8007EDA91 /* PresentationShared */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C99BDFA92E2E16B8007EDA91 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PresentationShared; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -275,6 +296,7 @@
 				C97DC9962D940C2500D57958 /* RxGesture in Frameworks */,
 				C98D11BB2E2A0919003B79ED /* DataLayer.framework in Frameworks */,
 				C98D11FC2E2A0E8E003B79ED /* Domain.framework in Frameworks */,
+				C99BDFA72E2E16B8007EDA91 /* PresentationShared.framework in Frameworks */,
 				C9DB5FC72D80258200B72B5D /* RealmSwift in Frameworks */,
 				C98D11942E2A078B003B79ED /* Shared.framework in Frameworks */,
 				C9E5382C2DA5081000D529D8 /* Swinject in Frameworks */,
@@ -343,6 +365,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C99BDF9C2E2E16B8007EDA91 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -359,6 +388,7 @@
 				C98D11B52E2A0919003B79ED /* DataLayerTests */,
 				C98D11E82E2A0E8E003B79ED /* Domain */,
 				C98D11F62E2A0E8E003B79ED /* DomainTests */,
+				C99BDFA02E2E16B8007EDA91 /* PresentationShared */,
 				04457ECE28A6033B00AF2EBB /* Products */,
 				04457F1128A6042D00AF2EBB /* Frameworks */,
 			);
@@ -375,6 +405,7 @@
 				C98D11AF2E2A0919003B79ED /* DataLayerTests.xctest */,
 				C98D11E72E2A0E8E003B79ED /* Domain.framework */,
 				C98D11F02E2A0E8E003B79ED /* DomainTests.xctest */,
+				C99BDF9F2E2E16B8007EDA91 /* PresentationShared.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -539,6 +570,7 @@
 		C97DA5D32E26566E003BDF5F /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				C99BDFB72E2E18D4007EDA91 /* Model */,
 				C92513582D782C7A004E2D5B /* View */,
 				C92513572D782C5E004E2D5B /* ViewModel */,
 			);
@@ -563,6 +595,14 @@
 				C90D7C492DF2B24C00B81833 /* TodoCell.SUI.swift */,
 			);
 			path = TodoList;
+			sourceTree = "<group>";
+		};
+		C99BDFB72E2E18D4007EDA91 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C99BDFB82E2E18E6007EDA91 /* TodoDeiff.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		C9AE73082DC3549E00F1C5EE /* Coordinator */ = {
@@ -700,6 +740,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C99BDF9A2E2E16B8007EDA91 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -719,6 +766,7 @@
 				C98D11932E2A078B003B79ED /* PBXTargetDependency */,
 				C98D11BA2E2A0919003B79ED /* PBXTargetDependency */,
 				C98D11FB2E2A0E8E003B79ED /* PBXTargetDependency */,
+				C99BDFA62E2E16B8007EDA91 /* PBXTargetDependency */,
 			);
 			name = todoApp;
 			packageProductDependencies = (
@@ -898,6 +946,29 @@
 			productReference = C98D11F02E2A0E8E003B79ED /* DomainTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		C99BDF9E2E2E16B8007EDA91 /* PresentationShared */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C99BDFAA2E2E16B8007EDA91 /* Build configuration list for PBXNativeTarget "PresentationShared" */;
+			buildPhases = (
+				C99BDF9A2E2E16B8007EDA91 /* Headers */,
+				C99BDF9B2E2E16B8007EDA91 /* Sources */,
+				C99BDF9C2E2E16B8007EDA91 /* Frameworks */,
+				C99BDF9D2E2E16B8007EDA91 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C99BDFA02E2E16B8007EDA91 /* PresentationShared */,
+			);
+			name = PresentationShared;
+			packageProductDependencies = (
+			);
+			productName = PresentationShared;
+			productReference = C99BDF9F2E2E16B8007EDA91 /* PresentationShared.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -936,6 +1007,9 @@
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = 04457ECC28A6033B00AF2EBB;
 					};
+					C99BDF9E2E2E16B8007EDA91 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 				};
 			};
 			buildConfigurationList = 04457EC828A6033B00AF2EBB /* Build configuration list for PBXProject "todoApp" */;
@@ -970,6 +1044,7 @@
 				C98D11AE2E2A0919003B79ED /* DataLayerTests */,
 				C98D11E62E2A0E8E003B79ED /* Domain */,
 				C98D11EF2E2A0E8E003B79ED /* DomainTests */,
+				C99BDF9E2E2E16B8007EDA91 /* PresentationShared */,
 			);
 		};
 /* End PBXProject section */
@@ -1028,6 +1103,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C98D11EE2E2A0E8E003B79ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C99BDF9D2E2E16B8007EDA91 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1107,6 +1189,7 @@
 				C95B652D2D9E828900F05436 /* StringEX.swift in Sources */,
 				C95E5AA82E1E2D9A00FD91DD /* TodoListCoordinator.SUI.swift in Sources */,
 				C90D7C4A2DF2B24C00B81833 /* TodoCell.SUI.swift in Sources */,
+				C99BDFB92E2E18E6007EDA91 /* TodoDeiff.swift in Sources */,
 				C99048382998A5A6004AD091 /* UIButtonEX.swift in Sources */,
 				C96C4C712DD06C0E00AAA8AD /* TodoMapper.swift in Sources */,
 			);
@@ -1164,6 +1247,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C99BDF9B2E2E16B8007EDA91 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1211,6 +1301,11 @@
 			isa = PBXTargetDependency;
 			target = C98D11E62E2A0E8E003B79ED /* Domain */;
 			targetProxy = C98D11FA2E2A0E8E003B79ED /* PBXContainerItemProxy */;
+		};
+		C99BDFA62E2E16B8007EDA91 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C99BDF9E2E2E16B8007EDA91 /* PresentationShared */;
+			targetProxy = C99BDFA52E2E16B8007EDA91 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1841,6 +1936,91 @@
 			};
 			name = Release;
 		};
+		C99BDFAB2E2E16B8007EDA91 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.yt.PresentationShared;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		C99BDFAC2E2E16B8007EDA91 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.yt.PresentationShared;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1921,6 +2101,15 @@
 			buildConfigurations = (
 				C98D12032E2A0E8E003B79ED /* Debug */,
 				C98D12042E2A0E8E003B79ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C99BDFAA2E2E16B8007EDA91 /* Build configuration list for PBXNativeTarget "PresentationShared" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C99BDFAB2E2E16B8007EDA91 /* Debug */,
+				C99BDFAC2E2E16B8007EDA91 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

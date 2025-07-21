@@ -5,12 +5,15 @@
 //  Created by 조영태 on 2022/10/03.
 //
 
+import Domain
 import Foundation
+import PresentationShared
 import RxCocoa
 import RxDataSources
 import RxRelay
 import RxSwift
-import Domain
+
+
 
 // MARK: - ViewModel에서 사용하는 데이터 모델
 extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
@@ -23,17 +26,17 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
 
     struct Input: RetryInput {
         let fetchItems: PublishRelay<Void>
-        let addedItem: PublishRelay<TodoModelProtocol>
-        let edittedItem: PublishRelay<TodoModelProtocol>
-        let tapDelete: PublishRelay<TodoModelProtocol>
+        let addedItem: PublishRelay<any TodoModelProtocol>
+        let edittedItem: PublishRelay<any TodoModelProtocol>
+        let tapDelete: PublishRelay<any TodoModelProtocol>
         let tapFilter: PublishRelay<TodoFilterType>
-        let toggleDone: PublishRelay<TodoModelProtocol>
+        let toggleDone: PublishRelay<any TodoModelProtocol>
         let retryTrigger: PublishRelay<RetryAction>
     }
 
     struct State: LoadingState {
         let isLoading: Driver<Bool>
-        let items: Driver<[TodoSection]>
+        let items: Driver<[TodoSectionDiff]>
         let error: Driver<Error?>
 
         fileprivate init(
@@ -45,7 +48,9 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
             self.isLoading = isLoading.asDriver()
             self.error = error.asDriver(onErrorJustReturn: nil)
 
-            func makeSectionByDate(_ todos: [TodoModel]) -> [TodoSection] {
+            func makeSectionByDate(_ todos: [TodoModelDiff])
+                -> [TodoSectionDiff]
+            {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy/MM/dd"
                 formatter.locale = Locale(identifier: "ko_KR")
@@ -57,7 +62,7 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
                 let sections =
                     grouped
                     .map { key, value in
-                        TodoSection(header: key, items: value)
+                        TodoSectionDiff(header: key, items: value)
                     }
                     .sorted { $0.header < $1.header }  // 날짜순 정렬
 
@@ -96,10 +101,10 @@ class TodoListVM {
     private var _state: State?
 
     var disposeBag = DisposeBag()
-    
+
     private let isfetching = BehaviorRelay(value: false)
     private let errorRelay = PublishRelay<Error?>()
-    private let allItems = BehaviorRelay<[TodoModel]>(value: [])
+    private let allItems = BehaviorRelay<[TodoModelDiff]>(value: [])
     private let cachedGroup = BehaviorRelay<TodoGroup>(value: [:])
     private let selectedFilter: BehaviorRelay<TodoFilterType>
 
@@ -183,7 +188,7 @@ class TodoListVM {
                     TodoMapper.toEntity(newItem),
                     list: self.allItems.value.map(TodoMapper.toEntity)
                 )
-                .map(TodoMapper.toModel)
+                .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
             }
             .bind(to: self.allItems)
             .disposed(by: self.disposeBag)
@@ -205,11 +210,11 @@ class TodoListVM {
         return self.handelRetry(from: error, in: self.errorRelay)
     }
 
-    private func handleFetching() -> Single<[TodoModel]> {
+    private func handleFetching() -> Single<[TodoModelDiff]> {
         return .deferredWithUnretained(self) { obj in
             .async {
                 try await obj.useCase.fetch.execute()
-                    .map(TodoMapper.toModel)
+                    .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
             }
         }
         .handleLoadingState(to: self.isfetching)
@@ -217,21 +222,21 @@ class TodoListVM {
         .catch { _ in .never() }
     }
 
-    private func handleDeleteItem(target: Todo) -> Single<[TodoModel]> {
+    private func handleDeleteItem(target: Todo) -> Single<[TodoModelDiff]> {
         return Single.deferredWithUnretained(self) { obj in
             .async {
                 return try await obj.useCase.delete.execute(
                     target,
                     list: obj.allItems.value.map(TodoMapper.toEntity)
                 )
-                .map(TodoMapper.toModel)
+                .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
             }
         }
         .retry(when: retryCond)
         .catch { _ in .never() }
     }
 
-    private func handleToggleDone(target: Todo) -> Single<[TodoModel]> {
+    private func handleToggleDone(target: Todo) -> Single<[TodoModelDiff]> {
         return .deferredWithUnretained(self) { obj in
             return .async {
                 let response = try await obj.useCase.toggleDone.execute(
@@ -239,21 +244,23 @@ class TodoListVM {
                     list: obj.allItems.value.map(TodoMapper.toEntity)
                 )
 
-                return response.map(TodoMapper.toModel)
+                return response.map {
+                    TodoModelDiff(underlying: TodoMapper.toModel($0))
+                }
             }
         }
         .retry(when: retryCond)
         .catch { _ in .never() }
     }
 
-    private func handleEditted(new: Todo) -> Observable<[TodoModel]> {
+    private func handleEditted(new: Todo) -> Observable<[TodoModelDiff]> {
         return .deferredWithUnretained(self) { obj in
             do {
                 let changedList = try obj.useCase.cache.changeItemInList(
                     new,
                     list: obj.allItems.value.map(TodoMapper.toEntity)
                 )
-                .map(TodoMapper.toModel)
+                .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
 
                 return .just(changedList)
             } catch {
@@ -265,7 +272,7 @@ class TodoListVM {
     }
 
     // MARK: -
-    private func makeTapGroup(_ items: [TodoModel]) -> TodoGroup {
+    private func makeTapGroup(_ items: [TodoModelDiff]) -> TodoGroup {
         return Dictionary(grouping: items) { item in
             let comparison = Calendar.current.compare(
                 item.date,
@@ -285,9 +292,9 @@ class TodoListVM {
     }
 }
 
-extension PublishRelay where Element == TodoModelProtocol {
-    fileprivate var asTodoModel: Observable<TodoModel> {
-        return self.map { $0.asTodoModel }
+extension PublishRelay where Element == any TodoModelProtocol {
+    fileprivate var asTodoModel: Observable<TodoModelDiff> {
+        return self.map { TodoModelDiff(underlying: $0.asTodoModel) }
     }
 
     fileprivate var asTodoEntity: Observable<Todo> {

@@ -10,6 +10,7 @@ import RxCocoa
 import RxRelay
 import RxSwift
 import Domain
+import PresentationShared
 
 extension WritableTodoVM: ViewModelProtocol, LoadingProtocol, RetryProtocol {
     struct UseCase {
@@ -27,7 +28,7 @@ extension WritableTodoVM: ViewModelProtocol, LoadingProtocol, RetryProtocol {
 
     struct State: LoadingState {
         let inputValid: Driver<Bool>
-        let editedModel: Driver<TodoModelProtocol>
+        let editedModel: Driver<any TodoModelProtocol>
         let editError: Driver<Error?>
         let isLoading: Driver<Bool>
 
@@ -39,7 +40,7 @@ extension WritableTodoVM: ViewModelProtocol, LoadingProtocol, RetryProtocol {
         ) {
             self.inputValid = inputValid.asDriver()
 
-            self.editedModel = editedModel.map { $0 as TodoModelProtocol }
+            self.editedModel = editedModel.map { $0 as (any TodoModelProtocol) }
                 .asDriver(onErrorDriveWith: .never())
 
             self.editError = editError.asDriver(onErrorJustReturn: nil)
@@ -160,7 +161,7 @@ class EditTodoVM: WritableTodoVM {
     private let isChangedContent = BehaviorRelay(value: false)
 
     // MARK: Init
-    init(model: TodoModelProtocol, useCase: UseCase) {
+    init(model: any TodoModelProtocol, useCase: UseCase) {
         self.model = model.asTodoModel
 
         let input = Input(

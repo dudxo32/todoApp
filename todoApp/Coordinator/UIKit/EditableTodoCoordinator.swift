@@ -9,6 +9,7 @@ import Foundation
 import RxSwift
 import UIKit
 import SwiftUI
+import PresentationShared
 
 extension EditableTodoCoordinator: HasRxIO {
     typealias Input = IOEmpty
@@ -22,7 +23,7 @@ extension EditableTodoCoordinator: HasRxIO {
 class EditableTodoCoordinator: CoordinatorProcotcol {
     enum Mode {
         case create
-        case edit(todo: TodoModelProtocol)
+        case edit(todo: any TodoModelProtocol)
     }
 
     let navigationController: UINavigationController

@@ -9,6 +9,7 @@ import Foundation
 import Swinject
 import DataLayer
 import Domain
+import PresentationShared
 
 extension UIK {
     class WritableTodoDIContainer {
@@ -46,7 +47,7 @@ extension UIK {
         }
         
         func makeEditTodoVC(
-            todoModel: TodoModelProtocol, _ env: DataEnvironment = .local
+            todoModel: any TodoModelProtocol, _ env: DataEnvironment = .local
         )
             -> EditTodoVC
         {

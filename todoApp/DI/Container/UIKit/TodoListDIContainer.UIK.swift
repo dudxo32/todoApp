@@ -10,6 +10,7 @@ import Swinject
 import UIKit
 import Domain
 import DataLayer
+import PresentationShared
 
 extension UIK {
     class TodoListDIContainer {

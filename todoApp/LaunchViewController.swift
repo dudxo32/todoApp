@@ -10,7 +10,7 @@ import Then
 import UIKit
 import SwiftUI
 
-private let isSwift = true
+private let isSwift = false
 
 class LaunchViewController: UIViewController {
 
@@ -76,7 +76,6 @@ private func setupBarAppearance() {
     // 불투명한 색상의 백그라운드 생성 (불투명한 그림자를 한겹을 쌓는다)
     //        appearance.configureWithOpaqueBackground()
     // 그림자 제거하고 기존의 백그라운드 색상을 사용 (그림자를 제거하고 기존 배경색을 사용)
-    // 👉 참고로 그림자를 제거하면 네비게이션 바 아래의 선을 제거할 수 있다.
     appearance.configureWithTransparentBackground()
 
     appearance.backgroundColor = .white
@@ -85,17 +84,10 @@ private func setupBarAppearance() {
         .font: UIFont.boldSystemFont(ofSize: 18.0),
         .foregroundColor: UIColor.black,
     ]
-    //        appearance.largeTitleTextAttributes = nil
-    //        [.font: UIFont.boldSystemFont(ofSize: 35.0),
-    //                                               .foregroundColor: UIColor.orange]
 
-    //        appearance.setBackgroundImage(UIImage(), for: .default)
     appearance.shadowImage = UIImage()
 
     UINavigationBar.appearance().standardAppearance = appearance
     UINavigationBar.appearance().compactAppearance = appearance
     UINavigationBar.appearance().scrollEdgeAppearance = appearance
-//    UINavigationBar. navigationBar.isTranslucent = false
-    //        navigationBar.tintColor = .red
-    //        navigationBar.prefersLargeTitles = true
 }

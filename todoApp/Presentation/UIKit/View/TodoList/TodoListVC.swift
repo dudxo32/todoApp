@@ -14,6 +14,7 @@ import SnapKit
 import Then
 import UIKit
 import Shared
+import PresentationShared
 
 private let reuseIdentifier = "CustomCell"
 
@@ -25,7 +26,7 @@ extension TodoListVC: HasRxIO {
 
     struct Output {
         let presentCreateVC: Driver<Void>
-        let presentEditVC: Driver<TodoModelProtocol>
+        let presentEditVC: Driver<any TodoModelProtocol>
     }
 }
 
@@ -81,7 +82,7 @@ class TodoListVC: UIViewController {
     let output: Output
 
     let goCreateVC = PublishRelay<Void>()
-    let goEditVC = PublishRelay<TodoModelProtocol>()
+    let goEditVC = PublishRelay<any TodoModelProtocol>()
 
     let disposeBag = DisposeBag()
 
@@ -174,7 +175,7 @@ class TodoListVC: UIViewController {
 
     private func bindTableView() {
 
-        let dataSource = RxTableViewSectionedReloadDataSource<TodoSection>(
+        let dataSource = RxTableViewSectionedReloadDataSource<TodoSectionDiff>(
             configureCell: { dataSource, tableView, indexPath, item in
                 guard
                     let cell = tableView.dequeueReusableCell(

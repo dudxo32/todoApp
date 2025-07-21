@@ -9,6 +9,7 @@ import Foundation
 import Swinject
 import DataLayer
 import Domain
+import PresentationShared
 
 extension SUI {
     class TodoListDIContainer {

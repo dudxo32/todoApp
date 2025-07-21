@@ -9,8 +9,12 @@ import SwiftUI
 import Combine
 import Domain
 import Shared
+import PresentationShared
+
 
 extension SUI {
+    typealias TodoGroup = [TodoFilterType: [TodoModel]]
+
     class TodoListVM: ViewModelObservableObject, SUI.LoadingProtocol {
         struct UseCase {
             let fetch: any FetchTodoUseCase
@@ -236,7 +240,7 @@ extension SUI {
             .eraseToAnyPublisher()
         }
 
-        private func handleChanged(_ todo: TodoModelProtocol) -> AnyPublisher<
+        private func handleChanged(_ todo: any TodoModelProtocol) -> AnyPublisher<
             [TodoModel], AppError
         > {
             return Deferred {

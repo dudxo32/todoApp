@@ -12,12 +12,13 @@ import SnapKit
 import Then
 import UIKit
 import Shared
+import PresentationShared
 
 extension EditableTodoVC: HasRxIO {
     typealias Input = IOEmpty
     
     struct Output {
-        let writtenTodo = PublishSubject<TodoModelProtocol>()
+        let writtenTodo = PublishSubject<any TodoModelProtocol>()
     }
 }
 
@@ -46,7 +47,7 @@ class EditableTodoVC: UIViewController {
     // MARK: Init
     fileprivate init(
         viewModel: WritableTodoVM,
-        model: TodoModelProtocol? = nil
+        model: (any TodoModelProtocol)? = nil
     ) {
         self.textInputStackView = TextInputStackView(
             title: model?.title, content: model?.contents)
@@ -154,7 +155,7 @@ class EditableTodoVC: UIViewController {
             .disposed(by: disposeBag)
     }
     
-    fileprivate func didFinishWriting(_ todo:TodoModelProtocol) {
+    fileprivate func didFinishWriting(_ todo:any TodoModelProtocol) {
         fatalError("Subclasses must implement didFinishWriting()")
     }
 }
@@ -174,7 +175,7 @@ class CreateTodoVC: EditableTodoVC {
         super.viewDidLoad()
     }
     
-    override func didFinishWriting(_ todo:TodoModelProtocol) {
+    override func didFinishWriting(_ todo:any TodoModelProtocol) {
         self.output.writtenTodo.onNext(todo)
         self.output.writtenTodo.onCompleted()
         self.navigationController?.dismiss(animated: true)
@@ -184,7 +185,7 @@ class CreateTodoVC: EditableTodoVC {
 
 // MARK: -
 class EditTodoVC: EditableTodoVC {
-    init(model: TodoModelProtocol, viewModel: WritableTodoVM) {
+    init(model: any TodoModelProtocol, viewModel: WritableTodoVM) {
         super.init(viewModel: viewModel, model: model)
     }
 
@@ -197,7 +198,7 @@ class EditTodoVC: EditableTodoVC {
         super.viewDidLoad()
     }
     
-    override func didFinishWriting(_ todo:TodoModelProtocol) {
+    override func didFinishWriting(_ todo:any TodoModelProtocol) {
         self.output.writtenTodo.onNext(todo)
         self.output.writtenTodo.onCompleted()
         self.navigationController?.dismiss(animated: true)

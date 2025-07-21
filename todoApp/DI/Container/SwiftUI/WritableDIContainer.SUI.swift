@@ -9,6 +9,7 @@ import Foundation
 import Swinject
 import DataLayer
 import Domain
+import PresentationShared
 
 extension SUI {
     class WritableTodoDIContainer {
@@ -38,7 +39,7 @@ extension SUI {
         }
 
         func makeEditableTodoScene(
-            todo: TodoModelProtocol,
+            todo: any TodoModelProtocol,
             env: DataEnvironment = .local,
             setup: ((_ vm: SUI.EditTodoVM) -> Void)? = nil
         ) -> SUI.WritableTodoVC<SUI.EditTodoVM> {
@@ -76,7 +77,7 @@ extension SUI {
         }
 
         private func makeEditVM(
-            _ todo: TodoModelProtocol, env: DataEnvironment = .local
+            _ todo: any TodoModelProtocol, env: DataEnvironment = .local
         ) -> SUI.EditTodoVM {
             let repo = makeRepository(env)
 

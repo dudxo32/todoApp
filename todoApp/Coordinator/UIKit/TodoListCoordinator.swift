@@ -9,6 +9,7 @@ import Foundation
 import RxRelay
 import RxSwift
 import UIKit
+import PresentationShared
 
 final class TodoListCoordinator: CoordinatorProcotcol {
     let navigationController: UINavigationController
@@ -51,7 +52,7 @@ final class TodoListCoordinator: CoordinatorProcotcol {
     }
 
     private func bindPresentEditVC() {
-        func presentEditVC(_ todo: TodoModelProtocol) {
+        func presentEditVC(_ todo: any TodoModelProtocol) {
             let coord = EditableTodoCoordinator(
                 self.navigationController,
                 diContainer: UIK.WritableTodoDIContainer(),

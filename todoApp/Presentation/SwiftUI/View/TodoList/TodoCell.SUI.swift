@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PresentationShared
 
 extension SUI {
     private struct CircularCheckButton: View {
@@ -43,7 +44,7 @@ extension SUI {
     }
 
     struct TodoCell: View {
-        let model: TodoModelProtocol
+        let model: any TodoModelProtocol
         let isDoneChanged: (_ changedValue:Bool) -> Void
         
         @State private var isPresentingDetail = false

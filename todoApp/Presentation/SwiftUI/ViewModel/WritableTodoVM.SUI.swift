@@ -9,6 +9,7 @@ import Combine
 import SwiftUI
 import Domain
 import Shared
+import PresentationShared
 
 extension SUI {
     struct WriteableState {
@@ -187,14 +188,14 @@ extension SUI {
             $writtenTodo
         }
 
-        private let todo: TodoModelProtocol
+        private let todo: any TodoModelProtocol
         private let useCase: UseCase
         var cancellables = Set<AnyCancellable>()
         let retryTrigger = PassthroughSubject<RetryAction, Never>()
         var isShowLoadingIndicator: Bool = false
         var type: WritableType = .edit
 
-        init(_ todo: TodoModelProtocol, useCase: UseCase) {
+        init(_ todo: any TodoModelProtocol, useCase: UseCase) {
             self.todo = todo
             self.state = WriteableState(
                 title: todo.title, date: todo.date, content: todo.contents)
