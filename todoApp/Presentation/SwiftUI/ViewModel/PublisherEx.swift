@@ -6,6 +6,7 @@
 //
 
 import Combine
+import Foundation
 
 extension Publisher {
     func withUnretained<Object: AnyObject>(_ object: Object)
@@ -44,7 +45,7 @@ extension Publisher {
     ) -> Publishers.Catch<Self, Fallback> {
         return self.catch { [weak object] error in
             guard let object = object else {
-                return Empty() as! Fallback
+                return Empty<Any, Failure>() as! Fallback
             }
             return fallback(object, error)
         }
@@ -59,6 +60,27 @@ extension PassthroughSubject {
         return self
             .prefix(1)
             .flatMap { _ in retry() }
+            .eraseToAnyPublisher()
+    }
+}
+
+extension PassthroughSubject where Output == RetryAction {
+    func retry<RetryOutput>(
+        retry: @escaping () -> AnyPublisher<RetryOutput, Failure>,
+        none: @escaping () -> Void
+    )
+    -> AnyPublisher<RetryOutput, Failure> {
+        return self
+            .prefix(1)
+            .flatMap { a in
+                switch a {
+                case .retry:
+                    return retry()
+                case .none:
+                    none()
+                    return Combine.Empty().eraseToAnyPublisher()
+                }
+            }
             .eraseToAnyPublisher()
     }
 }

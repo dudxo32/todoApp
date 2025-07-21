@@ -13,17 +13,16 @@ public protocol EditTodoUseCase {
     var repository: TodoRepository { get }
     
     /// Todo 수정하기
-    /// - Throws: ``EditTodoUseCase.Error``
+    /// - Throws: DomainError, TodoError
     func execute(_ target:Todo, newTitle:String?, newDate:Date?, newContents:String?) async throws -> Todo
 }
 
 final public class DefaultEditTodoUseCase: EditTodoUseCase {
-    public enum Error: Swift.Error {
-        case notFound
-    }
+    public enum Error: Swift.Error {}
 
-    public var repository: any TodoRepository
-    public init(repository: any TodoRepository) {
+    public var repository: TodoRepository
+    
+    public init(repository: TodoRepository) {
         self.repository = repository
     }
     
@@ -41,12 +40,7 @@ final public class DefaultEditTodoUseCase: EditTodoUseCase {
             let response = try await repository.updateTodo(newTodo)
             
             return response
-            // FIXME: - todoError 계층
-        } catch TodoError.notFound {
-            // DataLayer Error Mapping
-            throw Error.notFound
         } catch {
-            // Network Error 전달
             throw error
         }
     }

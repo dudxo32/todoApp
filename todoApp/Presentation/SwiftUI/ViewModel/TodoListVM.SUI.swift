@@ -7,11 +7,8 @@
 
 import SwiftUI
 import Combine
-
-import Shared
 import Domain
-
-import DataLayer
+import Shared
 
 extension SUI {
     class TodoListVM: ViewModelObservableObject, SUI.LoadingProtocol {
@@ -19,9 +16,9 @@ extension SUI {
             let fetch: any FetchTodoUseCase
             let delete: any DeleteTodoUseCase
             let toggleDone: any ToggleTodoDoneUseCase
-            let cache: TodoListCache
+            let cache: TodoListCacheUseCase
         }
-        
+
         enum Action {
             case fetchItems
             case addedItem(_ value: TodoModel)
@@ -29,33 +26,32 @@ extension SUI {
             case tapDelete(_ value: TodoModel)
             case tapFilter(_ value: TodoFilterType)
             case toggleDone(_ value: TodoModel)
-            case retryTrigger
+            case retryTrigger(_value: RetryAction)
             case presentModal(_ value: SUI.WritableScene)
         }
-        
+
         private let useCase: UseCase
         var cancellables = Set<AnyCancellable>()
-        private let retryTrigger = PassthroughSubject<Void, Never>()
+        private let retryTrigger = PassthroughSubject<RetryAction, Never>()
 
         @Published private(set) var item = [TodoSection]()
-        @Published private(set) var selectedFilter:TodoFilterType
+        @Published private(set) var selectedFilter: TodoFilterType
         @Published private(set) var error: Error?
         @Published private(set) var serverError: Error?
         @Published private(set) var isShowLoadingIndicator: Bool = false
         let presentModel = PassthroughSubject<SUI.WritableScene?, Never>()
-        
-        @Published fileprivate var allItmes = [TodoModel]()
-        @Published private var cachedGroup:TodoGroup = [:]
-        
 
-        init(_ useCase:UseCase, initFilter:TodoFilterType) {
+        @Published fileprivate var allItmes = [TodoModel]()
+        @Published private var cachedGroup: TodoGroup = [:]
+
+        init(_ useCase: UseCase, initFilter: TodoFilterType) {
             self.useCase = useCase
             self.selectedFilter = initFilter
 
             $allItmes
                 .map(makeTapGroup)
                 .assign(to: &($cachedGroup))
-            
+
             $cachedGroup.combineLatest($selectedFilter) { group, filter in
                 func makeSectionByDate(_ todos: [TodoModel]) -> [TodoSection] {
                     let formatter = DateFormatter()
@@ -67,7 +63,7 @@ extension SUI {
                     }
 
                     let sections =
-                    grouped
+                        grouped
                         .map { key, value in
                             TodoSection(header: key, items: value)
                         }
@@ -75,13 +71,13 @@ extension SUI {
 
                     return sections
                 }
-                
+
                 let arr = group[filter] ?? []
                 return makeSectionByDate(arr)
             }
             .assign(to: &($item))
         }
-        
+
         func action(_ action: Action) {
             switch action {
             case .fetchItems:
@@ -102,33 +98,30 @@ extension SUI {
             case .toggleDone(let value):
                 bindToggleDone(value)
                 break
-            case .retryTrigger:
-                retryTrigger.send(())
+            case .retryTrigger(let value):
+                retryTrigger.send(value)
                 break
             case .presentModal(let value):
                 presentModel.send(value)
             }
         }
-        
+
         private func bindFetchItemsToAll() {
             func fetchWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
                 return handleFetching()
-                    .catchWithUnretained(self) { this, error in
-                        // FIXME: - todoError 정의
-                        guard error is TodoError else {
-                            this.serverError = error
-
-                            return this.retryTrigger
-                                .retry {  fetchWithErrorHandle() }
-                        }
-                        
-                        this.error = error
-                        return Combine.Empty<[TodoModel], Never>()
-                            .eraseToAnyPublisher()
-                    }
+                    .receive(on: DispatchQueue.main)                    
+                    .saveError(onError: { [weak self] error in
+                        self?.serverError = error
+                    })
+                    .retryHandler(self, retryFunc: { this in
+                        return this.retryTrigger.retry(
+                            retry: { fetchWithErrorHandle() },
+                            none: { [weak self] in self?.serverError = nil }
+                        )
+                    })
                     .eraseToAnyPublisher()
             }
-            
+
             fetchWithErrorHandle()
                 .receive(on: DispatchQueue.main)
                 .handleLoadingWithUnretained(self) { this, isLoading in
@@ -137,28 +130,24 @@ extension SUI {
                 .withUnretained(self)
                 .sink { (self, value) in
                     self.allItmes = value
-                    self.isShowLoadingIndicator = false
                 }
                 .store(in: &cancellables)
         }
-        
-        private func bindToggleDone(_ todo:TodoModel) {
+
+        private func bindToggleDone(_ todo: TodoModel) {
             func changedWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
                 return handleChanged(todo)
-                    .catchWithUnretained(self) { this, error in
-                        // FIXME: - todoError 정의
-                        guard let todoError = error as? TodoError else {
-                            
-                            this.serverError = error
-
-                            return this.retryTrigger
-                                .retry {  changedWithErrorHandle() }
-                        }
-                        
-                        this.error = todoError
-                        return Combine.Empty<[TodoModel], Never>()
-                            .eraseToAnyPublisher()
-                    }
+                    .receive(on: DispatchQueue.main)
+                    .saveError(
+                        onTodoError: { [weak self] in self?.error = $0 },
+                        onError: { [weak self] in self?.serverError = $0 }
+                    )
+                    .retryHandler(self, retryFunc: { this in
+                        return this.retryTrigger.retry(
+                            retry: { changedWithErrorHandle() },
+                            none: { [weak self] in self?.serverError = nil }
+                        )
+                    })
                     .eraseToAnyPublisher()
             }
 
@@ -170,82 +159,91 @@ extension SUI {
                 }
                 .store(in: &cancellables)
         }
-        
-        private func bindAddedTodo(_ todo:TodoModel) {
-            
+
+        private func bindAddedTodo(_ todo: TodoModel) {
+
             let list = self.allItmes.map { TodoMapper.toEntity($0) }
             let targetEntity = TodoMapper.toEntity(todo)
-            let response = self.useCase.cache.addItemInList(targetEntity, list: list).map(
+            let response = self.useCase.cache.addItemInList(
+                targetEntity, list: list
+            ).map(
                 TodoMapper.toModel
             )
-            
+
             self.allItmes = response
         }
-        
-        private func bindDelete(_ todo:TodoModel) {
+
+        private func bindDelete(_ todo: TodoModel) {
             func deleteWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
                 return handleDelete(todo)
-                    .catchWithUnretained(self) { this, error in
-                        // FIXME: - todoError 정의
-                        guard error is TodoError else {
-                            this.serverError = error
-
-                            return this.retryTrigger
-                                .retry {  deleteWithErrorHandle() }
-                        }
-                        
-                        this.error = error
-                        return Combine.Empty<[TodoModel], Never>()
-                            .eraseToAnyPublisher()
-                    }
+                    .saveError(
+                        onTodoError: { [weak self] in self?.error = $0 },
+                        onError: { [weak self] in self?.serverError = $0 }
+                    )
+                    .retryHandler(self, retryFunc: { this in
+                        return this.retryTrigger.retry(
+                            retry: { deleteWithErrorHandle() },
+                            none: { [weak self] in self?.serverError = nil }
+                        )
+                    })
                     .eraseToAnyPublisher()
             }
-            
+
             deleteWithErrorHandle()
                 .receive(on: DispatchQueue.main)
                 .withUnretained(self)
                 .sink { (self, value) in self.allItmes = value }
                 .store(in: &cancellables)
         }
-        
-        private func bindEdited(_ todo:TodoModel) {
+
+        private func bindEdited(_ todo: TodoModel) {
             do {
                 let list = self.allItmes.map { TodoMapper.toEntity($0) }
                 let targetEntity = TodoMapper.toEntity(todo)
-                let response = try self.useCase.cache.changeItemInList(targetEntity, list: list).map(
+                let response = try self.useCase.cache.changeItemInList(
+                    targetEntity, list: list
+                ).map(
                     TodoMapper.toModel
                 )
-                
+
                 self.allItmes = response
+            } catch let error as TodoListCacheUseCase.Error {
+                switch error {
+                case .notFound:
+                    self.error = AppError.todo(.notFound)
+                }
             } catch {
-                self.error = error
+                self.error = AppError.unknown
             }
         }
-        
-        private func handleFetching() -> AnyPublisher<[TodoModel], Error> {
+
+        private func handleFetching() -> AnyPublisher<[TodoModel], AppError> {
             return Deferred {
-                return  Future<[TodoModel], Error> { promise in
-                    Task  {
+                return Future<[TodoModel], Error> { promise in
+                    Task {
                         do {
                             let r = try await self.useCase.fetch.execute().map(
                                 TodoMapper.toModel
                             )
                             promise(.success(r))
-                        } catch  {
+                        } catch {
                             promise(.failure(error))
                         }
                     }
                 }
             }
+            .mapError { AppError.mapper($0) }
             .eraseToAnyPublisher()
         }
-        
-        private func handleChanged(_ todo:TodoModelProtocol) -> AnyPublisher<[TodoModel], Error> {
+
+        private func handleChanged(_ todo: TodoModelProtocol) -> AnyPublisher<
+            [TodoModel], AppError
+        > {
             return Deferred {
                 return Future<[TodoModel], Error> { [weak self] promise in
                     guard let self = self else { return }
 
-                    Task  {
+                    Task {
                         do {
                             let list = self.allItmes.map {
                                 TodoMapper.toEntity($0)
@@ -255,19 +253,22 @@ extension SUI {
                                 changedTodo,
                                 list: list
                             )
-                            let models = res.map{ TodoMapper.toModel($0) }
+                            let models = res.map { TodoMapper.toModel($0) }
 
                             promise(.success(models))
-                        } catch  {
+                        } catch {
                             promise(.failure(error))
                         }
                     }
                 }
             }
+            .mapAppError()
             .eraseToAnyPublisher()
         }
-        
-        private func handleDelete(_ target:TodoModel) -> AnyPublisher<[TodoModel], Error> {
+
+        private func handleDelete(_ target: TodoModel) -> AnyPublisher<
+            [TodoModel], AppError
+        > {
             return Deferred {
                 return Future<[TodoModel], Error> { promise in
                     Task {
@@ -281,17 +282,18 @@ extension SUI {
                                 targetEntity,
                                 list: list
                             )
-                            
-                            promise( .success(res.map(TodoMapper.toModel)) )
+
+                            promise(.success(res.map(TodoMapper.toModel)))
                         } catch {
                             promise(.failure(error))
                         }
                     }
                 }
             }
+            .mapAppError()
             .eraseToAnyPublisher()
         }
-        
+
         // MARK: -
         private func makeTapGroup(_ items: [TodoModel]) -> TodoGroup {
             return Dictionary(grouping: items) { item in
@@ -314,11 +316,10 @@ extension SUI {
     }
 
     class MTodoListVM: SUI.TodoListVM {
-        init(_ value:[TodoModel]) {
-            let dataSource = TodoLocalDataSource()
-            let repo = TodoRepositoryImpl(dataSource)
+        init(_ value: [TodoModel]) {
+            let repo = MockTodoRepository(value: value.map(TodoMapper.toEntity))
 
-            let cache = TodoListCache()
+            let cache = TodoListCacheUseCase()
 
             let useCase = SUI.TodoListVM.UseCase(
                 fetch: DefaultFetchTodoUseCase(repo),
@@ -326,11 +327,65 @@ extension SUI {
                 toggleDone: DefaultToggleTodoDoneUseCase(repo, cache: cache),
                 cache: cache
             )
-            
+
             super.init(useCase, initFilter: .today)
-            
-            self.allItmes = value
         }
     }
 
+}
+
+extension Publisher where Failure == AppError {
+    func saveError(
+        onTodoError: @escaping (AppError.Todo) -> Void = {_ in},
+        onError: @escaping (AppError) -> Void = {_ in}
+    ) -> Publishers.HandleEvents<Self> {
+        
+        self.handleEvents(receiveCompletion: { completion in
+            if case let .failure(error) = completion {
+                switch error {
+                case .todo(let error):
+                    onTodoError(error)
+
+                case .serverError, .unknown:
+                    onError(error)
+                }
+            }
+        })
+    }
+    
+    func retryHandler<Object: AnyObject>(
+        _ object: Object,
+        retryFunc: @escaping (_ this: Object) -> AnyPublisher<Output, Never>
+    ) -> AnyPublisher<Output, Never> {
+
+        return self.catch { [weak object] error in
+            guard let object = object else {
+                return Empty<Output, Never>().eraseToAnyPublisher()
+            }
+
+            switch error {
+            case .todo:
+                return Empty<Output, Never>().eraseToAnyPublisher()
+
+            case .serverError, .unknown:
+                return retryFunc(object).eraseToAnyPublisher()
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
+extension Publisher {
+    func mapAppError() -> Publishers.MapError<Self, AppError> {
+        return self.mapError { error in
+            if let todoError = error as? TodoError {
+                switch todoError {
+                case .localNotFound:
+                    return .todo(.notFound)
+                }
+            }
+
+            return AppError.mapper(error)
+        }
+    }
 }

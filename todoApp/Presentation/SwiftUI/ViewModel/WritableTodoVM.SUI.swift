@@ -8,9 +8,7 @@
 import Combine
 import SwiftUI
 import Domain
-
 import Shared
-import DataLayer
 
 extension SUI {
     struct WriteableState {
@@ -40,6 +38,7 @@ extension SUI {
         case dateInput(_ value: Date)
         case content(_ value: String)
         case doWrite
+        case retryAction(_ value: RetryAction)
     }
 
     enum WritableType {
@@ -48,6 +47,7 @@ extension SUI {
 
     protocol WritableTodoOutput: ObservableObject {
         var state: WriteableState { get set }
+        var retryError: Error? { get }
         var error: Error? { get }
         var writtenTodo: TodoModel? { get }
         var writtenTodoPublisher: Published<TodoModel?>.Publisher { get }
@@ -58,7 +58,8 @@ extension SUI {
     }
 
     protocol WritableViewModelProtocol: ViewModelObservableObject,
-                                        WritableTodoOutput, WritableTodoPublisher, SUI.RetryProtocol, SUI.LoadingProtocol
+        WritableTodoOutput, WritableTodoPublisher, SUI.RetryProtocol, SUI
+            .LoadingProtocol
     where Action == WritableAction {
         var type: WritableType { get }
     }
@@ -79,9 +80,9 @@ extension SUI {
 
         private let useCase: UseCase
         var cancellables = Set<AnyCancellable>()
-        let retryTrigger = PassthroughSubject<Void, Never>()
+        let retryTrigger = PassthroughSubject<RetryAction, Never>()
         var type: WritableType = .create
-        
+
         init(_ useCase: UseCase) {
             self.state = WriteableState(title: "", date: nil, content: "")
             self.useCase = useCase
@@ -109,25 +110,27 @@ extension SUI {
                 bindCreate()
                 break
 
+            case .retryAction(let value):
+                retryTrigger.send(value)
             }
         }
 
         private func bindCreate() {
             func createWithErrorHandle() -> AnyPublisher<TodoModel, Never> {
                 return handleCreate()
-                    .catchWithUnretained(self) { this, error in
-                        // FIXME: - todoError
-                        guard error is TodoError else {
-                            this.retryError = error
-
-                            return this.retryTrigger
-                                .retry { createWithErrorHandle() }
+                    .saveError(
+                        onTodoError: { [weak self] in self?.error = $0 },
+                        onError: { [weak self] in self?.retryError = $0 }
+                    )
+                    .retryHandler(
+                        self,
+                        retryFunc: { this in
+                            return this.retryTrigger.retry(
+                                retry: { createWithErrorHandle() },
+                                none: { [weak self] in self?.retryError = nil }
+                            )
                         }
-
-                        this.error = error
-                        return Combine.Empty<TodoModel, Never>()
-                            .eraseToAnyPublisher()
-                    }
+                    )
                     .eraseToAnyPublisher()
             }
 
@@ -144,7 +147,7 @@ extension SUI {
                 .store(in: &cancellables)
         }
 
-        fileprivate func handleCreate() -> AnyPublisher<TodoModel, Error> {
+        fileprivate func handleCreate() -> AnyPublisher<TodoModel, AppError> {
             return Deferred {
                 return Future<TodoModel, Error> { [weak self] promise in
                     guard let self = self, let date = self.state.date else {
@@ -166,6 +169,7 @@ extension SUI {
                     }
                 }
             }
+            .mapAppError()
             .eraseToAnyPublisher()
         }
     }
@@ -186,7 +190,7 @@ extension SUI {
         private let todo: TodoModelProtocol
         private let useCase: UseCase
         var cancellables = Set<AnyCancellable>()
-        let retryTrigger = PassthroughSubject<Void, Never>()
+        let retryTrigger = PassthroughSubject<RetryAction, Never>()
         var isShowLoadingIndicator: Bool = false
         var type: WritableType = .edit
 
@@ -219,25 +223,27 @@ extension SUI {
                 bindEdit()
                 break
 
+            case .retryAction(let value):
+                retryTrigger.send(value)
             }
         }
 
         private func bindEdit() {
             func editWithErrorHandle() -> AnyPublisher<TodoModel, Never> {
                 return handleEdit()
-                    .catchWithUnretained(self) { this, error in
-                        // FIXME: - todoError viewmodel error 로 변경
-                        guard error is TodoError else {
-                            this.retryError = error
-
-                            return this.retryTrigger
-                                .retry { editWithErrorHandle() }
+                    .saveError(
+                        onTodoError: { [weak self] in self?.error = $0 },
+                        onError: { [weak self] in self?.retryError = $0 }
+                    )
+                    .retryHandler(
+                        self,
+                        retryFunc: { this in
+                            return this.retryTrigger.retry(
+                                retry: { editWithErrorHandle() },
+                                none: { [weak self] in self?.retryError = nil }
+                            )
                         }
-
-                        this.error = error
-                        return Combine.Empty<TodoModel, Never>()
-                            .eraseToAnyPublisher()
-                    }
+                    )
                     .eraseToAnyPublisher()
             }
 
@@ -248,7 +254,7 @@ extension SUI {
                 .store(in: &cancellables)
         }
 
-        private func handleEdit() -> AnyPublisher<TodoModel, Error> {
+        private func handleEdit() -> AnyPublisher<TodoModel, AppError> {
             return Deferred {
                 return Future<TodoModel, Error> { [weak self] promise in
                     guard let self = self else { return }
@@ -270,6 +276,7 @@ extension SUI {
                     }
                 }
             }
+            .mapAppError()
             .eraseToAnyPublisher()
         }
     }

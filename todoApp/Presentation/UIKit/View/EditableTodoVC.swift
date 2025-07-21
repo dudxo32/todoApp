@@ -14,7 +14,7 @@ import UIKit
 import Shared
 
 extension EditableTodoVC: HasRxIO {
-    typealias Input = Empty
+    typealias Input = IOEmpty
     
     struct Output {
         let writtenTodo = PublishSubject<TodoModelProtocol>()

@@ -7,8 +7,8 @@
 
 import Foundation
 
-final public class TodoListCache {
-    // FIXME: - error 이름 계층 바꾸기
+final public class TodoListCacheUseCase {
+    @frozen
     public enum Error: Swift.Error {
         case notFound
     }
@@ -26,7 +26,7 @@ final public class TodoListCache {
     }
 
     /// 주어진 list 에서 newTodo를 변경
-    /// - Throws: ``TodoListCache.Error``
+    /// - Throws: TodoListCache.Error 해당 에러만을 반환
     public func changeItemInList(_ newTodo: Todo, list: [Todo]) throws -> [Todo] {
         var currentAll = list
 

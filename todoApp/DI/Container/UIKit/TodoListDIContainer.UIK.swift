@@ -36,7 +36,7 @@ extension UIK {
         ) -> TodoListVC {
             let repo = container.resolveOrFail(TodoRepository.self, argument: env)
 
-            let cache = container.resolveOrFail(TodoListCache.self)
+            let cache = container.resolveOrFail(TodoListCacheUseCase.self)
             let fetchUseCase = container.resolveOrFail(
                 (any FetchTodoUseCase).self, argument: repo
             )

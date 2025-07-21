@@ -55,6 +55,27 @@ extension SUI {
                         SUI.LoadingIndicator()
                     }
                 }
+                .errorAlert(
+                    isPresented: Binding(
+                        get: { vm.error != nil },
+                        set: { _, _ in }
+                    ),
+                    message: vm.error?.localizedDescription ?? ""
+                )
+                .retryAlert(
+                    isPresented: Binding(
+                        get: { vm.retryError != nil },
+                        set: { _, _ in }
+                    ),
+                    message: vm.retryError?.localizedDescription ?? "",
+                    retryAction: {
+                        vm.action(.retryAction(.retry))
+                    },
+                    noneAction: {
+                        vm.action(.retryAction(.none))
+                    }
+                )
+               
             }
         }
     }

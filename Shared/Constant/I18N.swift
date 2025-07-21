@@ -23,4 +23,10 @@ public struct I18N {
     static public let confirm = "confirm".localized
     /// 재시도
     static public let retry = "retry".localized
+    /// 할일을 찾을 수 없습니다
+    static public let todoNotFound = "todoNotFound".localized
+    /// 알 수 없는 에러입니다
+    static public let unKnownError = "unKnownError".localized
+    /// 오류
+    static public let error = "error".localized
 }

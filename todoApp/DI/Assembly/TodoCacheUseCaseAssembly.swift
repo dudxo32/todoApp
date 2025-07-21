@@ -11,8 +11,8 @@ import Domain
 
 final class TodoCacheAssembly: Assembly {
     func assemble(container: Container) {
-        container.register(TodoListCache.self) { _ in
-            TodoListCache()
+        container.register(TodoListCacheUseCase.self) { _ in
+            TodoListCacheUseCase()
         }
     }
 }

@@ -7,7 +7,6 @@
 
 import Foundation
 internal import RealmSwift
-import Shared
 
 public class TodoLocalDataSource: TodoDataSourceProtocol {
     public init () {}
@@ -18,14 +17,13 @@ public class TodoLocalDataSource: TodoDataSourceProtocol {
             let target = try realm.objects(TodoRealm.self).filter({
                 $0._id == id
             }).first
-        else { throw TodoError.notFound }
+        else { throw TodoLocalError.notFound }
 
         return target
     }
 
     public func fetchTodoList() async throws -> [TodoResponse.Fetch] {
-
-        try await _Concurrency.Task.delayTwoSecond()
+        try await Task.delayTwoSecond()
 
         let todoList = try Array(realm.objects(TodoRealm.self))
 
@@ -43,7 +41,7 @@ public class TodoLocalDataSource: TodoDataSourceProtocol {
     public func writeTodo(_ param: TodoRequest.Write)
         async throws -> TodoResponse.Write
     {
-        try await _Concurrency.Task.delayTwoSecond()
+        try await Task.delayTwoSecond()
 
         let newTodo = TodoRealm(
             title: param.title,
@@ -64,6 +62,8 @@ public class TodoLocalDataSource: TodoDataSourceProtocol {
         )
     }
 
+    /// Todo 삭제
+    /// - Throws: ``TodoLocalError``
     public func deleteTodo(_ param: TodoRequest.Delete) async throws
         -> TodoResponse.Delete
     {
@@ -76,6 +76,8 @@ public class TodoLocalDataSource: TodoDataSourceProtocol {
         return TodoResponse.Delete(id: param.id)
     }
 
+    /// Todo tnwjd
+    ///  - Throws: ``TodoLocalError``
     public func updateTodo(_ param: TodoRequest.Update) async throws
         -> TodoResponse.Update
     {
@@ -101,3 +103,9 @@ public class TodoLocalDataSource: TodoDataSourceProtocol {
 }
 
 class StubTodoLocalDataSource: TodoLocalDataSource {}
+
+private extension Task where Success == Never, Failure == Never {
+    static func delayTwoSecond() async throws {
+        try await _Concurrency.Task<Success, Failure>.sleep(for: .seconds(2))
+    }
+}

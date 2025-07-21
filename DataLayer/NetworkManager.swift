@@ -7,7 +7,6 @@
 
 import Foundation
 internal import Moya
-import Shared
 
 public enum Method {
     case post, get, put, delete
@@ -19,12 +18,13 @@ public enum NetworkTask {
     case requestJSONEncodableToQuery(Encodable)
 }
 
-//public protocol APITarget {
-//    var path: String { get }
-//    var method: String { get }           // "GET", "POST" 등
-//    var headers: [String: String]? { get }
-//    var task: RequestTask { get }
-//}
+/// Data 환경
+@frozen
+public enum DataEnvironment: String {
+    case stub = "stub"
+    case local = "local"
+    case production = "production"
+}
 
 public protocol APITarget {
 
@@ -132,7 +132,7 @@ private struct AnyTarget: TargetType {
 private extension Moya.Task {
     static func requestJSONEncodableToQuery(_ encodable: (any Encodable)) -> Moya.Task {
         do {
-            let param = try encodable.toDictionary()
+            let param = try encodable.toJson()
 
             return .requestParameters(
                 parameters: param,
@@ -155,17 +155,17 @@ private extension Response {
 
             return decoded
         } catch {
-            throw NetworkError.DecodedFailed
+            throw DataError.decodedFailed
         }
     }
 }
 
 private extension Encodable {
-    func toDictionary() throws -> [String: Any] {
+    func toJson() throws -> [String: Any] {
         let data = try JSONEncoder().encode(self)
         let json = try JSONSerialization.jsonObject(with: data, options: [])
         guard let dictionary = json as? [String: Any] else {
-            throw NetworkError.DictionaryFailed
+            throw DataError.jsonFailed
         }
 
         return dictionary

@@ -17,12 +17,12 @@ final class TodoUseCaseAssembly: Assembly {
         }
 
         container.register((any DeleteTodoUseCase).self) {
-            (_, repository: TodoRepository, cache: TodoListCache) in
+            (_, repository: TodoRepository, cache: TodoListCacheUseCase) in
             DefaultDeleteTodoUseCase(repository, cache: cache)
         }
 
         container.register((any ToggleTodoDoneUseCase).self) {
-            (_, repository: TodoRepository, cache: TodoListCache) in
+            (_, repository: TodoRepository, cache: TodoListCacheUseCase) in
             DefaultToggleTodoDoneUseCase(repository, cache: cache)
         }
         

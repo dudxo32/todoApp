@@ -13,14 +13,12 @@ public protocol FetchTodoUseCase {
     var repository: TodoRepository { get }
 
     /// 할일 목록 불러오기
-    /// - Throws: ``FetchTodoUseCaseBase.Error``
+    /// - Throws: DomainError
     func execute() async throws -> [Todo]
 }
 
 final public class DefaultFetchTodoUseCase: FetchTodoUseCase {
-    public enum Error: Swift.Error {
-        case ServerError
-    }
+    public enum Error: Swift.Error {}
 
     public var repository: TodoRepository
 
@@ -31,15 +29,8 @@ final public class DefaultFetchTodoUseCase: FetchTodoUseCase {
     public func execute() async throws -> [Todo] {
         do {
             return try await repository.fetchTodoList()
-        } catch let error as NetworkError {
-            switch error {
-            case .DecodedFailed:
-                throw error
-            case .DictionaryFailed:
-                throw error
-            }
         } catch {
-            throw Error.ServerError
+            throw error
         }
     }
 }

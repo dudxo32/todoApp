@@ -23,4 +23,6 @@ struct I18N {
     static let confirm = "confirm".localized
     /// 재시도
     static let retry = "retry".localized
+    /// 할일을 찾을 수 없습니다
+    static let todoNotFound = "todoNotFound".localized
 }

@@ -11,7 +11,7 @@ import UIKit
 import SwiftUI
 
 extension EditableTodoCoordinator: HasRxIO {
-    typealias Input = Empty
+    typealias Input = IOEmpty
     
     struct Output {
         let presentedCreateVC = PublishSubject<CreateTodoVC>()

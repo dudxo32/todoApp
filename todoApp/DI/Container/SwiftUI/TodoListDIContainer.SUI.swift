@@ -28,7 +28,7 @@ extension SUI {
                 container: self.container
             )
         }
-
+        
         func makeTodoListScene(
             initFilter: TodoFilterType,
             env: DataEnvironment = .local,
@@ -47,7 +47,7 @@ extension SUI {
                 argument: env
             )
 
-            let cache = container.resolveOrFail(TodoListCache.self)
+            let cache = container.resolveOrFail(TodoListCacheUseCase.self)
             let fetchUseCase = container.resolveOrFail(
                 (any FetchTodoUseCase).self, argument: repo
             )

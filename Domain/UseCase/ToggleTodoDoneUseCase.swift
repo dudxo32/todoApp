@@ -6,26 +6,23 @@
 //
 
 import Foundation
-import Shared
 
 public protocol ToggleTodoDoneUseCase {
     associatedtype Error: Swift.Error
     var repository: TodoRepository { get }
 
     /// Todo 객체의 완료 여부 변경
-    /// - Throws: ``ToggleTodoDoneUseCase.Error``
+    /// - Throws: DomainError, TodoError
     func execute(_ target: Todo, list: [Todo]) async throws -> [Todo]
 }
 
 final public class DefaultToggleTodoDoneUseCase: ToggleTodoDoneUseCase {
-    public enum Error: Swift.Error {
-        case ServerError
-    }
+    public enum Error: Swift.Error {}
 
     public var repository: any TodoRepository
-    let cache: TodoListCache
+    let cache: TodoListCacheUseCase
 
-    public init(_ repository: any TodoRepository, cache: TodoListCache) {
+    public init(_ repository: any TodoRepository, cache: TodoListCacheUseCase) {
         self.repository = repository
         self.cache = cache
     }
@@ -44,12 +41,8 @@ final public class DefaultToggleTodoDoneUseCase: ToggleTodoDoneUseCase {
 
             return try cache.changeItemInList(new, list: list)
 
-        } catch is NetworkError {
-            throw NetworkError.DecodedFailed
-        } catch is TodoListCache.Error {
-            throw TodoListCache.Error.notFound
         } catch {
-            throw Error.ServerError
+            throw error
         }
     }
 

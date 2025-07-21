@@ -120,7 +120,10 @@ extension SUI {
                 ),
                 message: viewModel.serverError?.localizedDescription ?? "",
                 retryAction: {
-                    viewModel.action(.retryTrigger)
+                    viewModel.action(.retryTrigger(_value: .retry))
+                },
+                noneAction: {
+                    viewModel.action(.retryTrigger(_value: .none))
                 }
             )
         }

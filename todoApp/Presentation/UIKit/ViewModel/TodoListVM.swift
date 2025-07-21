@@ -18,7 +18,7 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
         let fetch: any FetchTodoUseCase
         let delete: any DeleteTodoUseCase
         let toggleDone: any ToggleTodoDoneUseCase
-        let cache: TodoListCache
+        let cache: TodoListCacheUseCase
     }
 
     struct Input: RetryInput {

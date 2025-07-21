@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-struct TodoMapper {
+enum TodoMapper {
     static func toEntity(_ model: TodoModelProtocol) -> Todo {
         return TodoImpl(
             id: model.id,

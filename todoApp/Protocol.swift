@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-struct Empty {}
+struct IOEmpty {}
 
 protocol HasRxIO {
     associatedtype Input

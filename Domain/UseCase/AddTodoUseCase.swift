@@ -12,7 +12,7 @@ public protocol AddTodoUseCase {
     var repository: TodoRepository { get }
 
     /// Todo를 추가
-    /// - Throws: ``AddTodoUseCase.Error``
+    /// - Throws: DomainError
     func execute(title: String, contents: String, date: Date) async throws
         -> Todo
 }
@@ -20,9 +20,9 @@ public protocol AddTodoUseCase {
 final public class DefaultAddTodoUseCase: AddTodoUseCase {
     public enum Error: Swift.Error {}
 
-    public var repository: any TodoRepository
+    public var repository: TodoRepository
 
-    public init(repository: any TodoRepository) {
+    public init(repository: TodoRepository) {
         self.repository = repository
     }
 

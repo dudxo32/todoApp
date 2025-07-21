@@ -54,10 +54,6 @@ extension SUI {
         }
         
         private func bindWrittenTodo(_ vm:any WritableTodoPublisher) {
-            vm.writtenTodoPublisher.print().sink { _ in
-                
-            }.store(in: &cancellables)
-            
             vm.writtenTodoPublisher
                 .compactMap { $0 }
                 .withUnretained(self)

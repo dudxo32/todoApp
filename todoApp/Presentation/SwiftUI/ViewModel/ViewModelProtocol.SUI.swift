@@ -20,7 +20,7 @@ extension SUI {
 
     protocol RetryProtocol: ViewModelObservableObject {
         var retryError: Error? { get }
-        var retryTrigger: PassthroughSubject<Void, Never> { get }
+        var retryTrigger: PassthroughSubject<RetryAction, Never> { get }
     }
 
 }
