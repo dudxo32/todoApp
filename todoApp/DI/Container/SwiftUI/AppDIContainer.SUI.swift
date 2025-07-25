@@ -31,11 +31,11 @@ extension SUI {
         }
     }
     
+    
     struct RootView: View {
         let coordinator = TodoListCoordinator(
             initalScene: .list,
-            appDiContaeinr: SUI.AppDIContainer.shared,
-            diContainer: SUI.AppDIContainer.shared.makeTodoListDIContainer()
+            appDiContaeinr: SUI.AppDIContainer.shared
         )
         
         var body: some View {

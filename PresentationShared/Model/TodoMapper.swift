@@ -19,8 +19,8 @@ public enum TodoMapper {
         )
     }
     
-    static public func toModel(_ entity: Todo) -> TodoModel {
-        return TodoModel(
+    static public func toModelProtocol(_ entity: Todo) -> any TodoModelProtocol {
+        return TodoModelImpl(
             id: entity.id,
             title: entity.title,
             date: entity.date,
@@ -28,6 +28,23 @@ public enum TodoMapper {
             isDone: entity.isDone
         )
     }
+    
+//    static public func toModel1(_ entity: Todo) -> TodoModel {
+//        return TodoModel(
+//            id: entity.id,
+//            title: entity.title,
+//            date: entity.date,
+//            contents: entity.contents,
+//            isDone: entity.isDone
+//        )
+//    }
+}
+private struct TodoModelImpl: TodoModelProtocol {
+    var id: String
+    var title: String
+    var date: Date
+    var contents: String
+    var isDone: Bool
 }
 
 private struct TodoImpl: Todo {

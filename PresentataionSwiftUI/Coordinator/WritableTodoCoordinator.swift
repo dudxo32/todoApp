@@ -29,18 +29,15 @@ class WritableTodoCoordinator: ObservableObject {
 
     var cancellables = Set<AnyCancellable>()
         
-    private let appDiContainer: AppDIContainerProtocol
-//    private let diContainer:WritableTodoDIContainerProtocol
+    private let diContainer:WritableTodoDIContainerProtocol
     private let type: WritableScene
         
     init(type: WritableScene,
          appDiContainer: AppDIContainerProtocol
-//         _ diContainer:WritableTodoDIContainerProtocol
     ) {
         self.path = NavigationPath()
-//        self.diContainer = diContainer
+        self.diContainer = appDiContainer.makeWritableDIContainer()
         self.type = type
-        self.appDiContainer = appDiContainer
     }
         
     @ViewBuilder
@@ -60,18 +57,14 @@ class WritableTodoCoordinator: ObservableObject {
         
     @ViewBuilder
     private func buildCreateView() -> some View {
-        let container = appDiContainer.makeWritableDIContainer()
-        
-        container.makeCreatableTodoScene(env: .local) {
+        diContainer.makeCreatableTodoScene(env: .local) {
             self.bindWrittenTodo($0)
         }
     }
             
     @ViewBuilder
     private func buildEditView(_ todo: TodoModel) -> some View {
-        let container = appDiContainer.makeWritableDIContainer()
-        
-        container.makeEditableTodoScene(todo: todo, env: .local) {
+        diContainer.makeEditableTodoScene(todo: todo, env: .local) {
             self.bindWrittenTodo($0)
         }
     }

@@ -51,13 +51,12 @@ public class TodoListCoordinator: ObservableObject {
 
     public init(
         initalScene: AppScene,
-        appDiContaeinr:AppDIContainerProtocol,
-        diContainer: TodoListDIContainerProcotcol
+        appDiContaeinr:AppDIContainerProtocol
     ) {
         self.path = NavigationPath()
         self.initalScence = initalScene
         self.appDiContainer = appDiContaeinr
-        self.diContainer = diContainer
+        self.diContainer = appDiContaeinr.makeTodoListDIContainer()
         
     }
 
@@ -70,9 +69,6 @@ public class TodoListCoordinator: ObservableObject {
     func buildScence(_ scene: AppScene) -> some View {
         switch scene {
         case .list:
-            let container = appDiContainer.makeTodoListDIContainer()
-            
-//            container
             diContainer
                 .makeTodoListScene(initFilter: .today, env: .local) { vm in
                 self.bindTodoListScene(vm)

@@ -5,13 +5,11 @@
 //  Created by 조영태 on 6/5/25.
 //
 
-import SwiftUI
 import Combine
 import Domain
-import Shared
 import PresentationShared
-
-typealias TodoGroup = [TodoFilterType: [TodoModel]]
+import Shared
+import SwiftUI
 
 public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
     public struct UseCase {
@@ -19,7 +17,7 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
         let delete: any DeleteTodoUseCase
         let toggleDone: any ToggleTodoDoneUseCase
         let cache: TodoListCacheUseCase
-        
+
         public init(
             fetch: any FetchTodoUseCase,
             delete: any DeleteTodoUseCase,
@@ -77,7 +75,7 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
                 }
 
                 let sections =
-                grouped
+                    grouped
                     .map { key, value in
                         TodoSection(header: key, items: value)
                     }
@@ -123,16 +121,19 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
     private func bindFetchItemsToAll() {
         func fetchWithErrorHandle() -> AnyPublisher<[TodoModel], Never> {
             return handleFetching()
-                .receive(on: DispatchQueue.main)                    
+                .receive(on: DispatchQueue.main)
                 .saveError(onError: { [weak self] error in
                     self?.serverError = error
                 })
-                .retryHandler(self, retryFunc: { this in
-                    return this.retryTrigger.retry(
-                        retry: { fetchWithErrorHandle() },
-                        none: { [weak self] in self?.serverError = nil }
-                    )
-                })
+                .retryHandler(
+                    self,
+                    retryFunc: { this in
+                        return this.retryTrigger.retry(
+                            retry: { fetchWithErrorHandle() },
+                            none: { [weak self] in self?.serverError = nil }
+                        )
+                    }
+                )
                 .eraseToAnyPublisher()
         }
 
@@ -156,12 +157,15 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
                     onTodoError: { [weak self] in self?.error = $0 },
                     onError: { [weak self] in self?.serverError = $0 }
                 )
-                .retryHandler(self, retryFunc: { this in
-                    return this.retryTrigger.retry(
-                        retry: { changedWithErrorHandle() },
-                        none: { [weak self] in self?.serverError = nil }
-                    )
-                })
+                .retryHandler(
+                    self,
+                    retryFunc: { this in
+                        return this.retryTrigger.retry(
+                            retry: { changedWithErrorHandle() },
+                            none: { [weak self] in self?.serverError = nil }
+                        )
+                    }
+                )
                 .eraseToAnyPublisher()
         }
 
@@ -180,9 +184,7 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
         let targetEntity = TodoMapper.toEntity(todo)
         let response = self.useCase.cache.addItemInList(
             targetEntity, list: list
-        ).map(
-            TodoMapper.toModel
-        )
+        ).map(TodoMapper.toModel)
 
         self.allItmes = response
     }
@@ -194,12 +196,15 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
                     onTodoError: { [weak self] in self?.error = $0 },
                     onError: { [weak self] in self?.serverError = $0 }
                 )
-                .retryHandler(self, retryFunc: { this in
-                    return this.retryTrigger.retry(
-                        retry: { deleteWithErrorHandle() },
-                        none: { [weak self] in self?.serverError = nil }
-                    )
-                })
+                .retryHandler(
+                    self,
+                    retryFunc: { this in
+                        return this.retryTrigger.retry(
+                            retry: { deleteWithErrorHandle() },
+                            none: { [weak self] in self?.serverError = nil }
+                        )
+                    }
+                )
                 .eraseToAnyPublisher()
         }
 
@@ -214,11 +219,12 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
         do {
             let list = self.allItmes.map { TodoMapper.toEntity($0) }
             let targetEntity = TodoMapper.toEntity(todo)
+
             let response = try self.useCase.cache.changeItemInList(
-                targetEntity, list: list
-            ).map(
-                TodoMapper.toModel
+                targetEntity,
+                list: list
             )
+            .map(TodoMapper.toModel)
 
             self.allItmes = response
         } catch let error as TodoListCacheUseCase.Error {
@@ -236,10 +242,10 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
             return Future<[TodoModel], Error> { promise in
                 Task {
                     do {
-                        let r = try await self.useCase.fetch.execute().map(
-                            TodoMapper.toModel
-                        )
-                        promise(.success(r))
+                        let res = try await self.useCase.fetch.execute()
+                            .map(TodoMapper.toModel)
+                        
+                        promise(.success(res))
                     } catch {
                         promise(.failure(error))
                     }
@@ -267,7 +273,7 @@ public class TodoListVM: ViewModelObservableObject, LoadingProtocol {
                             changedTodo,
                             list: list
                         )
-                        let models = res.map { TodoMapper.toModel($0) }
+                        let models = res.map(TodoMapper.toModel)
 
                         promise(.success(models))
                     } catch {
@@ -346,40 +352,39 @@ class MTodoListVM: TodoListVM {
     }
 }
 
-
 extension Publisher where Failure == AppError {
     func saveError(
-        onTodoError: @escaping (AppError.Todo) -> Void = {_ in},
-        onError: @escaping (AppError) -> Void = {_ in}
+        onTodoError: @escaping (AppError.Todo) -> Void = { _ in },
+        onError: @escaping (AppError) -> Void = { _ in }
     ) -> Publishers.HandleEvents<Self> {
-        
+
         self.handleEvents(receiveCompletion: { completion in
             if case let .failure(error) = completion {
                 switch error {
                 case .todo(let error):
                     onTodoError(error)
-                    
+
                 case .serverError, .unknown:
                     onError(error)
                 }
             }
         })
     }
-    
+
     func retryHandler<Object: AnyObject>(
         _ object: Object,
         retryFunc: @escaping (_ this: Object) -> AnyPublisher<Output, Never>
     ) -> AnyPublisher<Output, Never> {
-        
+
         return self.catch { [weak object] error in
             guard let object = object else {
                 return Empty<Output, Never>().eraseToAnyPublisher()
             }
-            
+
             switch error {
             case .todo:
                 return Empty<Output, Never>().eraseToAnyPublisher()
-                
+
             case .serverError, .unknown:
                 return retryFunc(object).eraseToAnyPublisher()
             }

@@ -174,7 +174,7 @@ public class EditTodoVM: WritableTodoVM {
         model: any TodoModelProtocol,
         useCase: UseCase
     ) {
-        self.model = model.asTodoModel
+        self.model = TodoModel(model)
 
         let input = Input(
             titleRelay: .init(value: model.title),

@@ -153,7 +153,7 @@ public class TodoListVC: UIViewController {
 
     private func bindTableView() {
 
-        let dataSource = RxTableViewSectionedReloadDataSource<TodoSectionDiff>(
+        let dataSource = RxTableViewSectionedReloadDataSource<TodoSection>(
             configureCell: { dataSource, tableView, indexPath, item in
                 guard
                     let cell = tableView.dequeueReusableCell(

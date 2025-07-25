@@ -145,7 +145,6 @@ public class CreateTodoVM: WritableViewModelProtocol, LoadingProtocol {
             }
             .withUnretained(self)
             .sink { (self, value) in
-                print(value)
                 self.writtenTodo = value
             }
             .store(in: &cancellables)

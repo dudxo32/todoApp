@@ -59,7 +59,7 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
     
     struct State: LoadingState {
         let isLoading: Driver<Bool>
-        let items: Driver<[TodoSectionDiff]>
+        let items: Driver<[TodoSection]>
         let error: Driver<Error?>
 
         fileprivate init(
@@ -71,8 +71,8 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
             self.isLoading = isLoading.asDriver()
             self.error = error.asDriver(onErrorJustReturn: nil)
 
-            func makeSectionByDate(_ todos: [TodoModelDiff])
-            -> [TodoSectionDiff]
+            func makeSectionByDate(_ todos: [TodoModel])
+            -> [TodoSection]
             {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy/MM/dd"
@@ -85,7 +85,7 @@ extension TodoListVM: ViewModelProtocol, RetryProtocol, LoadingProtocol {
                 let sections =
                 grouped
                     .map { key, value in
-                        TodoSectionDiff(header: key, items: value)
+                        TodoSection(header: key, items: value)
                     }
                     .sorted { $0.header < $1.header }  // 날짜순 정렬
 
@@ -127,7 +127,7 @@ public class TodoListVM {
 
     private let isfetching = BehaviorRelay(value: false)
     private let errorRelay = PublishRelay<Error?>()
-    private let allItems = BehaviorRelay<[TodoModelDiff]>(value: [])
+    private let allItems = BehaviorRelay<[TodoModel]>(value: [])
     private let cachedGroup = BehaviorRelay<TodoGroup>(value: [:])
     private let selectedFilter: BehaviorRelay<TodoFilterType>
 
@@ -158,9 +158,6 @@ public class TodoListVM {
         bindChangedItemToAll()
         bindAddedItemToAll()
         bindTapDeleteToAll()
-    }
-    deinit {
-        print("todolistvm")
     }
     // MARK: - Binding
     private func bindFetchItemsToAll() {
@@ -215,7 +212,7 @@ public class TodoListVM {
                     TodoMapper.toEntity(newItem),
                     list: self.allItems.value.map(TodoMapper.toEntity)
                 )
-                .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
+                .map(TodoMapper.toModel)
             }
             .bind(to: self.allItems)
             .disposed(by: self.disposeBag)
@@ -237,13 +234,11 @@ public class TodoListVM {
         return self.handelRetry(from: error, in: self.errorRelay)
     }
 
-    private func handleFetching() -> Single<[TodoModelDiff]> {
+    private func handleFetching() -> Single<[TodoModel]> {
         return .deferredWithUnretained(self) { obj in
                 .async {
                     try await obj.useCase.fetch.execute()
-                        .map {
-                            TodoModelDiff(underlying: TodoMapper.toModel($0))
-                        }
+                        .map(TodoMapper.toModel)
                 }
         }
         .handleLoadingState(to: self.isfetching)
@@ -251,21 +246,21 @@ public class TodoListVM {
         .catch { _ in .never() }
     }
 
-    private func handleDeleteItem(target: Todo) -> Single<[TodoModelDiff]> {
+    private func handleDeleteItem(target: Todo) -> Single<[TodoModel]> {
         return Single.deferredWithUnretained(self) { obj in
                 .async {
                     return try await obj.useCase.delete.execute(
                         target,
                         list: obj.allItems.value.map(TodoMapper.toEntity)
                     )
-                    .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
+                    .map(TodoMapper.toModel)
                 }
         }
         .retry(when: retryCond)
         .catch { _ in .never() }
     }
 
-    private func handleToggleDone(target: Todo) -> Single<[TodoModelDiff]> {
+    private func handleToggleDone(target: Todo) -> Single<[TodoModel]> {
         return .deferredWithUnretained(self) { obj in
             return .async {
                 let response = try await obj.useCase.toggleDone.execute(
@@ -273,24 +268,22 @@ public class TodoListVM {
                     list: obj.allItems.value.map(TodoMapper.toEntity)
                 )
 
-                return response.map {
-                    TodoModelDiff(underlying: TodoMapper.toModel($0))
-                }
+                return response.map(TodoMapper.toModel)
             }
         }
         .retry(when: retryCond)
         .catch { _ in .never() }
     }
 
-    private func handleEditted(new: Todo) -> Observable<[TodoModelDiff]> {
+    private func handleEditted(new: Todo) -> Observable<[TodoModel]> {
         return .deferredWithUnretained(self) { obj in
             do {
                 let changedList = try obj.useCase.cache.changeItemInList(
                     new,
                     list: obj.allItems.value.map(TodoMapper.toEntity)
                 )
-                    .map { TodoModelDiff(underlying: TodoMapper.toModel($0)) }
-
+                    .map(TodoMapper.toModel)
+                
                 return .just(changedList)
             } catch {
                 return .error(error)
@@ -301,7 +294,7 @@ public class TodoListVM {
     }
 
     // MARK: -
-    private func makeTapGroup(_ items: [TodoModelDiff]) -> TodoGroup {
+    private func makeTapGroup(_ items: [TodoModel]) -> TodoGroup {
         return Dictionary(grouping: items) { item in
             let comparison = Calendar.current.compare(
                 item.date,
@@ -322,8 +315,8 @@ public class TodoListVM {
 }
 
 extension PublishRelay where Element == any TodoModelProtocol {
-    fileprivate var asTodoModel: Observable<TodoModelDiff> {
-        return self.map { TodoModelDiff(underlying: $0.asTodoModel) }
+    fileprivate var asTodoModel: Observable<TodoModel> {
+        return self.map { TodoModel($0) }
     }
 
     fileprivate var asTodoEntity: Observable<Todo> {
