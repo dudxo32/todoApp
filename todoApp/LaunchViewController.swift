@@ -9,9 +9,8 @@ import SnapKit
 import Then
 import UIKit
 import SwiftUI
-import PresentationUIKit
 
-private let isSwift = false
+private let isSwift = true
 
 class LaunchViewController: UIViewController {
 
@@ -43,11 +42,7 @@ class LaunchViewController: UIViewController {
 
             
             if isSwift {
-                let coordinator = SUI.TodoListCoordinator(
-                    initalScene: .list,
-                    diContainer: SUI.TodoListDIContainer()
-                )
-                let root = SUI.CoordinatorScene(coordinator: coordinator)
+                let root = SUI.RootView()
                 scenceDelegate.window?.rootViewController = UIHostingController(
                     rootView: root
                 )
@@ -55,7 +50,6 @@ class LaunchViewController: UIViewController {
             } else {
                 let naviController = UIK.RootNavigationController()
                 naviController.view.backgroundColor = .white
-                
                 scenceDelegate.window?.rootViewController = naviController
                 
                

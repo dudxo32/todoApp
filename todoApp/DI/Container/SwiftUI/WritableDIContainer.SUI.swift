@@ -5,14 +5,15 @@
 //  Created by 조영태 on 7/15/25.
 //
 
-import Foundation
-import Swinject
 import DataLayer
 import Domain
+import Foundation
+import PresentataionSwiftUI
 import PresentationShared
+import Swinject
 
 extension SUI {
-    class WritableTodoDIContainer {
+    class WritableTodoDIContainer: WritableTodoDIContainerProtocol {
         private let container: Container
         private let repoAssembly: TodoRepositoryAssembly
         private let useCaseAssembly: TodoUseCaseAssembly
@@ -22,21 +23,21 @@ extension SUI {
             self.container = Container(parent: parentContainer)
             self.repoAssembly = TodoRepositoryAssembly()
             self.useCaseAssembly = TodoUseCaseAssembly()
-            
+
             self.assembler = Assembler(
                 [
-                    SUI.WritableTodoAssembly(),
+                    WritableTodoAssembly(),
                     repoAssembly,
-                    useCaseAssembly
+                    useCaseAssembly,
                 ],
                 container: self.container
             )
         }
 
         func makeCreatableTodoScene(
-            env: DataEnvironment = .local,
-            setup: ((_ vm: SUI.CreateTodoVM) -> Void)? = nil
-        ) -> SUI.WritableTodoVC<SUI.CreateTodoVM> {
+            env: DataEnvironment,
+            setup: ((_ vm: CreateTodoVM) -> Void)?
+        ) -> CreateTodoVC {
             let vm = makeCreateVM(env)
             setup?(vm)
             return makeCreateVC(vm)
@@ -44,62 +45,58 @@ extension SUI {
 
         func makeEditableTodoScene(
             todo: any TodoModelProtocol,
-            env: DataEnvironment = .local,
-            setup: ((_ vm: SUI.EditTodoVM) -> Void)? = nil
-        ) -> SUI.WritableTodoVC<SUI.EditTodoVM> {
+            env: DataEnvironment,
+            setup: ((_ vm: EditTodoVM) -> Void)?
+        ) -> EditTodoVC {
             let vm = makeEditVM(todo, env: env)
             setup?(vm)
             return makeEditVC(vm)
         }
 
         private func makeRepository(_ env: DataEnvironment) -> TodoRepository {
-            return container.resolveOrFail(TodoRepository.self, argument: env)
+            let ds = repoAssembly.makeDataSource(.local)
+            return repoAssembly.makeRepository(ds)
         }
 
         private func makeCreateVM(_ env: DataEnvironment = .local)
-            -> SUI.CreateTodoVM
+            -> CreateTodoVM
         {
             let repo = makeRepository(env)
 
-            let addTodo = container.resolveOrFail(
-                (any AddTodoUseCase).self, argument: repo)
+            let addTodo = useCaseAssembly.makeAddTodoUseCase(repo)
+            let useCase = CreateTodoVM.UseCase(addTodo: addTodo)
 
-            let useCase = SUI.CreateTodoVM.UseCase(addTodo: addTodo)
-
-            return
-                container
-                .resolveOrFail(SUI.CreateTodoVM.self, argument: useCase)
+            return container.resolveOrFail(
+                CreateTodoVM.self,
+                argument: useCase
+            )
         }
 
-        private func makeCreateVC(_ vm: SUI.CreateTodoVM)
-            -> SUI.WritableTodoVC<SUI.CreateTodoVM>
-        {
+        private func makeCreateVC(_ vm: CreateTodoVM) -> CreateTodoVC {
             return container.resolveOrFail(
-                SUI.WritableTodoVC<SUI.CreateTodoVM>.self,
+                CreateTodoVC.self,
                 argument: vm
             )
         }
 
         private func makeEditVM(
-            _ todo: any TodoModelProtocol, env: DataEnvironment = .local
-        ) -> SUI.EditTodoVM {
+            _ todo: any TodoModelProtocol,
+            env: DataEnvironment = .local
+        ) -> EditTodoVM {
             let repo = makeRepository(env)
 
-            let editTodo = container.resolveOrFail(
-                (any EditTodoUseCase).self, argument: repo)
+            let editTodo = useCaseAssembly.makeEditTodoUseCase(repo)
+            let useCase = EditTodoVM.UseCase(editTodo: editTodo)
 
-            let useCase = SUI.EditTodoVM.UseCase(editTodo: editTodo)
-
-            return
-                container
-                .resolveOrFail(SUI.EditTodoVM.self, arguments: useCase, todo)
+            return container.resolveOrFail(
+                EditTodoVM.self,
+                arguments: useCase, todo
+            )
         }
 
-        private func makeEditVC(_ vm: SUI.EditTodoVM)
-            -> SUI.WritableTodoVC<SUI.EditTodoVM>
-        {
+        private func makeEditVC(_ vm: EditTodoVM) -> EditTodoVC {
             return container.resolveOrFail(
-                SUI.WritableTodoVC.self,
+                EditTodoVC.self,
                 argument: vm
             )
         }
@@ -109,34 +106,34 @@ extension SUI {
         func assemble(container: Container) {
             // 생성 VM 등록
             container
-                .register(SUI.CreateTodoVM.self) {
-                    (resovler, useCase: SUI.CreateTodoVM.UseCase) in
-                    return SUI.CreateTodoVM(useCase)
+                .register(CreateTodoVM.self) {
+                    (resovler, useCase: CreateTodoVM.UseCase) in
+                    return CreateTodoVM(useCase)
                 }
 
             // 생성 화면 등록
-            container.register(SUI.WritableTodoVC.self) {
-                (resolver, vm: SUI.CreateTodoVM) in
+            container.register(CreateTodoVC.self) {
+                (resolver, vm: CreateTodoVM) in
 
-                return SUI.WritableTodoVC(vm)
+                return CreateTodoVC(vm)
             }
 
             // 수정 vm 등록
-            container.register(SUI.EditTodoVM.self) {
+            container.register(EditTodoVM.self) {
                 (
                     _,
-                    useCase: SUI.EditTodoVM.UseCase,
+                    useCase: EditTodoVM.UseCase,
                     model: TodoModelProtocol
                 ) in
 
-                return SUI.EditTodoVM(model, useCase: useCase)
+                return EditTodoVM(model, useCase: useCase)
             }
 
             // 수정 화면 등록
-            container.register(SUI.WritableTodoVC.self) {
-                (resolver, vm: SUI.EditTodoVM) in
+            container.register(EditTodoVC.self) {
+                (resolver, vm: EditTodoVM) in
 
-                return SUI.WritableTodoVC(vm)
+                return EditTodoVC(vm)
             }
         }
     }

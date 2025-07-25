@@ -21,7 +21,7 @@ extension View {
     }
             
     func retryAlert(isPresented: Binding<Bool>, message: String, retryAction:@escaping () -> Void, noneAction:@escaping () -> Void) -> some View {
-        self   .alert(
+        self.alert(
             I18N.serverError,
             isPresented: isPresented,
             actions: {

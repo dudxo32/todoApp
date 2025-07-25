@@ -63,8 +63,6 @@ extension PassthroughSubject {
             .eraseToAnyPublisher()
     }
 }
-// FIXME
-enum RetryAction { case retry, none }
 
 extension PassthroughSubject where Output == RetryAction {
     func retry<RetryOutput>(

@@ -9,6 +9,7 @@ import Foundation
 import Domain
 import Shared
 
+@frozen
 public enum AppError: Error {
     case serverError
     case unknown

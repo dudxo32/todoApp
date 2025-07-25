@@ -30,11 +30,7 @@ public protocol TodoRepository {
 }
 
 public class MockTodoRepository: TodoRepository {
-    let value:[Todo]
-    
-    public init(value:[Todo]) {
-        self.value = value
-    }
+    public init() {}
     
     public func deleteTodo(_ id: String) async throws -> String {
         fatalError()
@@ -45,7 +41,42 @@ public class MockTodoRepository: TodoRepository {
     }
     
     public func fetchTodoList() async throws -> [Todo] {
-        return value
+        let modifiedDate = Calendar.current.date(
+            byAdding: .day,
+            value: 1,
+            to: Date()
+        )!
+        
+        return [
+            TodoImpl(
+                id: "",
+                title: "1",
+                date: Date(),
+                contents: "c",
+                isDone: false
+            ),
+            TodoImpl(
+                id: "",
+                title: "2",
+                date: Date(),
+                contents: "c",
+                isDone: false
+            ),
+            TodoImpl(
+                id: "",
+                title: "3",
+                date: Date(),
+                contents: "c",
+                isDone: false
+            ),
+            TodoImpl(
+                id: "",
+                title: "3",
+                date: modifiedDate,
+                contents: "c",
+                isDone: false
+            ),
+        ]
     }
     
     public func writeTodo(_ creatableTodo: CreatableTodo) async throws -> Todo {

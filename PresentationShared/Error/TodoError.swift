@@ -9,6 +9,7 @@ import Foundation
 import Shared
 
 extension AppError {
+    @frozen
     public enum Todo: Error {
         case notFound
         

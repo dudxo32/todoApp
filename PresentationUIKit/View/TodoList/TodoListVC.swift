@@ -23,9 +23,7 @@ public class TodoListVC: UIViewController {
     private let tableView = UITableView().then {
         $0.register(TodoCell.self, forCellReuseIdentifier: reuseIdentifier)
     }
-    deinit {
-        print("vcdeinit")
-    }
+
     private let loadingIndicator = LoadingIndicator()
 
     private let noListLabel: UILabel = {
@@ -124,8 +122,6 @@ public class TodoListVC: UIViewController {
         self.bindNoListLabel()
         self.bindErrorAlert()
         self.bindCreateTodoTap()
-//        self.bindFinishPresentCreateVC()
-        self.bindFinishPresentEditVC()
         
         viewModel.input.fetchItems.accept(())
     }
@@ -183,9 +179,6 @@ public class TodoListVC: UIViewController {
                 return cell
             },
             titleForHeaderInSection: { dataSource, index in
-//                let formatter = DateFormatter()
-//                formatter.dateFormat = "yyyy/MM/dd"
-//                formatter.locale = Locale(identifier: "ko_KR")
                 return dataSource.sectionModels[index].header
             }
         )
@@ -215,16 +208,6 @@ public class TodoListVC: UIViewController {
             .disposed(by: disposeBag)
     }
 
-//    private func bindFinishPresentCreateVC() {
-//        input.presentedCreateVC
-//            .flatMap { vc in vc.output.writtenTodo }
-//            .withUnretained(self)
-//            .bind { (self, todo) in
-//                self.viewModel.input.addedItem.accept(todo)
-//            }
-//            .disposed(by: disposeBag)
-//    }
-
     private func bindCreateTodoTap() {
         navigationItem.rightBarButtonItem?.rx
             .tap.withUnretained(self)
@@ -234,17 +217,6 @@ public class TodoListVC: UIViewController {
             })
             .disposed(by: disposeBag)
     }
-
-    private func bindFinishPresentEditVC() {
-//        input.presentedEditVC
-//            .flatMap { vc in vc.output.writtenTodo }
-//            .withUnretained(self)
-//            .bind { (self, todo) in
-//                self.viewModel.input.goEditItem.accept(todo)
-//            }
-//            .disposed(by: disposeBag)
-    }
-
 }
 
 extension TodoListVC: UITableViewDelegate {

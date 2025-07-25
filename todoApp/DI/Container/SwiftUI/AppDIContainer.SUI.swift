@@ -7,21 +7,39 @@
 
 import Foundation
 import Swinject
+import SwiftUI
+import PresentataionSwiftUI
 
 extension SUI {
-    final class AppDIContainer {
-        static let shared = AppDIContainer()
+    final class AppDIContainer: DefaultAppDIContainer, AppDIContainerProtocol {
+        static let _shared:AppDIContainer? = nil
+        
+        static var shared: AppDIContainer {
+            if let shared = _shared {
+                return shared
+            }
+            
+            return AppDIContainer()
+        }
 
-        private let container = Container()
-
-        init() {
-            _ = Assembler(
-                [
-                    // 전역 공통 의존성 (예: 네트워크, 유틸 등)
-                ],
-                container: container
-            )
+        func makeTodoListDIContainer() -> any TodoListDIContainerProcotcol {
+            SUI.TodoListDIContainer(parentContainer: container)
         }
         
+        func makeWritableDIContainer() -> any WritableTodoDIContainerProtocol {
+            SUI.WritableTodoDIContainer(parentContainer: container)
+        }
+    }
+    
+    struct RootView: View {
+        let coordinator = TodoListCoordinator(
+            initalScene: .list,
+            appDiContaeinr: SUI.AppDIContainer.shared,
+            diContainer: SUI.AppDIContainer.shared.makeTodoListDIContainer()
+        )
+        
+        var body: some View {
+            CoordinatorScene(coordinator: coordinator)
+        }
     }
 }
