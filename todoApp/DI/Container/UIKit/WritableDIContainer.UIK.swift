@@ -5,61 +5,80 @@
 //  Created by 조영태 on 4/8/25.
 //
 
+import DataLayer
+import Domain
 import Foundation
+import PresentationShared
+import PresentationUIKit
 import Swinject
 
 extension UIK {
-    class WritableTodoDIContainer {
+    class WritableTodoDIContainer: WritableTodoDIContainerProtocol {
         private let container: Container
         private let assembler: Assembler
+        private let repoAssembly: TodoRepositoryAssembly
+        private let useCaseAssembly: TodoUseCaseAssembly
 
         init(parentContainer: Container? = nil) {
             self.container = Container(parent: parentContainer)
+            self.repoAssembly = TodoRepositoryAssembly()
+            self.useCaseAssembly = TodoUseCaseAssembly()
 
             self.assembler = Assembler(
                 [
                     WritableTodoAssembly(),
-                    TodoRepositoryAssembly(),
-                    TodoUseCaseAssembly(),
+                    repoAssembly,
+                    useCaseAssembly
                 ],
                 container: self.container
             )
         }
 
         private func makeRepository(_ env: DataEnvironment) -> TodoRepository {
-            return container.resolveOrFail(TodoRepository.self, argument: env)
+            let ds = repoAssembly.makeDataSource()
+            return repoAssembly.makeRepository(ds)
         }
 
-        func makeCreateTodoVC(_ env: DataEnvironment = .local) -> CreateTodoVC {
-            let repo = makeRepository(env)
-
-            let addTodo = container.resolveOrFail(
-                (any AddTodoUseCase).self, argument: repo)
-            let editTodo = container.resolveOrFail(
-                (any EditTodoUseCase).self, argument: repo)
-
-            let useCase = CreateTodoVM.UseCase(addTodo: addTodo, EditTodo: editTodo)
-
-            return container.resolveOrFail(CreateTodoVC.self, argument: useCase)
-        }
-        
-        func makeEditTodoVC(
-            todoModel: TodoModelProtocol, _ env: DataEnvironment = .local
-        )
-            -> EditTodoVC
+        func makeCreateTodoVM(_ env: DataEnvironment) -> CreateTodoVM
         {
             let repo = makeRepository(env)
 
+            let addTodo = useCaseAssembly.makeAddTodoUseCase(repo)
+            let editTodo = useCaseAssembly.makeEditTodoUseCase(repo)
+
+            let useCase = CreateTodoVM.UseCase(
+                addTodo: addTodo,
+                EditTodo: editTodo
+            )
+
+            return container.resolveOrFail(
+                CreateTodoVM.self,
+                argument: useCase
+            )
+        }
+
+        func makeCreateTodoVC(_ vm: WritableTodoVM) -> CreateTodoVC {
+            return container.resolveOrFail(CreateTodoVC.self, argument: vm)
+        }
+        
+        func makeEditTodoVM(todoModel: any TodoModelProtocol, env: DataEnvironment) -> EditTodoVM {
+            let repo = makeRepository(env)
+
             let addTodo = container.resolveOrFail(
                 (any AddTodoUseCase).self, argument: repo)
             let editTodo = container.resolveOrFail(
                 (any EditTodoUseCase).self, argument: repo)
 
-            let useCase = EditTodoVM.UseCase(addTodo: addTodo, EditTodo: editTodo)
+            let useCase = EditTodoVM.UseCase(
+                addTodo: addTodo, EditTodo: editTodo)
             
+            return container.resolveOrFail(EditTodoVM.self, arguments: useCase, todoModel)
+        }
+        
+        func makeEditTodoVC(todoModel: any TodoModelProtocol, vm: EditTodoVM) -> EditTodoVC {
             return container.resolveOrFail(
                 EditTodoVC.self,
-                arguments: useCase, todoModel
+                argument: vm
             )
         }
     }
@@ -68,36 +87,32 @@ extension UIK {
         func assemble(container: Container) {
             // 생성 vm 등록
             container.register(CreateTodoVM.self) {
-                (_, useCase: CreateTodoVM.UseCase) in CreateTodoVM(useCase)
+                (_, useCase: CreateTodoVM.UseCase) in
+                return CreateTodoVM(useCase)
             }
 
             // 생성 화면 등록
             container.register(CreateTodoVC.self) {
-                (resolver, useCase: CreateTodoVM.UseCase) in
-                let viewModel = resolver.resolveOrFail(
-                    CreateTodoVM.self,
-                    argument: useCase
-                )
-
-                return CreateTodoVC(viewModel)
+                (resolver, vm: WritableTodoVM) in
+                return CreateTodoVC(vm)
             }
-            
+
             // 수정 vm 등록
             container.register(EditTodoVM.self) {
-                (_, useCase: CreateTodoVM.UseCase, model: TodoModelProtocol) in
+                (
+                    _, useCase: CreateTodoVM.UseCase,
+                    model: TodoModelProtocol
+                ) in
                 return EditTodoVM(model: model, useCase: useCase)
             }
 
             // 수정 화면 등록
             container.register(EditTodoVC.self) {
-                (resolver, useCase: CreateTodoVM.UseCase, model: TodoModelProtocol) in
-                
-                let viewModel = resolver.resolveOrFail(
-                    EditTodoVM.self,
-                    arguments: useCase, model
-                )
-                
-                return EditTodoVC(model: model, viewModel: viewModel)
+                (
+                    resolver,
+                    vm: EditTodoVM
+                ) in
+                return EditTodoVC(vm)
             }
         }
     }
