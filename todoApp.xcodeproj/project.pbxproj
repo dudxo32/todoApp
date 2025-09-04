@@ -18,6 +18,7 @@
 		04457F1728A6050F00AF2EBB /* RxTest in Frameworks */ = {isa = PBXBuildFile; productRef = 04457F1628A6050F00AF2EBB /* RxTest */; };
 		C9083E9B28E08304006DEF47 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9083E9A28E08304006DEF47 /* Constant.swift */; };
 		C91AD3792E2E8B9000190995 /* AppDIContainer.SUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C91AD3782E2E8B9000190995 /* AppDIContainer.SUI.swift */; };
+		C929FCCD2E696A5900875B7E /* UIKitTest.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = C929FCCC2E696A5900875B7E /* UIKitTest.xctestplan */; };
 		C95B65292D9E7DC100F05436 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C95B65272D9E7DC100F05436 /* Localizable.strings */; };
 		C96C4C732DD07CFB00AAA8AD /* TodoUseCaseAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C96C4C722DD07CFB00AAA8AD /* TodoUseCaseAssembly.swift */; };
 		C97DA5D22E2643E8003BDF5F /* WritableDIContainer.SUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97DA5D12E2643E8003BDF5F /* WritableDIContainer.SUI.swift */; };
@@ -208,6 +209,7 @@
 		04457EF328A6033F00AF2EBB /* todoAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = todoAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		C9083E9A28E08304006DEF47 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		C91AD3782E2E8B9000190995 /* AppDIContainer.SUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDIContainer.SUI.swift; sourceTree = "<group>"; };
+		C929FCCC2E696A5900875B7E /* UIKitTest.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UIKitTest.xctestplan; sourceTree = "<group>"; };
 		C95B65282D9E7DC100F05436 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C96C4C722DD07CFB00AAA8AD /* TodoUseCaseAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoUseCaseAssembly.swift; sourceTree = "<group>"; };
 		C97DA5D12E2643E8003BDF5F /* WritableDIContainer.SUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritableDIContainer.SUI.swift; sourceTree = "<group>"; };
@@ -412,6 +414,7 @@
 		04457EC428A6033B00AF2EBB = {
 			isa = PBXGroup;
 			children = (
+				C929FCCC2E696A5900875B7E /* UIKitTest.xctestplan */,
 				C9BC81B12DCC7FC00094CCDC /* Resources */,
 				C95B65272D9E7DC100F05436 /* Localizable.strings */,
 				04457ECF28A6033B00AF2EBB /* todoApp */,
@@ -1068,6 +1071,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C929FCCD2E696A5900875B7E /* UIKitTest.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1555,7 +1559,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3W6UP43VH7;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yt.todoAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1575,7 +1579,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3W6UP43VH7;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yt.todoAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
