@@ -10,7 +10,7 @@ import Then
 import UIKit
 import SwiftUI
 
-private let isSwift = true
+private let isSwift = false
 
 class LaunchViewController: UIViewController {
 

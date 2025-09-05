@@ -65,7 +65,7 @@ final class EditTodoVMTests: XCTestCase {
 
     // Helper 함수: inputValid 검사
     private func assertInputValid(
-        _ vm: CreateTodoVM1,
+        _ vm: CreateTodoVM,
         expected: Bool,
         file: StaticString = #file,
         line: UInt = #line

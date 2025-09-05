@@ -110,7 +110,7 @@ public class WritableTodoVM {
     }
 }
 
-public class CreateTodoVM: WritableTodoVM {
+public class CreateTodoVM2: WritableTodoVM {
     public init(
         _ useCase: UseCase
     ) {

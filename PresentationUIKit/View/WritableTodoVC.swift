@@ -26,7 +26,8 @@ public class WritableTodoVC: UIViewController {
 
     // MARK: ViewModel
     fileprivate let viewModel: WritableTodoVM
-
+    fileprivate let inputVM: TodoInputVM
+    
     // MARK: RX
     private let isDatePickerVisible = BehaviorRelay(value: false)
     let disposeBag = DisposeBag()
@@ -36,15 +37,17 @@ public class WritableTodoVC: UIViewController {
     private var contentHeightContraint: Constraint?  // 높이 제약 저장
 
     // MARK: Init
-    fileprivate init(viewModel: WritableTodoVM) {
+    fileprivate init(viewModel: WritableTodoVM, model:(any TodoModelProtocol)?) {
         self.viewModel = viewModel
         
+        self.inputVM = .init(model: model)
+            
         self.textInputStackView = TextInputStackView(
-            title: viewModel.input.titleRelay.value,
-            content: viewModel.input.contentRelay.value
+            title: inputVM.input.titleRelay.value,
+            content: inputVM.input.contentRelay.value
         )
         
-        self.dateInputStackView = DateInputStackView(viewModel.input.dateRelay.value)
+        self.dateInputStackView = DateInputStackView(inputVM.input.dateRelay.value)
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -124,15 +127,15 @@ public class WritableTodoVC: UIViewController {
     // MARK: Binding
     private func textInputBinding() {
         self.textInputStackView.titleTextRX.orEmpty
-            .bind(to: self.viewModel.input.titleRelay)
+            .bind(to: self.inputVM.input.titleRelay)
             .disposed(by: disposeBag)
 
         self.textInputStackView.contentTextRX.orEmpty
-            .bind(to: self.viewModel.input.contentRelay)
+            .bind(to: self.inputVM.input.contentRelay)
             .disposed(by: disposeBag)
 
         self.dateInputStackView.changedDateRX
-            .bind(to: self.viewModel.input.dateRelay)
+            .bind(to: self.inputVM.input.dateRelay)
             .disposed(by: disposeBag)
     }
 
@@ -153,9 +156,9 @@ public class WritableTodoVC: UIViewController {
 }
 
 // MARK: -
-public class CreateTodoVC: WritableTodoVC {
+public class CreateTodoVC2: WritableTodoVC {
     public init(_ viewModel:WritableTodoVM) {
-        super.init(viewModel: viewModel)
+        super.init(viewModel: viewModel, model: nil)
     }
 
     @MainActor required init?(coder: NSCoder) {
@@ -176,7 +179,7 @@ public class CreateTodoVC: WritableTodoVC {
 // MARK: -
 public class EditTodoVC: WritableTodoVC {
     public init(_ viewModel:WritableTodoVM) {
-        super.init(viewModel: viewModel)
+        super.init(viewModel: viewModel, model: nil)
     }
 
     @MainActor required init?(coder: NSCoder) {

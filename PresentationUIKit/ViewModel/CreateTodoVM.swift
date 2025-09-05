@@ -11,7 +11,7 @@ import PresentationShared
 internal import RxCocoa
 internal import RxSwift
 
-extension CreateTodoVM1: ViewModelProtocol, LoadingProtocol, RetryProtocol {
+extension CreateTodoVM: ViewModelProtocol, LoadingProtocol, RetryProtocol {
     public struct UseCase {
         let addTodo: any AddTodoUseCase
 
@@ -61,7 +61,7 @@ extension CreateTodoVM1: ViewModelProtocol, LoadingProtocol, RetryProtocol {
     }
 }
 
-public class CreateTodoVM1 {
+public class CreateTodoVM {
     var input: Input
     var state: State
     var useCase: UseCase
@@ -72,7 +72,7 @@ public class CreateTodoVM1 {
     private let errorRelay: PublishRelay<Error?> = .init()
     private let createdRelay: PublishRelay<TodoModel> = .init()
     
-    init(useCase:UseCase) {
+    public init(useCase:UseCase) {
         self.input = Input()
         self.useCase = useCase
         

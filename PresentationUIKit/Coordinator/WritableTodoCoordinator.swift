@@ -14,9 +14,11 @@ import DataLayer
 internal import RxRelay
 
 public protocol WritableTodoDIContainerProtocol {
+    func makeInputVM(model: (any TodoModelProtocol)?) -> TodoInputVM
+
     func makeCreateTodoVM(_ env: DataEnvironment) -> CreateTodoVM
     
-    func makeCreateTodoVC(_ vm: WritableTodoVM) -> CreateTodoVC
+    func makeCreateTodoVC(_ vm: CreateTodoVM, inputVM:TodoInputVM) -> CreateTodoVC
     
     func makeEditTodoVM(todoModel: any TodoModelProtocol, env: DataEnvironment) -> EditTodoVM
 
@@ -48,13 +50,18 @@ class WritableTodoCoordinator: CoordinatorProcotcol {
     }
 
     func start() {
-        var view: WritableTodoVC {
+        var vc: UIViewController {
             switch mode {
             case .create:
+                let inputVM = diContainer.makeInputVM(model: nil)
                 let vm = diContainer.makeCreateTodoVM(.local)
-                bindWritten(vm)
+                vm.state.createdModel
+                    .asObservable()
+                    .bind(to: written)
+                    .disposed(by: vm.disposeBag)
+                
       
-                return diContainer.makeCreateTodoVC(vm)
+                return diContainer.makeCreateTodoVC(vm, inputVM: inputVM)
             
             case .edit(let todo):
                 let vm = diContainer.makeEditTodoVM(todoModel: todo, env: .local)
@@ -65,7 +72,7 @@ class WritableTodoCoordinator: CoordinatorProcotcol {
             
         }
         
-        presentEditableVC(view)
+        presentEditableVC(vc)
     }
     
     private func bindWritten(_ vm:WritableTodoVM) {

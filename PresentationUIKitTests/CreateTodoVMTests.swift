@@ -42,13 +42,13 @@ final class StubAddTodoUseCase: AddTodoUseCase {
 
 final class CreateTodoVMTests: XCTestCase {
     var disposeBag: DisposeBag!
-    var vm: CreateTodoVM1!
+    var vm: CreateTodoVM!
     var addTodoUseCase: StubAddTodoUseCase!
 
     override func setUpWithError() throws {
         self.disposeBag = DisposeBag()
         self.addTodoUseCase = StubAddTodoUseCase()
-        self.vm = CreateTodoVM1(useCase: .init(addTodo: addTodoUseCase))
+        self.vm = CreateTodoVM(useCase: .init(addTodo: addTodoUseCase))
     }
 
     override func tearDownWithError() throws {
@@ -59,7 +59,7 @@ final class CreateTodoVMTests: XCTestCase {
 
     // Helper 함수: inputValid 검사
     private func assertInputValid(
-        _ vm: CreateTodoVM1,
+        _ vm: CreateTodoVM,
         expected: Bool,
         file: StaticString = #file,
         line: UInt = #line
@@ -76,7 +76,7 @@ final class CreateTodoVMTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    private func inputData(_ vm: CreateTodoVM1) {
+    private func inputData(_ vm: CreateTodoVM) {
         vm.input.titleRelay.accept("title")
         vm.input.dateRelay.accept(Date())
         vm.input.contentRelay.accept("content")

@@ -39,17 +39,16 @@ extension UIK {
             return repoAssembly.makeRepository(ds)
         }
 
-        func makeCreateTodoVM(_ env: DataEnvironment) -> CreateTodoVM
-        {
+        func makeInputVM(model: (any TodoModelProtocol)?) -> TodoInputVM {
+            return container.resolveOrFail(TodoInputVM.self, argument: model)
+        }
+        
+        func makeCreateTodoVM(_ env: DataEnvironment) -> CreateTodoVM {
             let repo = makeRepository(env)
 
             let addTodo = useCaseAssembly.makeAddTodoUseCase(repo)
-            let editTodo = useCaseAssembly.makeEditTodoUseCase(repo)
 
-            let useCase = CreateTodoVM.UseCase(
-                addTodo: addTodo,
-                EditTodo: editTodo
-            )
+            let useCase = CreateTodoVM.UseCase(addTodo: addTodo)
 
             return container.resolveOrFail(
                 CreateTodoVM.self,
@@ -57,8 +56,11 @@ extension UIK {
             )
         }
 
-        func makeCreateTodoVC(_ vm: WritableTodoVM) -> CreateTodoVC {
-            return container.resolveOrFail(CreateTodoVC.self, argument: vm)
+        func makeCreateTodoVC(_ vm: CreateTodoVM, inputVM:TodoInputVM) -> CreateTodoVC {
+            return container.resolveOrFail(
+                CreateTodoVC.self,
+                arguments: vm, inputVM
+            )
         }
         
         func makeEditTodoVM(todoModel: any TodoModelProtocol, env: DataEnvironment) -> EditTodoVM {
@@ -85,22 +87,27 @@ extension UIK {
 
     final private class WritableTodoAssembly: Assembly {
         func assemble(container: Container) {
+            container.register(TodoInputVM.self) {
+                (_, model: TodoModelProtocol?) in
+                return TodoInputVM(model: model)
+            }
+            
             // 생성 vm 등록
             container.register(CreateTodoVM.self) {
                 (_, useCase: CreateTodoVM.UseCase) in
-                return CreateTodoVM(useCase)
+                return CreateTodoVM(useCase: useCase)
             }
 
             // 생성 화면 등록
             container.register(CreateTodoVC.self) {
-                (resolver, vm: WritableTodoVM) in
-                return CreateTodoVC(vm)
+                (resolver, vm: CreateTodoVM, inputVM:TodoInputVM) in
+                return CreateTodoVC(vm: vm, inputVM: inputVM)
             }
 
             // 수정 vm 등록
             container.register(EditTodoVM.self) {
                 (
-                    _, useCase: CreateTodoVM.UseCase,
+                    _, useCase: CreateTodoVM2.UseCase,
                     model: TodoModelProtocol
                 ) in
                 return EditTodoVM(model: model, useCase: useCase)

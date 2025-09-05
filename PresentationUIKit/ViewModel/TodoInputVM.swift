@@ -9,6 +9,7 @@ import Foundation
 internal import RxSwift
 internal import RxCocoa
 internal import RxRelay
+import PresentationShared
 
 public class TodoInputVM: ViewModelProtocol {
     typealias UseCase = Void
@@ -43,8 +44,12 @@ public class TodoInputVM: ViewModelProtocol {
     
     fileprivate let inputValidRelay = BehaviorRelay<Bool>.init(value: false)
 
-    fileprivate init(input: Input) {
-        self.input = input
+    public init(model: (any TodoModelProtocol)?) {
+        self.input = .init(
+            titleRelay: .init(value:  model?.title ?? ""),
+            dateRelay: .init(value: model?.date ?? nil),
+            contentRelay: .init(value: model?.contents ?? "")
+        )
         self.state = .init(
             titleRealy: input.titleRelay,
             dateRealy: input.dateRelay,
@@ -53,12 +58,3 @@ public class TodoInputVM: ViewModelProtocol {
     }
 
 }
-
-#if DEBUG
-extension TodoInputVM {
-    /// 테스트 전용 생성자
-    internal convenience init(testInput: Input) {
-        self.init(input: testInput)
-    }
-}
-#endif
