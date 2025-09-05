@@ -39,13 +39,13 @@ final class StubEditTodoUseCase: EditTodoUseCase {
 
 final class EditTodoVMTests: XCTestCase {
     var disposeBag: DisposeBag!
-    var vm: EditTodoVM1!
+    var vm: EditTodoVM!
     var editTodoUseCase: StubEditTodoUseCase!
 
     override func setUpWithError() throws {
         self.disposeBag = DisposeBag()
         self.editTodoUseCase = StubEditTodoUseCase()
-        self.vm = EditTodoVM1(
+        self.vm = EditTodoVM(
             model: TodoModel(
                 id: UUID().uuidString,
                 title: "editTitle",
@@ -82,7 +82,7 @@ final class EditTodoVMTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    private func changeData(_ vm: EditTodoVM1) {
+    private func changeData(_ vm: EditTodoVM) {
         vm.input.titleRelay.accept("title")
     }
 

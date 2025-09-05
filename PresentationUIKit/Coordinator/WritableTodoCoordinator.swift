@@ -22,7 +22,7 @@ public protocol WritableTodoDIContainerProtocol {
     
     func makeEditTodoVM(todoModel: any TodoModelProtocol, env: DataEnvironment) -> EditTodoVM
 
-    func makeEditTodoVC(todoModel: any TodoModelProtocol, vm: EditTodoVM)-> EditTodoVC
+    func makeEditTodoVC(_ vm: EditTodoVM, inputVM: TodoInputVM)-> EditTodoVC
 }
 
 class WritableTodoCoordinator: CoordinatorProcotcol {
@@ -64,22 +64,19 @@ class WritableTodoCoordinator: CoordinatorProcotcol {
                 return diContainer.makeCreateTodoVC(vm, inputVM: inputVM)
             
             case .edit(let todo):
+                let inputVM = diContainer.makeInputVM(model: todo)
                 let vm = diContainer.makeEditTodoVM(todoModel: todo, env: .local)
-                bindWritten(vm)
+                vm.state.edittedModel
+                    .asObservable()
+                    .bind(to: written)
+                    .disposed(by: vm.disposeBag)
                 
-                return diContainer.makeEditTodoVC(todoModel: todo, vm: vm)
+                return diContainer.makeEditTodoVC(vm, inputVM: inputVM)
             }
             
         }
         
         presentEditableVC(vc)
-    }
-    
-    private func bindWritten(_ vm:WritableTodoVM) {
-        vm.state.editedModel
-            .asObservable()
-            .bind(to: written)
-            .disposed(by: vm.disposeBag)
     }
     
     private func presentEditableVC(_ view:UIViewController) {

@@ -66,21 +66,20 @@ extension UIK {
         func makeEditTodoVM(todoModel: any TodoModelProtocol, env: DataEnvironment) -> EditTodoVM {
             let repo = makeRepository(env)
 
-            let addTodo = container.resolveOrFail(
-                (any AddTodoUseCase).self, argument: repo)
             let editTodo = container.resolveOrFail(
-                (any EditTodoUseCase).self, argument: repo)
+                (any EditTodoUseCase).self, argument: repo
+            )
 
-            let useCase = EditTodoVM.UseCase(
-                addTodo: addTodo, EditTodo: editTodo)
+            let useCase = EditTodoVM.UseCase(editTodo: editTodo)
             
-            return container.resolveOrFail(EditTodoVM.self, arguments: useCase, todoModel)
+            return container
+                .resolveOrFail(EditTodoVM.self, arguments: useCase, todoModel)
         }
         
-        func makeEditTodoVC(todoModel: any TodoModelProtocol, vm: EditTodoVM) -> EditTodoVC {
+        func makeEditTodoVC(_ vm: EditTodoVM, inputVM: TodoInputVM) -> EditTodoVC {
             return container.resolveOrFail(
                 EditTodoVC.self,
-                argument: vm
+                arguments: vm, inputVM
             )
         }
     }
@@ -106,20 +105,14 @@ extension UIK {
 
             // 수정 vm 등록
             container.register(EditTodoVM.self) {
-                (
-                    _, useCase: CreateTodoVM2.UseCase,
-                    model: TodoModelProtocol
-                ) in
+                (_, useCase: EditTodoVM.UseCase, model: TodoModelProtocol) in
                 return EditTodoVM(model: model, useCase: useCase)
             }
 
             // 수정 화면 등록
             container.register(EditTodoVC.self) {
-                (
-                    resolver,
-                    vm: EditTodoVM
-                ) in
-                return EditTodoVC(vm)
+                ( resolver, vm: EditTodoVM, inputVM:TodoInputVM) in
+                return EditTodoVC(vm: vm, inputVM: inputVM)
             }
         }
     }
