@@ -166,29 +166,6 @@ final class EditTodoVMTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    func testChangeLoadingFlag_TrueToFalse() throws {
-        let exp = expectation(
-            description: "testChangeLoadingFlag_TrueToFalse check"
-        )
-        changeData(vm)
-
-        var changedFlag = false
-        // 초기값 스킵
-        vm.state.isLoading.skip(1).drive { value in
-            if !changedFlag {
-                XCTAssertTrue(value, "isLoading flag가 true가 되어야 합니다.")
-                changedFlag = true
-            } else {
-                XCTAssertFalse(value, "isLoading flag가 false가 되어야 합니다.")
-                exp.fulfill()
-            }
-        }.disposed(by: disposeBag)
-
-        vm.input.editTap.accept(())
-
-        wait(for: [exp], timeout: 1.0)
-    }
-
     func testEdittedModelWhenSuccess_IsFilled() throws {
         let exp = expectation(
             description: "testCreateModelWhenSuccess_IsFilled check"
@@ -235,4 +212,23 @@ final class EditTodoVMTests: XCTestCase {
 
         wait(for: [exp], timeout: 1.0)
     }
+}
+
+extension EditTodoVMTests: LoadingProtocolTests {
+    func testChangeLoadingFlag_TrueToFalse() throws {
+        let exp = expectation(
+            description: "testChangeLoadingFlag_TrueToFalse check"
+        )
+        changeData(vm)
+
+        observeLoadingChanges_TrueFalse { values in
+            XCTAssertEqual(values, [true, false])
+            exp.fulfill()
+        }
+        
+        vm.input.editTap.accept(())
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+
 }

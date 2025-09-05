@@ -155,7 +155,7 @@ final class CreateTodoVMTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
-    func testInputValidWhenChangeDateTilteFilled_TrueToFalse() {
+    func testInputValidWhenChangeDateTitleFilled_TrueToFalse() {
         let exp = expectation(
             description: "testInputValidWhenChangeDateTilteFilled_TrueToFalse"
         )
@@ -182,30 +182,7 @@ final class CreateTodoVMTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
-    func testChangeLoadingFlag_TrueToFalse() throws {
-        let exp = expectation(
-            description: "testChangeLoadingFlag_TrueToFalse check"
-        )
-        inputData(vm)
-//        vm = makeVM(title: "Title", date: Date(), content: "Content")
-        
-        var changedFlag = false
-        // 초기값 스킵
-        vm.state.isLoading.skip(1).drive { value in
-            
-            if !changedFlag {
-                XCTAssertTrue(value, "isLoading flag가 true가 되어야 합니다.")
-                changedFlag = true
-            } else {
-                XCTAssertFalse(value, "isLoading flag가 false가 되어야 합니다.")
-                exp.fulfill()
-            }
-        }.disposed(by: disposeBag)
-        
-        vm.input.doneTap.accept(())
-        
-        wait(for: [exp], timeout: 1.0)
-    }
+
 
     func testCreateModelWhenSuccess_IsFilled() throws {
         let exp = expectation(
@@ -268,6 +245,25 @@ final class CreateTodoVMTests: XCTestCase {
         
         vm.input.doneTap.accept(()) // 버튼 탭 시뮬레이션
 
+        wait(for: [exp], timeout: 1.0)
+    }
+}
+
+extension CreateTodoVMTests: LoadingProtocolTests {
+    func testChangeLoadingFlag_TrueToFalse() throws {
+        let exp = expectation(
+            description: "testChangeLoadingFlag_TrueToFalse check"
+        )
+        
+        inputData(vm)
+        
+        observeLoadingChanges_TrueFalse { values in
+            XCTAssertEqual(values, [true, false])
+            exp.fulfill()
+        }
+
+        vm.input.doneTap.accept(())
+        
         wait(for: [exp], timeout: 1.0)
     }
 }
