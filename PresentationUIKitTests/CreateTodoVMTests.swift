@@ -12,7 +12,7 @@ import RxRelay
 @testable import Domain
 @testable import PresentationUIKit
 
-final class StubAddTodoUseCase: AddTodoUseCase {
+final class MockAddTodoUseCase: AddTodoUseCase {
     var executeCalledRelay = PublishRelay<Bool>()
 
     typealias Error = Swift.Error
@@ -43,11 +43,11 @@ final class StubAddTodoUseCase: AddTodoUseCase {
 final class CreateTodoVMTests: XCTestCase {
     var disposeBag: DisposeBag!
     var vm: CreateTodoVM!
-    var addTodoUseCase: StubAddTodoUseCase!
+    var addTodoUseCase: MockAddTodoUseCase!
 
     override func setUpWithError() throws {
         self.disposeBag = DisposeBag()
-        self.addTodoUseCase = StubAddTodoUseCase()
+        self.addTodoUseCase = MockAddTodoUseCase()
         self.vm = CreateTodoVM(useCase: .init(addTodo: addTodoUseCase))
     }
 
@@ -194,7 +194,7 @@ final class CreateTodoVMTests: XCTestCase {
             .drive { _ in exp.fulfill() }
             .disposed(by: disposeBag)
 
-        vm.input.doneTap.accept(()) // 버튼 탭 시뮬레이션
+        vm.input.createTap.accept(()) // 버튼 탭 시뮬레이션
 
         wait(for: [exp], timeout: 1.0)
     }
@@ -208,7 +208,7 @@ final class CreateTodoVMTests: XCTestCase {
             .drive { _ in exp.fulfill() }
             .disposed(by: disposeBag)
 
-        vm.input.doneTap.accept(()) // 버튼 탭 시뮬레이션
+        vm.input.createTap.accept(()) // 버튼 탭 시뮬레이션
 
         wait(for: [exp], timeout: 1.0)
     }
@@ -226,13 +226,12 @@ final class CreateTodoVMTests: XCTestCase {
             }
             .disposed(by: disposeBag)
 
-        vm.input.doneTap.accept(()) // 버튼 탭 시뮬레이션
+        vm.input.createTap.accept(()) // 버튼 탭 시뮬레이션
 
         wait(for: [exp], timeout: 1.0)
     }
     
-    // 통합 테스트
-    func testCallUseCaseExecuteWhenDoneTap() throws {
+    func testCallUseCaseExecuteWhenCreateTap() throws {
         let exp = expectation(description: "CallUseCaseExecute check")
         inputData(vm)
 
@@ -243,7 +242,7 @@ final class CreateTodoVMTests: XCTestCase {
             }
             .disposed(by: disposeBag)
         
-        vm.input.doneTap.accept(()) // 버튼 탭 시뮬레이션
+        vm.input.createTap.accept(()) // 버튼 탭 시뮬레이션
 
         wait(for: [exp], timeout: 1.0)
     }
@@ -262,7 +261,7 @@ extension CreateTodoVMTests: LoadingProtocolTests {
             exp.fulfill()
         }
 
-        vm.input.doneTap.accept(())
+        vm.input.createTap.accept(())
         
         wait(for: [exp], timeout: 1.0)
     }

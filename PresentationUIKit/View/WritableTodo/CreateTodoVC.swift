@@ -88,7 +88,7 @@ public class CreateTodoVC: UIViewController {
             .disposed(by: disposeBag)
         
         editButton.rx.tap
-            .bind(to: vm.input.doneTap)
+            .bind(to: vm.input.createTap)
             .disposed(by: disposeBag)
     }
     

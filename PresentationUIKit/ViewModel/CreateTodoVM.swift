@@ -24,7 +24,7 @@ extension CreateTodoVM: ViewModelProtocol, LoadingProtocol, RetryProtocol {
         let titleRelay = BehaviorRelay<String>.init(value: "")
         let dateRelay = BehaviorRelay<Date?>.init(value: nil)
         let contentRelay = BehaviorRelay<String>.init(value: "")
-        let doneTap = PublishRelay<Void>()
+        let createTap = PublishRelay<Void>()
         let retryTrigger = PublishRelay<RetryAction>()
     }
 
@@ -89,7 +89,7 @@ public class CreateTodoVM {
     }
     
     private func bindDoneTap() {
-        self.input.doneTap
+        self.input.createTap
             .withUnretained(self)
             .flatMap { (self, _) in self.handleChangeTodo() }
             .bind(to: createdRelay)

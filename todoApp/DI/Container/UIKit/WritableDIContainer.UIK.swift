@@ -88,7 +88,11 @@ extension UIK {
         func assemble(container: Container) {
             container.register(TodoInputVM.self) {
                 (_, model: TodoModelProtocol?) in
-                return TodoInputVM(model: model)
+                return TodoInputVM(
+                    title: model?.title ?? "",
+                    date: model?.date,
+                    contents: model?.contents ?? ""
+                )
             }
             
             // 생성 vm 등록

@@ -44,12 +44,13 @@ public class TodoInputVM: ViewModelProtocol {
     
     fileprivate let inputValidRelay = BehaviorRelay<Bool>.init(value: false)
 
-    public init(model: (any TodoModelProtocol)?) {
+    public init(title:String = "", date:Date? = nil, contents:String = "") {
         self.input = .init(
-            titleRelay: .init(value:  model?.title ?? ""),
-            dateRelay: .init(value: model?.date ?? nil),
-            contentRelay: .init(value: model?.contents ?? "")
+            titleRelay: .init(value:  title),
+            dateRelay: .init(value: date),
+            contentRelay: .init(value: contents)
         )
+        
         self.state = .init(
             titleRealy: input.titleRelay,
             dateRealy: input.dateRelay,

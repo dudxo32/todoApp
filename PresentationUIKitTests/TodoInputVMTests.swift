@@ -16,13 +16,8 @@ final class TodoInputVMTests: XCTestCase {
     var disposeBag: DisposeBag!
 
     override func setUpWithError() throws {
-        let input = TodoInputVM.Input(
-            titleRelay: BehaviorRelay(value: ""),
-            dateRelay: BehaviorRelay(value: nil),
-            contentRelay: BehaviorRelay(value: "")
-        )
+        vm = TodoInputVM()
         
-        vm = TodoInputVM(testInput: input)
         disposeBag = DisposeBag()
     }
 

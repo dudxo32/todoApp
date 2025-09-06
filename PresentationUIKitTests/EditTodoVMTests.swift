@@ -12,7 +12,9 @@ import XCTest
 @testable import Domain
 @testable import PresentationUIKit
 
-final class StubEditTodoUseCase: EditTodoUseCase {
+final class MockEditTodoUseCase: EditTodoUseCase {
+    var executeCalledRelay = PublishRelay<Bool>()
+
     typealias Error = Swift.Error
     var error: Error?
     var repository: any TodoRepository
@@ -24,6 +26,7 @@ final class StubEditTodoUseCase: EditTodoUseCase {
     func execute(
         _ target: any Todo, newTitle: String?, newDate: Date?, newContents: String?
     ) async throws -> any Todo {
+        executeCalledRelay.accept(true)
         if let error = error { throw error }
 
         return TodoImpl(
@@ -40,11 +43,11 @@ final class StubEditTodoUseCase: EditTodoUseCase {
 final class EditTodoVMTests: XCTestCase {
     var disposeBag: DisposeBag!
     var vm: EditTodoVM!
-    var editTodoUseCase: StubEditTodoUseCase!
+    var editTodoUseCase: MockEditTodoUseCase!
 
     override func setUpWithError() throws {
         self.disposeBag = DisposeBag()
-        self.editTodoUseCase = StubEditTodoUseCase()
+        self.editTodoUseCase = MockEditTodoUseCase()
         self.vm = EditTodoVM(
             model: TodoModel(
                 id: UUID().uuidString,
@@ -209,6 +212,22 @@ final class EditTodoVMTests: XCTestCase {
             .disposed(by: disposeBag)
 
         vm.input.editTap.accept(())
+
+        wait(for: [exp], timeout: 1.0)
+    }
+    
+    func testCallUseCaseExecuteWhenEditTap() throws {
+        let exp = expectation(description: "CallUseCaseExecute check")
+        changeData(vm)
+
+        editTodoUseCase.executeCalledRelay
+            .subscribe { value in
+                XCTAssertTrue(value, "execute()가 호출되어야 합니다.")
+                exp.fulfill()
+            }
+            .disposed(by: disposeBag)
+        
+        vm.input.editTap.accept(()) // 버튼 탭 시뮬레이션
 
         wait(for: [exp], timeout: 1.0)
     }
