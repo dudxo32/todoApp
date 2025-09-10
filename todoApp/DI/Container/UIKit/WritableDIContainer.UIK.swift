@@ -39,17 +39,16 @@ extension UIK {
             return repoAssembly.makeRepository(ds)
         }
 
-        func makeCreateTodoVM(_ env: DataEnvironment) -> CreateTodoVM
-        {
+        func makeInputVM(model: (any TodoModelProtocol)?) -> TodoInputVM {
+            return container.resolveOrFail(TodoInputVM.self, argument: model)
+        }
+        
+        func makeCreateTodoVM(_ env: DataEnvironment) -> CreateTodoVM {
             let repo = makeRepository(env)
 
             let addTodo = useCaseAssembly.makeAddTodoUseCase(repo)
-            let editTodo = useCaseAssembly.makeEditTodoUseCase(repo)
 
-            let useCase = CreateTodoVM.UseCase(
-                addTodo: addTodo,
-                EditTodo: editTodo
-            )
+            let useCase = CreateTodoVM.UseCase(addTodo: addTodo)
 
             return container.resolveOrFail(
                 CreateTodoVM.self,
@@ -57,62 +56,67 @@ extension UIK {
             )
         }
 
-        func makeCreateTodoVC(_ vm: WritableTodoVM) -> CreateTodoVC {
-            return container.resolveOrFail(CreateTodoVC.self, argument: vm)
+        func makeCreateTodoVC(_ vm: CreateTodoVM, inputVM:TodoInputVM) -> CreateTodoVC {
+            return container.resolveOrFail(
+                CreateTodoVC.self,
+                arguments: vm, inputVM
+            )
         }
         
         func makeEditTodoVM(todoModel: any TodoModelProtocol, env: DataEnvironment) -> EditTodoVM {
             let repo = makeRepository(env)
 
-            let addTodo = container.resolveOrFail(
-                (any AddTodoUseCase).self, argument: repo)
             let editTodo = container.resolveOrFail(
-                (any EditTodoUseCase).self, argument: repo)
+                (any EditTodoUseCase).self, argument: repo
+            )
 
-            let useCase = EditTodoVM.UseCase(
-                addTodo: addTodo, EditTodo: editTodo)
+            let useCase = EditTodoVM.UseCase(editTodo: editTodo)
             
-            return container.resolveOrFail(EditTodoVM.self, arguments: useCase, todoModel)
+            return container
+                .resolveOrFail(EditTodoVM.self, arguments: useCase, todoModel)
         }
         
-        func makeEditTodoVC(todoModel: any TodoModelProtocol, vm: EditTodoVM) -> EditTodoVC {
+        func makeEditTodoVC(_ vm: EditTodoVM, inputVM: TodoInputVM) -> EditTodoVC {
             return container.resolveOrFail(
                 EditTodoVC.self,
-                argument: vm
+                arguments: vm, inputVM
             )
         }
     }
 
     final private class WritableTodoAssembly: Assembly {
         func assemble(container: Container) {
+            container.register(TodoInputVM.self) {
+                (_, model: TodoModelProtocol?) in
+                return TodoInputVM(
+                    title: model?.title ?? "",
+                    date: model?.date,
+                    contents: model?.contents ?? ""
+                )
+            }
+            
             // 생성 vm 등록
             container.register(CreateTodoVM.self) {
                 (_, useCase: CreateTodoVM.UseCase) in
-                return CreateTodoVM(useCase)
+                return CreateTodoVM(useCase: useCase)
             }
 
             // 생성 화면 등록
             container.register(CreateTodoVC.self) {
-                (resolver, vm: WritableTodoVM) in
-                return CreateTodoVC(vm)
+                (resolver, vm: CreateTodoVM, inputVM:TodoInputVM) in
+                return CreateTodoVC(vm: vm, inputVM: inputVM)
             }
 
             // 수정 vm 등록
             container.register(EditTodoVM.self) {
-                (
-                    _, useCase: CreateTodoVM.UseCase,
-                    model: TodoModelProtocol
-                ) in
+                (_, useCase: EditTodoVM.UseCase, model: TodoModelProtocol) in
                 return EditTodoVM(model: model, useCase: useCase)
             }
 
             // 수정 화면 등록
             container.register(EditTodoVC.self) {
-                (
-                    resolver,
-                    vm: EditTodoVM
-                ) in
-                return EditTodoVC(vm)
+                ( resolver, vm: EditTodoVM, inputVM:TodoInputVM) in
+                return EditTodoVC(vm: vm, inputVM: inputVM)
             }
         }
     }

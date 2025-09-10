@@ -23,9 +23,10 @@ class DateInputStackView: UIStackView {
         $0.isHidden = true
     }
 
-     let dateLabel = UILabel().then {
+    let dateLabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 16)
         $0.textColor = UIColor.lightGray
+        $0.isAccessibilityElement = true
     }
     
     private let divider = UIView().then {

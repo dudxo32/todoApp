@@ -14,13 +14,15 @@ import DataLayer
 internal import RxRelay
 
 public protocol WritableTodoDIContainerProtocol {
+    func makeInputVM(model: (any TodoModelProtocol)?) -> TodoInputVM
+
     func makeCreateTodoVM(_ env: DataEnvironment) -> CreateTodoVM
     
-    func makeCreateTodoVC(_ vm: WritableTodoVM) -> CreateTodoVC
+    func makeCreateTodoVC(_ vm: CreateTodoVM, inputVM:TodoInputVM) -> CreateTodoVC
     
     func makeEditTodoVM(todoModel: any TodoModelProtocol, env: DataEnvironment) -> EditTodoVM
 
-    func makeEditTodoVC(todoModel: any TodoModelProtocol, vm: EditTodoVM)-> EditTodoVC
+    func makeEditTodoVC(_ vm: EditTodoVM, inputVM: TodoInputVM)-> EditTodoVC
 }
 
 class WritableTodoCoordinator: CoordinatorProcotcol {
@@ -48,31 +50,33 @@ class WritableTodoCoordinator: CoordinatorProcotcol {
     }
 
     func start() {
-        var view: WritableTodoVC {
+        var vc: UIViewController {
             switch mode {
             case .create:
+                let inputVM = diContainer.makeInputVM(model: nil)
                 let vm = diContainer.makeCreateTodoVM(.local)
-                bindWritten(vm)
+                vm.state.createdModel
+                    .asObservable()
+                    .bind(to: written)
+                    .disposed(by: vm.disposeBag)
+                
       
-                return diContainer.makeCreateTodoVC(vm)
+                return diContainer.makeCreateTodoVC(vm, inputVM: inputVM)
             
             case .edit(let todo):
+                let inputVM = diContainer.makeInputVM(model: todo)
                 let vm = diContainer.makeEditTodoVM(todoModel: todo, env: .local)
-                bindWritten(vm)
+                vm.state.edittedModel
+                    .asObservable()
+                    .bind(to: written)
+                    .disposed(by: vm.disposeBag)
                 
-                return diContainer.makeEditTodoVC(todoModel: todo, vm: vm)
+                return diContainer.makeEditTodoVC(vm, inputVM: inputVM)
             }
             
         }
         
-        presentEditableVC(view)
-    }
-    
-    private func bindWritten(_ vm:WritableTodoVM) {
-        vm.state.editedModel
-            .asObservable()
-            .bind(to: written)
-            .disposed(by: vm.disposeBag)
+        presentEditableVC(vc)
     }
     
     private func presentEditableVC(_ view:UIViewController) {

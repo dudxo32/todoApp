@@ -22,6 +22,7 @@ private let reuseIdentifier = "CustomCell"
 public class TodoListVC: UIViewController {
     private let tableView = UITableView().then {
         $0.register(TodoCell.self, forCellReuseIdentifier: reuseIdentifier)
+        $0.accessibilityIdentifier = UIID.TodoList.table.value
     }
 
     private let loadingIndicator = LoadingIndicator()
@@ -42,7 +43,9 @@ public class TodoListVC: UIViewController {
                 title: I18N.past,
                 image: UIImage(systemName: "arrow.left.circle"),
                 tag: TodoFilterType.past.rawValue
-            ),
+            ).then {
+                $0.accessibilityIdentifier = UIID.TodoList.pastTapButton.value
+            },
 
             UITabBarItem(
                 title: I18N.today,
@@ -97,7 +100,9 @@ public class TodoListVC: UIViewController {
             target: self,
             action: nil
         )
-
+        
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = UIID.TodoList.createButton.value
+        
         self.view.addSubview(self.tableView)
 
         view.addSubview(tabBar)
@@ -161,6 +166,7 @@ public class TodoListVC: UIViewController {
                 else {
                     return UITableViewCell()
                 }
+                cell.backgroundColor = .clear
                 cell.todoModel = item
 
                 cell.rx.doneTap

@@ -13,11 +13,11 @@ internal import Then
 
 class TextInputStackView: UIStackView {
     // MARK: - UI Components
-    private let titleTextInput = UITextField().then {
+    let titleTextInput = UITextField().then {
         $0.placeholder = "제목을 입력하세요"
     }
 
-    private let contentTextInput = UITextView().then {
+    let contentTextInput = UITextView().then {
         $0.isScrollEnabled = true
         $0.isEditable = true
         $0.font = UIFont.systemFont(ofSize: 17)
@@ -39,18 +39,18 @@ class TextInputStackView: UIStackView {
             make.height.equalTo(1)
         }
     }
-
+    
     // MARK: - Snap
     private var contentHeightContraint: Constraint?  // 높이 제약 저장
     
     // MARK: - Rx
-    var titleTextRX: ControlProperty<String?> {
-        return self.titleTextInput.rx.text
-    }
-    
-    var contentTextRX: ControlProperty<String?> {
-        return self.contentTextInput.rx.text
-    }
+//    var titleTextRX: ControlProperty<String?> {
+//        return self.titleTextInput.rx.text
+//    }
+//    
+//    var contentTextRX: ControlProperty<String?> {
+//        return self.contentTextInput.rx.text
+//    }
     
 
     // MARK: - Init

@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import Data
+@testable import DataLayer
 
 struct DataTests {
 

@@ -1,0 +1,33 @@
+{
+  "configurations" : [
+    {
+      "id" : "0F93BCC8-AEF8-47EB-96F7-2EF83690B130",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:todoApp.xcodeproj",
+        "identifier" : "C9457F082E6BF5D000B64DF2",
+        "name" : "UIKitDomainIntegrationTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:todoApp.xcodeproj",
+        "identifier" : "C99BDFC72E2E276B007EDA91",
+        "name" : "PresentationUIKitTests"
+      }
+    }
+  ],
+  "version" : 1
+}
