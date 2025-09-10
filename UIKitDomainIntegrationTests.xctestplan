@@ -1,0 +1,18 @@
+{
+  "configurations" : [
+    {
+      "id" : "BABA935A-B0CB-49EC-90E5-01CD48B0526A",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+
+  ],
+  "version" : 1
+}
