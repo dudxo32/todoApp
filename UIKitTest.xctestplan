@@ -16,6 +16,14 @@
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:todoApp.xcodeproj",
+        "identifier" : "C9457F082E6BF5D000B64DF2",
+        "name" : "UIKitDomainIntegrationTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:todoApp.xcodeproj",
         "identifier" : "C99BDFC72E2E276B007EDA91",
         "name" : "PresentationUIKitTests"
       }

@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "3FD77455-2FD0-4CC0-B5B7-CF390774DD96",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "UIKitUITest\/testLaunchPerformance()",
+        "UIKitUITestLaunchTests",
+        "UIKitUITestLaunchTests\/testLaunch()"
+      ],
+      "target" : {
+        "containerPath" : "container:todoApp.xcodeproj",
+        "identifier" : "C9F135C02E70F487006FE42C",
+        "name" : "UIKitUITest"
+      }
+    }
+  ],
+  "version" : 1
+}

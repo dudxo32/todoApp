@@ -97,7 +97,9 @@ public class TodoListVC: UIViewController {
             target: self,
             action: nil
         )
-
+        
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = UIID.TodoList.createButton.rawValue
+        
         self.view.addSubview(self.tableView)
 
         view.addSubview(tabBar)
