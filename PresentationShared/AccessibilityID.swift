@@ -10,6 +10,8 @@ import Foundation
 public enum UIID {
     public enum TodoList: String {
         case createButton
+        case pastTapButton
+        case todoList
     }
     
     public enum CreateTodo: String {
@@ -19,5 +21,14 @@ public enum UIID {
         case calendarField
         case conentsTextField
         case createButton
+    }
+    
+    public enum EditTodo: String {
+        case title
+        case titleTextField
+        case dateField
+        case calendarField
+        case conentsTextField
+        case EditButton
     }
 }

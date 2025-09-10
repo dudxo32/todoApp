@@ -8,7 +8,7 @@
 import XCTest
 import PresentationShared
 
-final class UIKitUITest: XCTestCase {
+final class TodoListUITests: XCTestCase {
     var app: XCUIApplication!
     var todoListScreen: TodoListScreenObject!
     
@@ -25,12 +25,24 @@ final class UIKitUITest: XCTestCase {
 
     @MainActor
     func testGoCreateTodoScreen() throws {
+        
         todoListScreen.createTap()
 
         let titleField = app.navigationBars[UIID.CreateTodo.title.rawValue]
         XCTAssertTrue(titleField.waitForExistence(timeout: 2))
     }
-
+    
+    @MainActor
+    func testGoEditTodoScreen() throws {
+        
+        todoListScreen.pastTapButtonTap()
+        let cell = todoListScreen.getFirstCellInTodoList()
+        cell.tap()
+        
+        let titleField = app.navigationBars[UIID.EditTodo.title.rawValue]
+        XCTAssertTrue(titleField.waitForExistence(timeout: 2))
+    }
+    
     @MainActor
     func testLaunchPerformance() throws {
         if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
@@ -45,9 +57,19 @@ final class UIKitUITest: XCTestCase {
 struct TodoListScreenObject {
     let app: XCUIApplication
     
+    var todoList: XCUIElement { app.tables[UIID.TodoList.todoList.rawValue] }
     var createButton: XCUIElement { app.buttons[UIID.TodoList.createButton.rawValue] }
+    var pastTapButton: XCUIElement { app.tabBars.buttons[UIID.TodoList.pastTapButton.rawValue] }
     
     func createTap() {
         createButton.tap()
+    }
+    
+    func pastTapButtonTap() {
+        pastTapButton.tap()
+    }
+    
+    func getFirstCellInTodoList() -> XCUIElement {
+        return todoList.cells.firstMatch
     }
 }

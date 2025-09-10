@@ -13,6 +13,7 @@ internal import RxSwift
 internal import SnapKit
 internal import Then
 import Shared
+import PresentationShared
 
 public class EditTodoVC: UIViewController {
     // MARK: UI
@@ -46,7 +47,8 @@ public class EditTodoVC: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         self.title = I18N.editTodo
-        
+        self.navigationController?.navigationBar.accessibilityIdentifier = UIID.EditTodo.title.rawValue
+
         setupScrollView()
         setupLoadingIndicator()
         setupButtonBinding()
