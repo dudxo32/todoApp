@@ -8,27 +8,39 @@
 import Foundation
 
 public enum UIID {
-    public enum TodoList: String {
+    public enum TodoList {
         case createButton
         case pastTapButton
-        case todoList
+        case table
+        
+        public var value: String {
+            return "\(Self.self)_\(self)"
+        }
     }
     
-    public enum CreateTodo: String {
+    public enum CreateTodo {
         case title
         case titleTextField
-        case dateField
-        case calendarField
+        case dateLabel
+        case datePicker
         case conentsTextField
         case createButton
+        
+        public var value: String {
+            return "\(Self.self)_\(self)"
+        }
     }
     
-    public enum EditTodo: String {
+    public enum EditTodo {
         case title
         case titleTextField
-        case dateField
-        case calendarField
+        case dateLabel
+        case datePicker
         case conentsTextField
-        case EditButton
+        case editButton
+        
+        public var value: String {
+            return "\(Self.self)_\(self)"
+        }
     }
 }

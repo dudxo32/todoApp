@@ -34,7 +34,12 @@ public class CreateTodoVC: UIViewController {
     public init(vm: CreateTodoVM, inputVM:TodoInputVM) {
         self.vm = vm
         self.inputVM = inputVM
-        self.inputDataView = WritableTodoView(inputVM)
+        self.inputDataView = WritableTodoView(inputVM).then {
+            $0.textInputStackView.titleTextInput.accessibilityIdentifier = UIID.CreateTodo.titleTextField.value
+            $0.textInputStackView.contentTextInput.accessibilityIdentifier = UIID.CreateTodo.conentsTextField.value
+            $0.dateInputStackView.dateLabel.accessibilityIdentifier = UIID.CreateTodo.dateLabel.value
+            $0.dateInputStackView.datePicker.accessibilityIdentifier = UIID.CreateTodo.datePicker.value
+        }
  
         super.init(nibName: nil, bundle: nil)
     }
@@ -48,7 +53,7 @@ public class CreateTodoVC: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         self.title = I18N.createTodo
-        self.navigationController?.navigationBar.accessibilityIdentifier = UIID.CreateTodo.title.rawValue
+        self.navigationController?.navigationBar.accessibilityIdentifier = UIID.CreateTodo.title.value
 
         setupScrollView()
         setupLoadingIndicator()
@@ -77,19 +82,20 @@ public class CreateTodoVC: UIViewController {
     }
     
     private func setupButtonBinding() {
-        let editButton = UIBarButtonItem(
+        let button = UIBarButtonItem(
             title: I18N.done,
             style: .plain,
             target: nil,
             action: nil
         )
-        navigationItem.rightBarButtonItem = editButton
+        button.accessibilityIdentifier = UIID.CreateTodo.createButton.value
+        navigationItem.rightBarButtonItem = button
         
         vm.state.inputValid
-            .drive(editButton.rx.isEnabled)
+            .drive(button.rx.isEnabled)
             .disposed(by: disposeBag)
         
-        editButton.rx.tap
+        button.rx.tap
             .bind(to: vm.input.createTap)
             .disposed(by: disposeBag)
     }

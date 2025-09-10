@@ -47,7 +47,7 @@ public class EditTodoVC: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         self.title = I18N.editTodo
-        self.navigationController?.navigationBar.accessibilityIdentifier = UIID.EditTodo.title.rawValue
+        self.navigationController?.navigationBar.accessibilityIdentifier = UIID.EditTodo.title.value
 
         setupScrollView()
         setupLoadingIndicator()

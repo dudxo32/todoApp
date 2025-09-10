@@ -56,11 +56,11 @@ final class WritableTodoView: UIStackView {
     }
     
     private func bindInput() {
-        textInputStackView.titleTextRX.orEmpty
+        textInputStackView.titleTextInput.rx.text.orEmpty
             .bind(to: vm.input.titleRelay)
             .disposed(by: disposeBag)
         
-        textInputStackView.contentTextRX.orEmpty
+        textInputStackView.contentTextInput.rx.text.orEmpty
             .bind(to: vm.input.contentRelay)
             .disposed(by: disposeBag)
         
@@ -69,63 +69,3 @@ final class WritableTodoView: UIStackView {
             .disposed(by: disposeBag)
     }
 }
-
-//class WritableTodoView: UIView {
-//    // MARK: UI Components
-//    fileprivate let textInputStackView: TextInputStackView
-//    fileprivate let dateInputStackView: DateInputStackView
-//    
-//    // MARK: Input VM
-//    let vm: TodoInputVM
-//    private let disposeBag = DisposeBag()
-//    
-//    // MARK: Init
-//    init(_ vm:TodoInputVM) {
-//        self.vm = vm
-//        
-//        self.textInputStackView = TextInputStackView(
-//            title: vm.input.titleRelay.value,
-//            content: vm.input.contentRelay.value
-//        )
-//        self.dateInputStackView = DateInputStackView(vm.input.dateRelay.value)
-//        
-//        super.init(frame: .zero)
-//        
-//        setupUI()
-//        bindInput()
-//    }
-//    
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-//    
-//    // MARK: UI
-//    private func setupUI() {
-//        self.addSubview(textInputStackView)
-//        self.addSubview(dateInputStackView)
-//        
-//        textInputStackView.snp.makeConstraints { make in
-//            make.top.leading.trailing.equalToSuperview()
-//        }
-//        
-//        dateInputStackView.snp.makeConstraints { make in
-//            make.top.equalTo(textInputStackView.snp.bottom).offset(24)
-//            make.leading.trailing.equalToSuperview()
-//        }
-//    }
-//    
-//    // MARK: Binding
-//    private func bindInput() {
-//        textInputStackView.titleTextRX.orEmpty
-//            .bind(to: vm.input.titleRelay)
-//            .disposed(by: disposeBag)
-//        
-//        textInputStackView.contentTextRX.orEmpty
-//            .bind(to: vm.input.contentRelay)
-//            .disposed(by: disposeBag)
-//        
-//        dateInputStackView.changedDateRX
-//            .bind(to: vm.input.dateRelay)
-//            .disposed(by: disposeBag)
-//    }
-//}

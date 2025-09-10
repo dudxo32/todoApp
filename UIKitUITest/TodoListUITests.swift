@@ -28,7 +28,7 @@ final class TodoListUITests: XCTestCase {
         
         todoListScreen.createTap()
 
-        let titleField = app.navigationBars[UIID.CreateTodo.title.rawValue]
+        let titleField = app.navigationBars[UIID.CreateTodo.title.value]
         XCTAssertTrue(titleField.waitForExistence(timeout: 2))
     }
     
@@ -39,7 +39,7 @@ final class TodoListUITests: XCTestCase {
         let cell = todoListScreen.getFirstCellInTodoList()
         cell.tap()
         
-        let titleField = app.navigationBars[UIID.EditTodo.title.rawValue]
+        let titleField = app.navigationBars[UIID.EditTodo.title.value]
         XCTAssertTrue(titleField.waitForExistence(timeout: 2))
     }
     
@@ -57,9 +57,9 @@ final class TodoListUITests: XCTestCase {
 struct TodoListScreenObject {
     let app: XCUIApplication
     
-    var todoList: XCUIElement { app.tables[UIID.TodoList.todoList.rawValue] }
-    var createButton: XCUIElement { app.buttons[UIID.TodoList.createButton.rawValue] }
-    var pastTapButton: XCUIElement { app.tabBars.buttons[UIID.TodoList.pastTapButton.rawValue] }
+    var todoList: XCUIElement { app.tables[UIID.TodoList.table.value] }
+    var createButton: XCUIElement { app.buttons[UIID.TodoList.createButton.value] }
+    var pastTapButton: XCUIElement { app.tabBars.buttons[UIID.TodoList.pastTapButton.value] }
     
     func createTap() {
         createButton.tap()
